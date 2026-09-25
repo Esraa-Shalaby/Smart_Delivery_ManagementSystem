@@ -48,26 +48,25 @@ ALLOWED_HOSTS = get_env_list("DJANGO_ALLOWED_HOSTS", default="localhost,127.0.0.
 # ------------------------------------------------------------------
 
 
-INSTALLED_APPS =  {
-        "django.contrib.admin",
-        "django.contrib.auth",
-        "django.contrib.contenttypes",
-        "django.contrib.sessions",
-        "django.contrib.messages",
-        "django.contrib.staticfiles",
-        "rest_framework",
-         "apps.accounts",
-            "apps.shipments",
-            "apps.drivers",
-            "apps.warehouses",
-            "apps.payments",
-            "apps.complaints",
-            "apps.notifications",
-            "apps.analytics",
-            "apps.ai_agent",
-            "apps.common",
-}
-
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework",
+    "apps.accounts",
+    "apps.shipments",
+    "apps.drivers",
+    "apps.warehouses",
+    "apps.payments",
+    "apps.complaints",
+    "apps.notifications",
+    "apps.analytics",
+    "apps.ai_agent",
+    "apps.common",
+]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
