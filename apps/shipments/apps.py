@@ -1,5 +1,11 @@
+"""
+App configuration for the shipments app.
+"""
+
 from django.apps import AppConfig
 
 
 class ShipmentsConfig(AppConfig):
-    name = 'shipments'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.shipments"
+    verbose_name = "Shipments"
