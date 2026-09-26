@@ -1,6 +1,4 @@
-"""
-Django admin configuration for the accounts app.
-"""
+ 
 
 from django.contrib import admin
 
@@ -9,10 +7,7 @@ from apps.accounts.models import User
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    """
-    Admin configuration for the custom User model.
-    Password is never exposed through this interface.
-    """
+    
 
     list_display = ("username", "email", "role", "is_active", "date_joined")
     list_filter = ("role", "is_active")
