@@ -12,10 +12,7 @@ class ToolCall:
 
 
 class AgentProvider:
-    """
-    Base interface for anything that turns a user message into a
-    ToolCall.
-    """
+ 
 
     def decide(self, *, message: str, user) -> ToolCall:
         raise NotImplementedError
