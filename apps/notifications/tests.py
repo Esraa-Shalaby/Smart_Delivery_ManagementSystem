@@ -119,7 +119,7 @@ class NotificationServiceTests(TestCase):
         )
         marked = services.mark_all_as_read(self.user)
         self.assertEqual(marked, 3)
-        self.assertEqual(services.get_unread_notifications(self.user).count(), 0).
+        self.assertEqual(services.get_unread_notifications(self.user).count(), 0)
         self.assertEqual(services.get_unread_notifications(self.other_user).count(), 1)
 
     def test_get_unread_notifications(self):

@@ -7,6 +7,7 @@ from .models import Notification
 
 
 class NotificationError(Exception):
+    """Raised for notification validation problems."""
 
 
 @transaction.atomic

@@ -1,6 +1,3 @@
-"""
-Django settings for Smart Delivery & Logistics Management System.
-"""
 
 from pathlib import Path
 from datetime import timedelta
@@ -63,9 +60,8 @@ INSTALLED_APPS = [
     "apps.payments",
     "apps.complaints",
     "apps.notifications",
-    "apps.analytics",
     "apps.ai_agent",
-    "apps.common",
+    "apps.analytics",  
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

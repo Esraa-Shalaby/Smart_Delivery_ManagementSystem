@@ -7,6 +7,9 @@ from .models import Payment
 
 
 class PaymentError(Exception):
+    """Raised for payment validation problems."""
+
+
 VALID_STATUS_TRANSITIONS = {
     Payment.PaymentStatus.PENDING: {
         Payment.PaymentStatus.PAID,

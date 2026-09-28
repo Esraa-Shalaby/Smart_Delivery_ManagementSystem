@@ -6,6 +6,7 @@ from .models import Warehouse
 
 
 class WarehouseError(Exception):
+    """Raised for warehouse validation problems."""
 
 
 def _ensure_unique_code(code, *, exclude_pk=None):
