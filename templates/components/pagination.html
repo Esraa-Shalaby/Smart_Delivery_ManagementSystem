@@ -1,0 +1,113 @@
+{% load static %}
+
+{# ============================================================
+Shared Pagination Component
+Usage:
+{% include "components/pagination.html" with page_obj=page_obj %}
+Preserves existing query parameters (filters, search, etc.)
+by reading request.GET and only replacing `page`.
+============================================================ #}
+
+{% if page_obj and page_obj.paginator.num_pages > 1 %}
+
+{# ---- Build a stable querystring without the `page` key ---- #}
+{% with base_qs=request.GET.urlencode %}
+{# We strip out any existing `page=` from the querystring. #}
+{# Achieved with a small filter-free approach using `cut`. #}
+{% with cleaned=base_qs|cut:"page=" %}
+{% endwith %}
+{% endwith %}
+
+<nav class="app-pagination" role="navigation" aria-label="Pagination">
+
+    {# ---------- PREVIOUS ---------- #}
+    {% if page_obj.has_previous %}
+    <a class="app-pagination-btn app-pagination-prev"
+        href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}"
+        rel="prev" aria-label="Previous page">
+        <span class="app-pagination-arrow" aria-hidden="true">‹</span>
+        <span class="app-pagination-text">Previous</span>
+    </a>
+    {% else %}
+    <span class="app-pagination-btn app-pagination-prev is-disabled" aria-disabled="true">
+        <span class="app-pagination-arrow" aria-hidden="true">‹</span>
+        <span class="app-pagination-text">Previous</span>
+    </span>
+    {% endif %}
+
+    {# ---------- PAGE NUMBERS ---------- #}
+    <ul class="app-pagination-pages" role="list">
+
+        {# First page + leading ellipsis #}
+        {% if page_obj.number > 3 %}
+        <li>
+            <a class="app-pagination-page"
+                href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page=1"
+                aria-label="Page 1">
+                1
+            </a>
+        </li>
+        {% endif %}
+
+        {% if page_obj.number > 4 %}
+        <li class="app-pagination-ellipsis" aria-hidden="true">…</li>
+        {% endif %}
+
+        {# Windowed page numbers: current ±2 #}
+        {% for num in page_obj.paginator.page_range %}
+        {% if num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %} {% if num==page_obj.number %} <li>
+            <span class="app-pagination-page is-active" aria-current="page" aria-label="Current page, page {{ num }}">
+                {{ num }}
+            </span>
+            </li>
+            {% else %}
+            <li>
+                <a class="app-pagination-page"
+                    href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ num }}"
+                    aria-label="Page {{ num }}">
+                    {{ num }}
+                </a>
+            </li>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+
+            {# Trailing ellipsis + last page #}
+            {% if page_obj.number < page_obj.paginator.num_pages|add:"-3" %} <li class="app-pagination-ellipsis"
+                aria-hidden="true">…</li>
+                {% endif %}
+
+                {% if page_obj.number < page_obj.paginator.num_pages|add:"-2" %} <li>
+                    <a class="app-pagination-page"
+                        href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}"
+                        aria-label="Last page, page {{ page_obj.paginator.num_pages }}">
+                        {{ page_obj.paginator.num_pages }}
+                    </a>
+                    </li>
+                    {% endif %}
+
+    </ul>
+
+    {# ---------- NEXT ---------- #}
+    {% if page_obj.has_next %}
+    <a class="app-pagination-btn app-pagination-next"
+        href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}"
+        rel="next" aria-label="Next page">
+        <span class="app-pagination-text">Next</span>
+        <span class="app-pagination-arrow" aria-hidden="true">›</span>
+    </a>
+    {% else %}
+    <span class="app-pagination-btn app-pagination-next is-disabled" aria-disabled="true">
+        <span class="app-pagination-text">Next</span>
+        <span class="app-pagination-arrow" aria-hidden="true">›</span>
+    </span>
+    {% endif %}
+
+    {# ---------- TOTAL PAGES (meta) ---------- #}
+    <span class="app-pagination-meta">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+
+</nav>
+
+{% endif %}

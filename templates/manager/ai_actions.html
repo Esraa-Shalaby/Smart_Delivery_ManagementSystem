@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+AI Actions
+{% endblock %}
+
+{% block content %}
+<div class="mgr-ai-actions-page page-fade-up">
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="mgr-page-header">
+        <div class="mgr-header-left">
+            <div class="mgr-title-block">
+                <h1 class="mgr-page-title">
+                    <span class="ai-title-mark" aria-hidden="true">✦</span>
+                    AI Actions
+                </h1>
+                <p class="mgr-page-subtitle">
+                    Review and monitor actions performed by the AI Assistant.
+                </p>
+            </div>
+        </div>
+
+        <div class="mgr-header-actions">
+            <button type="button" class="btn btn-secondary" data-action="refresh-ai-actions">
+                Refresh
+            </button>
+        </div>
+    </header>
+
+    {# ============================= SECURITY / AUDIT NOTICE ============================= #}
+    <div class="audit-notice" role="note">
+        <span class="audit-notice-icon" aria-hidden="true">🛡</span>
+        <p>
+            AI actions are validated through authentication, authorization,
+            and business rules before execution.
+        </p>
+    </div>
+
+    {# ============================= STATISTICS CARDS ============================= #}
+    <section class="mgr-stats-grid">
+        <div class="mgr-stat-card stat-stagger">
+            <div class="mgr-stat-icon" aria-hidden="true">Σ</div>
+            <div class="mgr-stat-body">
+                <span class="mgr-stat-label">Total AI Actions</span>
+                <span class="mgr-stat-value">{{ stats.total|default:"0" }}</span>
+            </div>
+        </div>
+
+        <div class="mgr-stat-card stat-stagger">
+            <div class="mgr-stat-icon" aria-hidden="true">✓</div>
+            <div class="mgr-stat-body">
+                <span class="mgr-stat-label">Successful</span>
+                <span class="mgr-stat-value text-success">{{ stats.success|default:"0" }}</span>
+            </div>
+        </div>
+
+        <div class="mgr-stat-card stat-stagger stat-urgent">
+            <div class="mgr-stat-icon" aria-hidden="true">✕</div>
+            <div class="mgr-stat-body">
+                <span class="mgr-stat-label">Failed</span>
+                <span class="mgr-stat-value text-danger">{{ stats.failed|default:"0" }}</span>
+            </div>
+        </div>
+
+        <div class="mgr-stat-card stat-stagger">
+            <div class="mgr-stat-icon" aria-hidden="true">◐</div>
+            <div class="mgr-stat-body">
+                <span class="mgr-stat-label">Actions Today</span>
+                <span class="mgr-stat-value">{{ stats.today|default:"0" }}</span>
+            </div>
+        </div>
+    </section>
+
+    {# ============================= FILTERS ============================= #}
+    <section class="mgr-card card-filters card-enter">
+        <form method="get" class="mgr-filter-bar" id="ai-actions-filter-form">
+            <div class="filter-field">
+                <label for="filter-search">Search</label>
+                <input type="text" id="filter-search" name="q" class="input" placeholder="Search tool, user, summary…"
+                    value="{{ request.GET.q|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-tool">Action / Tool</label>
+                <select id="filter-tool" name="tool" class="input">
+                    <option value="">All</option>
+                    <option value="get_delivery_status" {% if request.GET.tool=="get_delivery_status" %}selected{% endif
+                        %}>get_delivery_status</option>
+                    <option value="get_delayed_deliveries" {% if request.GET.tool=="get_delayed_deliveries" %}selected{%
+                        endif %}>get_delayed_deliveries</option>
+                    <option value="get_available_drivers" {% if request.GET.tool=="get_available_drivers" %}selected{%
+                        endif %}>get_available_drivers</option>
+                    <option value="get_driver_details" {% if request.GET.tool=="get_driver_details" %}selected{% endif
+                        %}>get_driver_details</option>
+                    <option value="assign_driver" {% if request.GET.tool=="assign_driver" %}selected{% endif %}>
+                        assign_driver</option>
+                    <option value="reassign_driver" {% if request.GET.tool=="reassign_driver" %}selected{% endif %}>
+                        reassign_driver</option>
+                    <option value="update_shipment_status" {% if request.GET.tool=="update_shipment_status" %}selected{%
+                        endif %}>update_shipment_status</option>
+                    <option value="get_customer_shipments" {% if request.GET.tool=="get_customer_shipments" %}selected{%
+                        endif %}>get_customer_shipments</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-user">User</label>
+                <input type="text" id="filter-user" name="user" class="input" placeholder="Manager name"
+                    value="{{ request.GET.user|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-result">Result</label>
+                <select id="filter-result" name="result" class="input">
+                    <option value="">All</option>
+                    <option value="SUCCESS" {% if request.GET.result=="SUCCESS" %}selected{% endif %}>Success</option>
+                    <option value="FAILED" {% if request.GET.result=="FAILED" %}selected{% endif %}>Failed</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date-from">Date From</label>
+                <input type="date" id="filter-date-from" name="date_from" class="input"
+                    value="{{ request.GET.date_from|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date-to">Date To</label>
+                <input type="date" id="filter-date-to" name="date_to" class="input"
+                    value="{{ request.GET.date_to|default:'' }}">
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="{% url 'manager:ai_actions' %}" class="btn btn-ghost">Reset Filters</a>
+            </div>
+        </form>
+    </section>
+
+    {# ============================= AI ACTIONS TABLE ============================= #}
+    <section class="mgr-card card-table card-enter">
+        <header class="mgr-card-header">
+            <h2 class="mgr-card-title">Action Log</h2>
+            <span class="mgr-card-meta">
+                {{ ai_actions|length }} record{{ ai_actions|length|pluralize }}
+            </span>
+        </header>
+
+        <div class="mgr-card-body">
+            <div class="mgr-table-wrap">
+                <table class="mgr-table ai-actions-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Action / Tool</th>
+                            <th>Input Summary</th>
+                            <th>Result Summary</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for action in ai_actions %}
+                        <tr class="ai-action-row" data-action-id="{{ action.id }}"
+                            data-tool="{{ action.tool_name|default:'' }}">
+
+                            <td class="cell-id">
+                                <span class="mono">#{{ action.id|default:"—" }}</span>
+                            </td>
+
+                            <td class="cell-user">
+                                <div class="cell-user-wrap">
+                                    <span class="avatar avatar-sm">
+                                        {{
+                                        action.user.get_full_name|default:action.user.username|default:"?"|slice:":1"|upper
+                                        }}
+                                    </span>
+                                    <div class="cell-user-info">
+                                        <span class="cell-user-name">
+                                            {{ action.user.get_full_name|default:action.user.username|default:"System"
+                                            }}
+                                        </span>
+                                        <span class="cell-user-role">
+                                            {{ action.user.role|default:"Manager" }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="cell-tool">
+                                <code class="mono tool-chip">{{ action.tool_name|default:"—" }}</code>
+                            </td>
+
+                            <td class="cell-summary">
+                                <span class="summary-text">
+                                    {{ action.input_summary|default:"—" }}
+                                </span>
+                            </td>
+
+                            <td class="cell-summary">
+                                <span class="summary-text">
+                                    {{ action.result_summary|default:"—" }}
+                                </span>
+                            </td>
+
+                            <td class="cell-status">
+                                {% with s=action.success|yesno:"SUCCESS,FAILED" %}
+                                <span class="mgr-status-badge status-{{ s|lower }}">
+                                    {{ s }}
+                                </span>
+                                {% endwith %}
+                            </td>
+
+                            <td class="cell-date">
+                                {{ action.created_at|date:"M d, Y H:i"|default:"—" }}
+                            </td>
+
+                            <td class="cell-actions">
+                                <div class="row-actions">
+                                    <button type="button" class="icon-btn" data-action="view-ai-action"
+                                        data-action-id="{{ action.id }}" title="View Details" aria-label="View Details">
+                                        <span aria-hidden="true">👁</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="table-empty">
+                                <div class="empty-state">
+                                    <div class="empty-icon" aria-hidden="true">✦</div>
+                                    <h3 class="empty-title">No AI actions found</h3>
+                                    <p class="empty-desc">
+                                        The AI Assistant hasn't performed any actions yet,
+                                        or no records match the current filters.
+                                    </p>
+                                    <a href="{% url 'manager:ai_actions' %}" class="btn btn-secondary">
+                                        Reset Filters
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    {# ============================= PAGINATION ============================= #}
+    {% include "components/pagination.html" with page_obj=page_obj %}
+
+</div>
+
+{# ============================= ACTION DETAILS MODAL ============================= #}
+<div class="modal-backdrop" id="ai-action-modal" hidden aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="dialog" aria-modal="true" aria-labelledby="ai-action-modal-title">
+        <header class="modal-header">
+            <h2 class="modal-title" id="ai-action-modal-title">AI Action Details</h2>
+            <button type="button" class="modal-close" data-action="close-modal" aria-label="Close">
+                <span aria-hidden="true">✕</span>
+            </button>
+        </header>
+
+        <div class="modal-body" id="ai-action-modal-body">
+            {# Populated by JS from safe, sanitized backend data #}
+            <div class="modal-loading">Loading action details…</div>
+        </div>
+
+        <footer class="modal-footer">
+            <button type="button" class="btn btn-ghost" data-action="close-modal">Close</button>
+        </footer>
+    </div>
+</div>
+
+{# ============================= PAGE-SPECIFIC STYLES ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
+{# ============================= PAGE-SPECIFIC SCRIPT ============================= #}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+<script src="{% static 'js/ai_actions.js' %}" defer></script>
+{% endblock %}

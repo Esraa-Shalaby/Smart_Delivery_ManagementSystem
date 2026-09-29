@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Complaints
+{% endblock %}
+
+{% block content %}
+<div class="mgr-complaints-page page-fade-up">
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="mgr-page-header">
+        <div class="mgr-header-left">
+            <div class="mgr-title-block">
+                <h1 class="mgr-page-title">Complaints</h1>
+                <p class="mgr-page-subtitle">
+                    Review, track, and resolve customer complaints across all shipments.
+                </p>
+            </div>
+        </div>
+
+        <div class="mgr-header-actions">
+            <button type="button" class="btn btn-secondary" data-action="refresh-complaints">
+                Refresh
+            </button>
+            <button type="button" class="btn btn-primary" data-action="export-complaints">
+                Export
+            </button>
+        </div>
+    </header>
+
+    {# ============================= STATISTICS CARDS ============================= #}
+    <section class="mgr-stats-grid">
+        <div class="mgr-stat-card stat-stagger">
+            <div class="mgr-stat-icon" aria-hidden="true">Σ</div>
+            <div class="mgr-stat-body">
+                <span class="mgr-stat-label">Total Complaints</span>
+                <span class="mgr-stat-value">{{ stats.total|default:"0" }}</span>
+            </div>
+        </div>
+
+        <div class="mgr-stat-card stat-stagger">
+            <div class="mgr-stat-icon" aria-hidden="true">◉</div>
+            <div class="mgr-stat-body">
+                <span class="mgr-stat-label">Open</span>
+                <span class="mgr-stat-value">{{ stats.open|default:"0" }}</span>
+            </div>
+        </div>
+
+        <div class="mgr-stat-card stat-stagger">
+            <div class="mgr-stat-icon" aria-hidden="true">◐</div>
+            <div class="mgr-stat-body">
+                <span class="mgr-stat-label">In Progress</span>
+                <span class="mgr-stat-value">{{ stats.in_progress|default:"0" }}</span>
+            </div>
+        </div>
+
+        <div class="mgr-stat-card stat-stagger">
+            <div class="mgr-stat-icon" aria-hidden="true">✓</div>
+            <div class="mgr-stat-body">
+                <span class="mgr-stat-label">Resolved</span>
+                <span class="mgr-stat-value">{{ stats.resolved|default:"0" }}</span>
+            </div>
+        </div>
+
+        <div class="mgr-stat-card stat-stagger stat-urgent">
+            <div class="mgr-stat-icon" aria-hidden="true">!</div>
+            <div class="mgr-stat-body">
+                <span class="mgr-stat-label">Urgent</span>
+                <span class="mgr-stat-value">{{ stats.urgent|default:"0" }}</span>
+            </div>
+        </div>
+    </section>
+
+    {# ============================= FILTERS ============================= #}
+    <section class="mgr-card card-filters card-enter">
+        <form method="get" class="mgr-filter-bar" id="complaints-filter-form">
+            {% csrf_token %}
+
+            <div class="filter-field">
+                <label for="filter-search">Search</label>
+                <input type="text" id="filter-search" name="q" class="input" placeholder="Search subject, customer…"
+                    value="{{ request.GET.q|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-status">Status</label>
+                <select id="filter-status" name="status" class="input">
+                    <option value="">All</option>
+                    <option value="OPEN" {% if request.GET.status=="OPEN" %}selected{% endif %}>Open</option>
+                    <option value="IN_PROGRESS" {% if request.GET.status=="IN_PROGRESS" %}selected{% endif %}>In
+                        Progress</option>
+                    <option value="RESOLVED" {% if request.GET.status=="RESOLVED" %}selected{% endif %}>Resolved
+                    </option>
+                    <option value="CLOSED" {% if request.GET.status=="CLOSED" %}selected{% endif %}>Closed</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-priority">Priority</label>
+                <select id="filter-priority" name="priority" class="input">
+                    <option value="">All</option>
+                    <option value="LOW" {% if request.GET.priority=="LOW" %}selected{% endif %}>Low</option>
+                    <option value="MEDIUM" {% if request.GET.priority=="MEDIUM" %}selected{% endif %}>Medium</option>
+                    <option value="HIGH" {% if request.GET.priority=="HIGH" %}selected{% endif %}>High</option>
+                    <option value="URGENT" {% if request.GET.priority=="URGENT" %}selected{% endif %}>Urgent</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date">Date</label>
+                <input type="date" id="filter-date" name="date" class="input" value="{{ request.GET.date|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-customer">Customer</label>
+                <input type="text" id="filter-customer" name="customer" class="input" placeholder="Customer name"
+                    value="{{ request.GET.customer|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-tracking">Tracking Number</label>
+                <input type="text" id="filter-tracking" name="tracking" class="input" placeholder="e.g. TRK-12345"
+                    value="{{ request.GET.tracking|default:'' }}">
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="{% url 'manager:complaints' %}" class="btn btn-ghost">Reset Filters</a>
+            </div>
+        </form>
+    </section>
+
+    {# ============================= COMPLAINTS TABLE ============================= #}
+    <section class="mgr-card card-table card-enter">
+        <header class="mgr-card-header">
+            <h2 class="mgr-card-title">All Complaints</h2>
+            <span class="mgr-card-meta">
+                {{ complaints|length }} result{{ complaints|length|pluralize }}
+            </span>
+        </header>
+
+        <div class="mgr-card-body">
+            <div class="mgr-table-wrap">
+                <table class="mgr-table complaints-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Shipment / Tracking</th>
+                            <th>Subject</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Updated At</th>
+                            <th>Assigned / Resolved By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for complaint in complaints %}
+                        <tr class="complaint-row" data-complaint-id="{{ complaint.id }}">
+                            <td class="cell-id">
+                                <span class="mono">#{{ complaint.id|default:"—" }}</span>
+                            </td>
+
+                            <td class="cell-customer">
+                                <div class="cell-user">
+                                    <span class="avatar avatar-sm">
+                                        {{
+                                        complaint.customer.get_full_name|default:complaint.customer.username|default:"?"|slice:":1"|upper
+                                        }}
+                                    </span>
+                                    <span>
+                                        {{
+                                        complaint.customer.get_full_name|default:complaint.customer.username|default:"N/A"
+                                        }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td class="cell-shipment">
+                                {% if complaint.shipment %}
+                                <a href="#" class="mono link" data-action="view-shipment"
+                                    data-shipment-id="{{ complaint.shipment.id }}">
+                                    {{ complaint.shipment.tracking_number|default:"N/A" }}
+                                </a>
+                                {% else %}
+                                <span class="muted">—</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="cell-subject">
+                                <span class="complaint-subject-cell">
+                                    {{ complaint.subject|default:"No subject" }}
+                                </span>
+                            </td>
+
+                            <td class="cell-priority">
+                                <span class="pill pill-priority-{{ complaint.priority|default:'MEDIUM'|lower }}">
+                                    {{ complaint.priority|default:"Medium" }}
+                                </span>
+                            </td>
+
+                            <td class="cell-status">
+                                <span class="mgr-status-badge status-{{ complaint.status|default:'open'|lower }}">
+                                    {{ complaint.status|default:"Open" }}
+                                </span>
+                            </td>
+
+                            <td class="cell-date">
+                                {{ complaint.created_at|date:"M d, Y H:i"|default:"—" }}
+                            </td>
+
+                            <td class="cell-date">
+                                {{ complaint.updated_at|date:"M d, Y H:i"|default:"—" }}
+                            </td>
+
+                            <td class="cell-actor">
+                                {% if complaint.resolved_by %}
+                                <span class="actor-resolved">
+                                    {{
+                                    complaint.resolved_by.get_full_name|default:complaint.resolved_by.username|default:"N/A"
+                                    }}
+                                </span>
+                                {% elif complaint.assigned_to %}
+                                <span class="actor-assigned">
+                                    {{
+                                    complaint.assigned_to.get_full_name|default:complaint.assigned_to.username|default:"N/A"
+                                    }}
+                                </span>
+                                {% else %}
+                                <span class="muted">Unassigned</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="cell-actions">
+                                <div class="row-actions">
+                                    <button type="button" class="icon-btn" data-action="view-complaint"
+                                        data-complaint-id="{{ complaint.id }}" title="View Complaint"
+                                        aria-label="View Complaint">
+                                        <span aria-hidden="true">👁</span>
+                                    </button>
+
+                                    {% if complaint.shipment %}
+                                    <a href="#" class="icon-btn" data-action="view-shipment"
+                                        data-shipment-id="{{ complaint.shipment.id }}" title="View Shipment"
+                                        aria-label="View Shipment">
+                                        <span aria-hidden="true">📦</span>
+                                    </a>
+                                    {% endif %}
+
+                                    <button type="button" class="icon-btn" data-action="respond"
+                                        data-complaint-id="{{ complaint.id }}" title="Respond" aria-label="Respond">
+                                        <span aria-hidden="true">💬</span>
+                                    </button>
+
+                                    <button type="button" class="icon-btn" data-action="change-status"
+                                        data-complaint-id="{{ complaint.id }}" title="Change Status"
+                                        aria-label="Change Status">
+                                        <span aria-hidden="true">↻</span>
+                                    </button>
+
+                                    <button type="button" class="icon-btn icon-btn-success"
+                                        data-action="resolve-complaint" data-complaint-id="{{ complaint.id }}"
+                                        title="Resolve Complaint" aria-label="Resolve Complaint">
+                                        <span aria-hidden="true">✓</span>
+                                    </button>
+
+                                    <button type="button" class="icon-btn icon-btn-muted" data-action="close-complaint"
+                                        data-complaint-id="{{ complaint.id }}" title="Close Complaint"
+                                        aria-label="Close Complaint">
+                                        <span aria-hidden="true">✕</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="table-empty">
+                                <div class="empty-state">
+                                    <div class="empty-icon" aria-hidden="true">📭</div>
+                                    <h3 class="empty-title">No complaints found</h3>
+                                    <p class="empty-desc">
+                                        There are no complaints matching the current filters.
+                                        Try adjusting your search criteria or reset the filters.
+                                    </p>
+                                    <a href="{% url 'manager:complaints' %}" class="btn btn-secondary">
+                                        Reset Filters
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    {# ============================= PAGINATION ============================= #}
+    {% include "components/pagination.html" with page_obj=page_obj %}
+
+</div>
+
+{# ============================= COMPLAINT DETAILS MODAL ============================= #}
+<div class="modal-backdrop" id="complaint-modal" hidden aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="dialog" aria-modal="true" aria-labelledby="complaint-modal-title">
+        <header class="modal-header">
+            <h2 class="modal-title" id="complaint-modal-title">Complaint Details</h2>
+            <button type="button" class="modal-close" data-action="close-modal" aria-label="Close">
+                <span aria-hidden="true">✕</span>
+            </button>
+        </header>
+
+        <div class="modal-body" id="complaint-modal-body">
+            {# Populated by JS using data passed from the backend via data attributes #}
+            <div class="modal-loading">Loading complaint…</div>
+        </div>
+
+        <footer class="modal-footer">
+            <button type="button" class="btn btn-ghost" data-action="close-modal">Close</button>
+            <button type="button" class="btn btn-primary" data-action="modal-respond">Respond</button>
+        </footer>
+    </div>
+</div>
+
+{# ============================= RESPONSE MODAL ============================= #}
+<div class="modal-backdrop" id="response-modal" hidden aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="response-modal-title">
+        <header class="modal-header">
+            <h2 class="modal-title" id="response-modal-title">Respond to Complaint</h2>
+            <button type="button" class="modal-close" data-action="close-modal" aria-label="Close">
+                <span aria-hidden="true">✕</span>
+            </button>
+        </header>
+
+        <form method="post" action="" id="response-form">
+            {% csrf_token %}
+            <input type="hidden" name="complaint_id" id="response-complaint-id" value="">
+
+            <div class="modal-body">
+                <div class="field">
+                    <label for="response-text">Response</label>
+                    <textarea id="response-text" name="response" class="input" rows="5"
+                        placeholder="Write your response to the customer…" required></textarea>
+                </div>
+            </div>
+
+            <footer class="modal-footer">
+                <button type="button" class="btn btn-ghost" data-action="close-modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Submit Response</button>
+            </footer>
+        </form>
+    </div>
+</div>
+
+{# ============================= PAGE-SPECIFIC STYLES ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
+{# ============================= PAGE-SPECIFIC SCRIPT ============================= #}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+<script src="{% static 'js/complaints.js' %}" defer></script>
+{% endblock %}

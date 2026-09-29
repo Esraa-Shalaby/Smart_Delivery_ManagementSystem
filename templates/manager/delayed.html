@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Delayed Deliveries{% endblock %}
+
+{% block content %}
+{# ---------- Small icon sprite ---------- #}
+<svg xmlns="http://www.w3.org/2000/svg" hidden aria-hidden="true">
+    <symbol id="i-back" viewBox="0 0 24 24">
+        <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24">
+        <path d="M12 3l10 18H2zM12 10v5M12 18h.01" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24">
+        <path d="M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-hourglass" viewBox="0 0 24 24">
+        <path d="M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24">
+        <path d="M4 12a8 8 0 108-8H7M7 4L4 7l3 3" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24">
+        <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2" />
+        <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2" />
+    </symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24">
+        <path d="M2 6h11v10H2zM13 9h5l4 4v3h-9zM6 19a2 2 0 100-4 2 2 0 000 4zM17 19a2 2 0 100-4 2 2 0 000 4z"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-switch" viewBox="0 0 24 24">
+        <path d="M4 8h13l-3-3M20 16H7l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24">
+        <path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M20 20l-4.5-4.5M3 7V4h3M18 4h3v3M3 17v3h3" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-more" viewBox="0 0 24 24">
+        <circle cx="5" cy="12" r="1.8" fill="currentColor" />
+        <circle cx="12" cy="12" r="1.8" fill="currentColor" />
+        <circle cx="19" cy="12" r="1.8" fill="currentColor" />
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M8 12.5l3 3 5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+</svg>
+
+{# ---------- Safe URL resolution (empty string if the URL name doesn't exist) ---------- #}
+{% url 'manager:shipments' as u_shipments %}
+{% url 'manager:delayed_deliveries' as u_delayed %}
+
+<div class="manager-layout" id="managerLayout">
+
+    {# Shared navbar/sidebar component #}
+    {% include "components/navbar.html" with active_page="delayed" %}
+
+    <div class="manager-main">
+        {% include "components/alerts.html" %}
+
+        <main class="dashboard page--delayed page-fade-up" id="delayedPage">
+
+            {# ================= PAGE HEADER ================= #}
+            <header class="page-header page-header--alert anim-card" style="--delay: 0">
+                <div class="page-header__text">
+                    <span class="page-header__eyebrow">Operations</span>
+                    <h1>Delayed Deliveries</h1>
+                    <p>Shipments that passed their expected delivery time and need a manager's attention.</p>
+                </div>
+                <div class="page-header__actions">
+                    {% if u_shipments %}
+                    <a class="btn btn--ghost" href="{{ u_shipments }}">
+                        <svg class="icon">
+                            <use href="#i-back" />
+                        </svg> Back to Shipments
+                    </a>
+                    {% endif %}
+                </div>
+            </header>
+
+            {# ================= STATISTICS ================= #}
+            <section class="stats-grid stats-grid--four" aria-label="Delay statistics">
+                <article class="stat-card stat-card--warning anim-card" style="--delay: 1">
+                    <span class="stat-card__icon stat-card__icon--amber"><svg class="icon">
+                            <use href="#i-alert" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Total Delayed</span>
+                        <strong class="stat-card__value" data-counter>{{ total_delayed|default:"0" }}</strong>
+                        <span class="stat-card__desc">Past expected delivery</span>
+                    </div>
+                </article>
+
+                <article class="stat-card stat-card--danger stat-card--critical anim-card" style="--delay: 2">
+                    <span class="stat-card__icon stat-card__icon--red"><svg class="icon">
+                            <use href="#i-flame" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Critical Delays</span>
+                        <strong class="stat-card__value" data-counter>{{ critical_delays|default:"0" }}</strong>
+                        <span class="stat-card__desc">Highest severity</span>
+                    </div>
+                </article>
+
+                <article class="stat-card anim-card" style="--delay: 3">
+                    <span class="stat-card__icon stat-card__icon--indigo"><svg class="icon">
+                            <use href="#i-clock" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Delayed Today</span>
+                        <strong class="stat-card__value" data-counter>{{ delayed_today|default:"0" }}</strong>
+                        <span class="stat-card__desc">Became late today</span>
+                    </div>
+                </article>
+
+                <article class="stat-card anim-card" style="--delay: 4">
+                    <span class="stat-card__icon stat-card__icon--violet"><svg class="icon">
+                            <use href="#i-hourglass" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Awaiting Action</span>
+                        <strong class="stat-card__value" data-counter>{{ awaiting_action|default:"0" }}</strong>
+                        <span class="stat-card__desc">No manager response yet</span>
+                    </div>
+                </article>
+            </section>
+
+            {# ================= FILTERS ================= #}
+            <section class="panel anim-card" style="--delay: 3" aria-label="Filter delayed shipments">
+                <form class="filter-bar" method="get" action="{{ u_delayed|default:'#' }}" id="delayedFilterForm">
+                    <div class="field field--grow">
+                        <label for="filterQ">Tracking number</label>
+                        <div class="field__control">
+                            <svg class="icon">
+                                <use href="#i-search" />
+                            </svg>
+                            <input id="filterQ" type="search" name="q" value="{{ request.GET.q }}"
+                                placeholder="e.g. TRK-000123" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="filterDriver">Driver</label>
+                        <select id="filterDriver" name="driver">
+                            <option value="">All drivers</option>
+                            <option value="unassigned" {% if request.GET.driver=="unassigned" %}selected{% endif %}>
+                                Unassigned</option>
+                            {% for driver in drivers_filter %}
+                            <option value="{{ driver.pk }}" {% if request.GET.driver==driver.pk|stringformat:"s"
+                                %}selected{% endif %}>{{ driver.full_name|default:driver.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="filterSeverity">Delay severity</label>
+                        <select id="filterSeverity" name="severity">
+                            <option value="">All severities</option>
+                            <option value="low" {% if request.GET.severity=="low" %}selected{% endif %}>Low</option>
+                            <option value="medium" {% if request.GET.severity=="medium" %}selected{% endif %}>Medium
+                            </option>
+                            <option value="high" {% if request.GET.severity=="high" %}selected{% endif %}>High</option>
+                            <option value="critical" {% if request.GET.severity=="critical" %}selected{% endif %}>
+                                Critical</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="filterStatus">Shipment status</label>
+                        <select id="filterStatus" name="status">
+                            <option value="">All statuses</option>
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if request.GET.status==value %}selected{% endif %}>{{ label
+                                }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="filterFrom">From</label>
+                        <input id="filterFrom" type="date" name="date_from" value="{{ request.GET.date_from }}">
+                    </div>
+
+                    <div class="field">
+                        <label for="filterTo">To</label>
+                        <input id="filterTo" type="date" name="date_to" value="{{ request.GET.date_to }}">
+                    </div>
+
+                    <div class="filter-bar__actions">
+                        <button type="submit" class="btn btn--primary">Apply Filters</button>
+                        <a class="btn btn--ghost" href="{{ u_delayed|default:'?' }}">
+                            <svg class="icon icon--sm">
+                                <use href="#i-refresh" />
+                            </svg> Reset
+                        </a>
+                    </div>
+                </form>
+            </section>
+
+            {# ================= DELAYED SHIPMENTS TABLE ================= #}
+            <section class="panel panel--alert anim-card" style="--delay: 4" aria-labelledby="delayedTableTitle">
+                <header class="panel__header">
+                    <div>
+                        <h2 id="delayedTableTitle" class="panel__title">
+                            <span class="alert-pulse" aria-hidden="true"></span> Delayed Shipments
+                        </h2>
+                        <p>
+                            {% if page_obj %}
+                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count
+                            }}
+                            {% else %}
+                            {{ total_delayed|default:"0" }} delayed shipments
+                            {% endif %}
+                        </p>
+                    </div>
+                </header>
+
+                {% if delayed_shipments %}
+                <div class="table-wrap">
+                    <table class="data-table data-table--delayed">
+                        <thead>
+                            <tr>
+                                <th scope="col">Tracking Number</th>
+                                <th scope="col">Customer</th>
+                                <th scope="col">Driver</th>
+                                <th scope="col">Current Status</th>
+                                <th scope="col">Expected Delivery</th>
+                                <th scope="col">Delay Duration</th>
+                                <th scope="col">Severity</th>
+                                <th scope="col">Last Update</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for shipment in delayed_shipments %}
+                            {% url 'manager:shipment_detail' shipment.pk as u_shipment %}
+                            {% url 'manager:driver_detail' shipment.driver_id as u_driver %}
+                            {% url 'manager:shipment_reassign' shipment.pk as u_reassign %}
+                            {% url 'manager:shipment_update_status' shipment.pk as u_status %}
+                            {% url 'manager:shipment_investigate' shipment.pk as u_investigate %}
+                            <tr
+                                class="{% if shipment.delay_severity == 'critical' %}row--critical{% elif shipment.delay_severity == 'high' %}row--high{% endif %}">
+                                <td>
+                                    <a class="tracking-link" href="{{ u_shipment|default:'#' }}">{{
+                                        shipment.tracking_number|default:"—" }}</a>
+                                </td>
+                                <td>{{ shipment.customer|default:"—" }}</td>
+
+                                <td>
+                                    {% if shipment.driver_name %}
+                                    <div class="driver-cell">
+                                        <strong>{{ shipment.driver_name }}</strong>
+                                        <span class="presence-label">
+                                            <i
+                                                class="presence presence--{{ shipment.driver_availability|default:'offline' }}"></i>
+                                            {{
+                                            shipment.driver_availability_display|default:shipment.driver_availability|default:"Offline"
+                                            }}
+                                        </span>
+                                    </div>
+                                    {% else %}
+                                    <span class="badge badge--unassigned">Unassigned</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <span class="badge badge--status badge--{{ shipment.status|default:'pending' }}">{{
+                                        shipment.get_status_display|default:shipment.status }}</span>
+                                </td>
+
+                                <td>
+                                    {% if shipment.expected_delivery %}
+                                    <time datetime="{{ shipment.expected_delivery|date:'c' }}">{{
+                                        shipment.expected_delivery|date:"d M Y, H:i" }}</time>
+                                    {% else %}—{% endif %}
+                                </td>
+
+                                <td><strong class="delay-duration">{{ shipment.delay_duration|default:"—" }}</strong>
+                                </td>
+
+                                <td>
+                                    <span
+                                        class="badge badge--severity badge--severity-{{ shipment.delay_severity|default:'low' }}">
+                                        {% if shipment.delay_severity == "critical" %}<i
+                                            class="dot dot--critical"></i>{% endif %}
+                                        {{
+                                        shipment.get_delay_severity_display|default:shipment.delay_severity|default:"LOW"|upper
+                                        }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {% if shipment.updated_at %}
+                                    <time datetime="{{ shipment.updated_at|date:'c' }}">{{ shipment.updated_at|timesince
+                                        }} ago</time>
+                                    {% else %}—{% endif %}
+                                </td>
+
+                                <td>
+                                    <div class="row-actions">
+                                        {% if u_shipment %}
+                                        <a class="btn btn--xs btn--ghost" href="{{ u_shipment }}">
+                                            <svg class="icon icon--sm">
+                                                <use href="#i-eye" />
+                                            </svg> View
+                                        </a>
+                                        {% else %}
+                                        <button type="button" class="btn btn--xs btn--ghost" disabled
+                                            title="Not available yet">
+                                            <svg class="icon icon--sm">
+                                                <use href="#i-eye" />
+                                            </svg> View
+                                        </button>
+                                        {% endif %}
+
+                                        {% if u_investigate %}
+                                        <a class="btn btn--xs btn--primary" href="{{ u_investigate }}">
+                                            <svg class="icon icon--sm">
+                                                <use href="#i-scan" />
+                                            </svg> Investigate
+                                        </a>
+                                        {% else %}
+                                        <button type="button" class="btn btn--xs btn--primary" disabled
+                                            title="Not available yet">
+                                            <svg class="icon icon--sm">
+                                                <use href="#i-scan" />
+                                            </svg> Investigate
+                                        </button>
+                                        {% endif %}
+
+                                        <details class="action-menu">
+                                            <summary class="icon-btn icon-btn--sm"
+                                                aria-label="More actions for {{ shipment.tracking_number|default:'shipment' }}">
+                                                <svg class="icon">
+                                                    <use href="#i-more" />
+                                                </svg>
+                                            </summary>
+                                            <div class="action-menu__list" role="menu">
+                                                {% if shipment.driver_id %}
+                                                {% if u_driver %}
+                                                <a class="action-menu__item" role="menuitem" href="{{ u_driver }}">
+                                                    <svg class="icon icon--sm">
+                                                        <use href="#i-truck" />
+                                                    </svg> View Driver
+                                                </a>
+                                                {% else %}
+                                                <span class="action-menu__item is-disabled" role="menuitem"
+                                                    aria-disabled="true">
+                                                    <svg class="icon icon--sm">
+                                                        <use href="#i-truck" />
+                                                    </svg> View Driver
+                                                </span>
+                                                {% endif %}
+                                                {% endif %}
+
+                                                {% if u_reassign %}
+                                                <a class="action-menu__item" role="menuitem" href="{{ u_reassign }}">
+                                                    <svg class="icon icon--sm">
+                                                        <use href="#i-switch" />
+                                                    </svg> Reassign Driver
+                                                </a>
+                                                {% else %}
+                                                <span class="action-menu__item is-disabled" role="menuitem"
+                                                    aria-disabled="true">
+                                                    <svg class="icon icon--sm">
+                                                        <use href="#i-switch" />
+                                                    </svg> Reassign Driver
+                                                </span>
+                                                {% endif %}
+
+                                                {% if u_status %}
+                                                <a class="action-menu__item" role="menuitem" href="{{ u_status }}">
+                                                    <svg class="icon icon--sm">
+                                                        <use href="#i-edit" />
+                                                    </svg> Update Status
+                                                </a>
+                                                {% else %}
+                                                <span class="action-menu__item is-disabled" role="menuitem"
+                                                    aria-disabled="true">
+                                                    <svg class="icon icon--sm">
+                                                        <use href="#i-edit" />
+                                                    </svg> Update Status
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </details>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state empty-state--success">
+                    <span class="empty-state__icon"><svg class="icon icon--xl">
+                            <use href="#i-check" />
+                        </svg></span>
+                    <h3>No delayed deliveries</h3>
+                    <p>All deliveries are currently within their expected delivery time.</p>
+                    <div class="empty-state__actions">
+                        {% if request.GET %}
+                        <a class="btn btn--ghost" href="{{ u_delayed|default:'?' }}">Reset filters</a>
+                        {% endif %}
+                        {% if u_shipments %}
+                        <a class="btn btn--primary" href="{{ u_shipments }}">View all shipments</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {# ---------- Pagination ---------- #}
+                {% if is_paginated or page_obj.has_other_pages %}
+                {% include "components/pagination.html" %}
+                {% endif %}
+            </section>
+
+        </main>
+    </div>
+</div>
+
+{# Shared chatbot #}
+{% include "components/chatbot.html" %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}

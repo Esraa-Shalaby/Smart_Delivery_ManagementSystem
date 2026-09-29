@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+{# ---------- Small icon sprite ---------- #}
+<svg xmlns="http://www.w3.org/2000/svg" hidden aria-hidden="true">
+    <symbol id="i-user" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M4 21c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24">
+        <path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M8 12.5l3 3 5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24">
+        <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24">
+        <rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M8 11V8a4 4 0 018 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M8 20h8M12 16v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24">
+        <path d="M12 3l10 18H2zM12 10v5M12 18h.01" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+</svg>
+
+{# ---------- Safe URL resolution ---------- #}
+{% url 'manager:profile' as u_profile %}
+{% url 'manager:password_change' as u_password %}
+
+{# The account being shown: pass `profile_user` from the view, otherwise the logged-in user #}
+{% with account=profile_user|default:request.user %}
+
+<div class="manager-layout" id="managerLayout">
+
+    {# Shared navbar/sidebar component #}
+    {% include "components/navbar.html" with active_page="profile" %}
+
+    <div class="manager-main">
+        {# Success / error messages (Django messages) are rendered by the shared alerts component #}
+        {% include "components/alerts.html" %}
+
+        <main class="dashboard page--profile page-fade-up" id="profilePage">
+
+            {# ================= PAGE HEADER ================= #}
+            <header class="page-header anim-card" style="--delay: 0">
+                <div class="page-header__text">
+                    <span class="page-header__eyebrow">System</span>
+                    <h1>My Profile</h1>
+                    <p>Manage your account information and profile settings.</p>
+                </div>
+            </header>
+
+            {# ================= PROFILE HEADER ================= #}
+            <section class="panel profile-hero anim-card" style="--delay: 1" aria-label="Profile summary">
+                {% if account.avatar %}
+                <img class="avatar avatar--xxl avatar--image" src="{{ account.avatar.url }}"
+                    alt="Profile photo of {{ account.get_full_name|default:account.username }}">
+                {% else %}
+                <span class="avatar avatar--xxl avatar--role-manager" aria-hidden="true">
+                    {{ account.get_full_name|default:account.username|default:"M"|slice:":1"|upper }}
+                </span>
+                {% endif %}
+
+                <div class="profile-hero__info">
+                    <h2>{{ account.get_full_name|default:account.username|default:"Manager" }}</h2>
+                    <p class="profile-hero__email">{{ account.email|default:"—" }}</p>
+                    <div class="profile-hero__badges">
+                        <span class="badge badge--role badge--role-manager">{{
+                            account.get_role_display|default:"Manager" }}</span>
+                        {% if account.is_active %}
+                        <span class="badge badge--status badge--active"><i class="dot"></i>Active</span>
+                        {% else %}
+                        <span class="badge badge--status badge--inactive"><i class="dot"></i>Inactive</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <dl class="profile-hero__meta">
+                    <div>
+                        <dt>Member since</dt>
+                        <dd>{% if account.date_joined %}<time datetime="{{ account.date_joined|date:'c' }}">{{
+                                account.date_joined|date:"d M Y" }}</time>{% else %}—{% endif %}</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <div class="grid grid--main-side">
+
+                {# ================= PERSONAL INFORMATION ================= #}
+                <section class="panel anim-card" style="--delay: 2" aria-labelledby="personalTitle">
+                    <header class="panel__header">
+                        <div>
+                            <h2 id="personalTitle" class="panel__title">Personal Information</h2>
+                            <p>Update your name and contact details</p>
+                        </div>
+                        <button type="button" class="btn btn--sm btn--ghost" data-edit-start hidden>
+                            <svg class="icon icon--sm">
+                                <use href="#i-edit" />
+                            </svg> Edit Profile
+                        </button>
+                    </header>
+
+                    <form class="profile-form" method="post" action="{{ u_profile }}" id="profileForm" data-edit-form {%
+                        if form.errors %}data-has-errors{% endif %} novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="form-alert form-alert--error" role="alert">
+                            <svg class="icon icon--sm">
+                                <use href="#i-alert" />
+                            </svg>
+                            <div>
+                                {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <fieldset class="form-grid" data-edit-fields>
+                            <legend class="visually-hidden">Personal information</legend>
+
+                            <div class="field {% if form.first_name.errors %}field--error{% endif %}">
+                                <label for="pf_first_name">First name</label>
+                                <input id="pf_first_name" type="text" name="first_name" autocomplete="given-name"
+                                    value="{% if form %}{{ form.first_name.value|default_if_none:'' }}{% else %}{{ account.first_name }}{% endif %}"
+                                    {% if form.first_name.errors %}aria-invalid="true" {% endif %}>
+                                {% for error in form.first_name.errors %}<p class="field__error">{{ error }}</p>{%
+                                endfor %}
+                            </div>
+
+                            <div class="field {% if form.last_name.errors %}field--error{% endif %}">
+                                <label for="pf_last_name">Last name</label>
+                                <input id="pf_last_name" type="text" name="last_name" autocomplete="family-name"
+                                    value="{% if form %}{{ form.last_name.value|default_if_none:'' }}{% else %}{{ account.last_name }}{% endif %}"
+                                    {% if form.last_name.errors %}aria-invalid="true" {% endif %}>
+                                {% for error in form.last_name.errors %}<p class="field__error">{{ error }}</p>{% endfor
+                                %}
+                            </div>
+
+                            <div class="field {% if form.email.errors %}field--error{% endif %}">
+                                <label for="pf_email">Email</label>
+                                <input id="pf_email" type="email" name="email" autocomplete="email"
+                                    value="{% if form %}{{ form.email.value|default_if_none:'' }}{% else %}{{ account.email }}{% endif %}"
+                                    {% if form.email.errors %}aria-invalid="true" {% endif %}>
+                                {% for error in form.email.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+                            </div>
+
+                            <div class="field {% if form.phone.errors %}field--error{% endif %}">
+                                <label for="pf_phone">Phone</label>
+                                <input id="pf_phone" type="tel" name="phone" autocomplete="tel"
+                                    value="{% if form %}{{ form.phone.value|default_if_none:'' }}{% else %}{{ account.phone }}{% endif %}"
+                                    {% if form.phone.errors %}aria-invalid="true" {% endif %}>
+                                {% for error in form.phone.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+                            </div>
+
+                            <div class="field field--full {% if form.username.errors %}field--error{% endif %}">
+                                <label for="pf_username">Username</label>
+                                <input id="pf_username" type="text" name="username" autocomplete="username"
+                                    value="{% if form %}{{ form.username.value|default_if_none:'' }}{% else %}{{ account.username }}{% endif %}"
+                                    {% if form.username.errors %}aria-invalid="true" {% endif %}>
+                                {% for error in form.username.errors %}<p class="field__error">{{ error }}</p>{% endfor
+                                %}
+                            </div>
+                        </fieldset>
+
+                        <div class="form-actions" data-edit-actions>
+                            <button type="button" class="btn btn--ghost" data-edit-cancel>Cancel</button>
+                            <button type="submit" class="btn btn--primary">Save Changes</button>
+                        </div>
+                    </form>
+                </section>
+
+                {# ================= SIDE COLUMN ================= #}
+                <div class="stack">
+
+                    {# ---------- Account information ---------- #}
+                    <section class="panel anim-card" style="--delay: 3" aria-labelledby="accountTitle">
+                        <header class="panel__header">
+                            <div>
+                                <h2 id="accountTitle" class="panel__title">Account Information</h2>
+                                <p>Read-only account details</p>
+                            </div>
+                            <span class="stat-card__icon stat-card__icon--indigo"><svg class="icon">
+                                    <use href="#i-user" />
+                                </svg></span>
+                        </header>
+                        <dl class="detail-list detail-list--compact">
+                            <div>
+                                <dt>Username</dt>
+                                <dd>{{ account.username|default:"—" }}</dd>
+                            </div>
+                            <div>
+                                <dt>Email</dt>
+                                <dd>{{ account.email|default:"—" }}</dd>
+                            </div>
+                            <div>
+                                <dt>Role</dt>
+                                <dd><span class="badge badge--role badge--role-manager">{{
+                                        account.get_role_display|default:"Manager" }}</span></dd>
+                            </div>
+                            <div>
+                                <dt>Account status</dt>
+                                <dd>
+                                    {% if account.is_active %}
+                                    <span class="badge badge--status badge--active"><i class="dot"></i>Active</span>
+                                    {% else %}
+                                    <span class="badge badge--status badge--inactive"><i class="dot"></i>Inactive</span>
+                                    {% endif %}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt>Joined</dt>
+                                <dd>{{ account.date_joined|date:"d M Y"|default:"—" }}</dd>
+                            </div>
+                            <div>
+                                <dt>Last updated</dt>
+                                <dd>
+                                    {% if account.updated_at %}
+                                    <time datetime="{{ account.updated_at|date:'c' }}">{{ account.updated_at|date:"d M
+                                        Y, H:i" }}</time>
+                                    {% else %}—{% endif %}
+                                </dd>
+                            </div>
+                        </dl>
+                    </section>
+
+                    {# ---------- Security ---------- #}
+                    <section class="panel anim-card" style="--delay: 4" aria-labelledby="securityTitle">
+                        <header class="panel__header">
+                            <div>
+                                <h2 id="securityTitle" class="panel__title">Security</h2>
+                                <p>Protect your manager account</p>
+                            </div>
+                            <span class="stat-card__icon stat-card__icon--green"><svg class="icon">
+                                    <use href="#i-shield" />
+                                </svg></span>
+                        </header>
+
+                        <dl class="detail-list detail-list--compact">
+                            <div>
+                                <dt>Last password update</dt>
+                                <dd>
+                                    {% if account.password_changed_at %}
+                                    <time datetime="{{ account.password_changed_at|date:'c' }}">{{
+                                        account.password_changed_at|date:"d M Y" }}</time>
+                                    {% else %}Not available{% endif %}
+                                </dd>
+                            </div>
+                        </dl>
+
+                        {% if u_password %}
+                        <a class="btn btn--primary btn--block" href="{{ u_password }}">
+                            <svg class="icon icon--sm">
+                                <use href="#i-lock" />
+                            </svg> Change Password
+                        </a>
+                        {% else %}
+                        <button type="button" class="btn btn--primary btn--block" disabled title="Not available yet">
+                            <svg class="icon icon--sm">
+                                <use href="#i-lock" />
+                            </svg> Change Password
+                        </button>
+                        {% endif %}
+
+                        <h3 class="subsection-title">Active Sessions</h3>
+                        <ul class="session-list">
+                            {% for session in active_sessions %}
+                            <li class="session-item{% if session.is_current %} is-current{% endif %}">
+                                <span class="session-item__icon" aria-hidden="true"><svg class="icon">
+                                        <use href="#i-monitor" />
+                                    </svg></span>
+                                <div class="session-item__meta">
+                                    <strong>{{ session.device|default:"Unknown device" }}{% if session.is_current %}
+                                        <span class="badge badge--soft">This device</span>{% endif %}</strong>
+                                    <small>
+                                        {{ session.ip_address|default:"—" }}
+                                        {% if session.last_activity %} · {{ session.last_activity|timesince }} ago{%
+                                        endif %}
+                                    </small>
+                                </div>
+                            </li>
+                            {% empty %}
+                            <li class="session-empty">Session information is not available.</li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+{% endwith %}
+
+{# Shared chatbot #}
+{% include "components/chatbot.html" %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+<script src="{% static 'js/profile.js' %}" defer></script>
+{% endblock %}

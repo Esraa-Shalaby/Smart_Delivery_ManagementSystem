@@ -1,0 +1,573 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+{# ---------- Small icon sprite ---------- #}
+<svg xmlns="http://www.w3.org/2000/svg" hidden aria-hidden="true">
+    <symbol id="i-sliders" viewBox="0 0 24 24">
+        <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0M14 4v4M8 10v4M16 16v4" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-user" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M4 21c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24">
+        <path d="M6 16V11a6 6 0 0112 0v5l2 2H4zM10 21h4" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24">
+        <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-cog" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24">
+        <rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M8 11V8a4 4 0 018 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M8 20h8M12 16v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24">
+        <path d="M12 3l10 18H2zM12 10v5M12 18h.01" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24">
+        <path d="M4 12a8 8 0 108-8H7M7 4L4 7l3 3" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24">
+        <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+    </symbol>
+</svg>
+
+{# ---------- Safe URL resolution ---------- #}
+{% url 'manager:settings' as u_settings %}
+{% url 'manager:profile' as u_profile %}
+{% url 'manager:password_change' as u_password %}
+{% url 'manager:sessions_revoke' as u_sessions_revoke %}
+{% url 'manager:two_factor' as u_two_factor %}
+
+{% with account=request.user %}
+
+<div class="manager-layout" id="managerLayout">
+
+    {# Shared navbar/sidebar component #}
+    {% include "components/navbar.html" with active_page="settings" %}
+
+    <div class="manager-main">
+        {% include "components/alerts.html" %}
+
+        <main class="dashboard page--settings page-fade-up" id="settingsPage" data-settings
+            data-active-section="{{ active_section|default:'general' }}">
+
+            {# ================= PAGE HEADER ================= #}
+            <header class="page-header anim-card" style="--delay: 0">
+                <div class="page-header__text">
+                    <span class="page-header__eyebrow">System</span>
+                    <h1>Settings</h1>
+                    <p>Manage system configuration and your account preferences.</p>
+                </div>
+            </header>
+
+            <div class="settings-layout">
+
+                {# ================= SETTINGS NAVIGATION ================= #}
+                <nav class="settings-nav anim-card" style="--delay: 1" aria-label="Settings sections">
+                    <a class="settings-nav__link is-active" href="#tab-general" data-settings-tab aria-current="page">
+                        <svg class="icon">
+                            <use href="#i-sliders" />
+                        </svg><span>General</span>
+                    </a>
+                    <a class="settings-nav__link" href="#tab-account" data-settings-tab>
+                        <svg class="icon">
+                            <use href="#i-user" />
+                        </svg><span>Account</span>
+                    </a>
+                    <a class="settings-nav__link" href="#tab-notifications" data-settings-tab>
+                        <svg class="icon">
+                            <use href="#i-bell" />
+                        </svg><span>Notifications</span>
+                    </a>
+                    <a class="settings-nav__link" href="#tab-security" data-settings-tab>
+                        <svg class="icon">
+                            <use href="#i-shield" />
+                        </svg><span>Security</span>
+                    </a>
+                    <a class="settings-nav__link" href="#tab-preferences" data-settings-tab>
+                        <svg class="icon">
+                            <use href="#i-cog" />
+                        </svg><span>System Preferences</span>
+                    </a>
+                </nav>
+
+                <div class="settings-content">
+
+                    {# ================= GENERAL ================= #}
+                    <section class="panel settings-panel anim-card" style="--delay: 2" id="tab-general"
+                        data-settings-panel aria-labelledby="generalTitle">
+                        <header class="panel__header">
+                            <div>
+                                <h2 id="generalTitle" class="panel__title">General Settings</h2>
+                                <p>Core defaults used across the delivery system</p>
+                            </div>
+                        </header>
+
+                        <form class="settings-form" method="post" action="{{ u_settings }}">
+                            {% csrf_token %}
+                            <input type="hidden" name="section" value="general">
+
+                            {% if general_form.non_field_errors %}
+                            <div class="form-alert form-alert--error" role="alert">
+                                <svg class="icon icon--sm">
+                                    <use href="#i-alert" />
+                                </svg>
+                                <div>{% for error in general_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <div class="form-grid">
+                                <div
+                                    class="field field--full {% if general_form.system_name.errors %}field--error{% endif %}">
+                                    <label for="gs_system_name">System name</label>
+                                    <input id="gs_system_name" type="text" name="system_name" maxlength="120"
+                                        value="{{ general_form.system_name.value|default_if_none:'' }}">
+                                    {% for error in general_form.system_name.errors %}<p class="field__error">{{ error
+                                        }}</p>{% endfor %}
+                                </div>
+
+                                <div
+                                    class="field {% if general_form.default_delivery_fee.errors %}field--error{% endif %}">
+                                    <label for="gs_fee">Default delivery fee</label>
+                                    <input id="gs_fee" type="number" name="default_delivery_fee" step="0.01" min="0"
+                                        inputmode="decimal"
+                                        value="{{ general_form.default_delivery_fee.value|default_if_none:'' }}">
+                                    {% for error in general_form.default_delivery_fee.errors %}<p class="field__error">
+                                        {{ error }}</p>{% endfor %}
+                                </div>
+
+                                <div class="field {% if general_form.default_currency.errors %}field--error{% endif %}">
+                                    <label for="gs_currency">Default currency</label>
+                                    <select id="gs_currency" name="default_currency">
+                                        {% for value, label in currency_choices %}
+                                        <option value="{{ value }}" {% if general_form.default_currency.value==value
+                                            %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% for error in general_form.default_currency.errors %}<p class="field__error">{{
+                                        error }}</p>{% endfor %}
+                                </div>
+
+                                <div class="field {% if general_form.time_zone.errors %}field--error{% endif %}">
+                                    <label for="gs_timezone">Time zone</label>
+                                    <select id="gs_timezone" name="time_zone">
+                                        {% for value, label in timezone_choices %}
+                                        <option value="{{ value }}" {% if general_form.time_zone.value==value
+                                            %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% for error in general_form.time_zone.errors %}<p class="field__error">{{ error }}
+                                    </p>{% endfor %}
+                                </div>
+
+                                <div class="field {% if general_form.date_format.errors %}field--error{% endif %}">
+                                    <label for="gs_date_format">Date format</label>
+                                    <select id="gs_date_format" name="date_format">
+                                        {% for value, label in date_format_choices %}
+                                        <option value="{{ value }}" {% if general_form.date_format.value==value
+                                            %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% for error in general_form.date_format.errors %}<p class="field__error">{{ error
+                                        }}</p>{% endfor %}
+                                </div>
+                            </div>
+
+                            {# Save is first in the DOM so pressing Enter submits "save", not "reset" #}
+                            <div class="form-actions form-actions--split">
+                                <div class="form-actions__main">
+                                    <button type="submit" name="action" value="save" class="btn btn--primary">Save
+                                        Changes</button>
+                                    <button type="reset" class="btn btn--ghost">Cancel</button>
+                                </div>
+                                <button type="submit" name="action" value="reset" class="btn btn--danger-soft"
+                                    formnovalidate data-confirm="Reset general settings to their defaults?">
+                                    <svg class="icon icon--sm">
+                                        <use href="#i-refresh" />
+                                    </svg> Reset to Default
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+
+                    {# ================= ACCOUNT ================= #}
+                    <section class="panel settings-panel anim-card" style="--delay: 3" id="tab-account"
+                        data-settings-panel aria-labelledby="accountTitle">
+                        <header class="panel__header">
+                            <div>
+                                <h2 id="accountTitle" class="panel__title">Account Settings</h2>
+                                <p>Your account details. Edit them from your profile.</p>
+                            </div>
+                        </header>
+
+                        <dl class="detail-list">
+                            <div>
+                                <dt>Username</dt>
+                                <dd>{{ account.username|default:"—" }}</dd>
+                            </div>
+                            <div>
+                                <dt>Email</dt>
+                                <dd>{{ account.email|default:"—" }}</dd>
+                            </div>
+                            <div>
+                                <dt>Role</dt>
+                                <dd><span class="badge badge--role badge--role-manager">{{
+                                        account.get_role_display|default:"Manager" }}</span></dd>
+                            </div>
+                            <div>
+                                <dt>Account status</dt>
+                                <dd>
+                                    {% if account.is_active %}
+                                    <span class="badge badge--status badge--active"><i class="dot"></i>Active</span>
+                                    {% else %}
+                                    <span class="badge badge--status badge--inactive"><i class="dot"></i>Inactive</span>
+                                    {% endif %}
+                                </dd>
+                            </div>
+                        </dl>
+
+                        <div class="form-actions">
+                            {% if u_profile %}
+                            <a class="btn btn--primary" href="{{ u_profile }}">
+                                Go to My Profile <svg class="icon icon--sm">
+                                    <use href="#i-arrow" />
+                                </svg>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </section>
+
+                    {# ================= NOTIFICATIONS ================= #}
+                    <section class="panel settings-panel anim-card" style="--delay: 4" id="tab-notifications"
+                        data-settings-panel aria-labelledby="notifTitle">
+                        <header class="panel__header">
+                            <div>
+                                <h2 id="notifTitle" class="panel__title">Notification Settings</h2>
+                                <p>Choose which events notify you</p>
+                            </div>
+                        </header>
+
+                        <form class="settings-form" method="post" action="{{ u_settings }}">
+                            {% csrf_token %}
+                            <input type="hidden" name="section" value="notifications">
+
+                            {% if notifications_form.non_field_errors %}
+                            <div class="form-alert form-alert--error" role="alert">
+                                <svg class="icon icon--sm">
+                                    <use href="#i-alert" />
+                                </svg>
+                                <div>{% for error in notifications_form.non_field_errors %}<p>{{ error }}</p>{% endfor
+                                    %}</div>
+                            </div>
+                            {% endif %}
+
+                            <ul class="toggle-list">
+                                <li class="toggle-row">
+                                    <div class="toggle-row__text"><strong>Shipment updates</strong><small>Status changes
+                                            and new shipments</small></div>
+                                    <label class="switch" for="nt_shipment"><input id="nt_shipment" type="checkbox"
+                                            name="shipment_updates" {% if notifications_form.shipment_updates.value
+                                            %}checked{% endif %}><span class="switch__track"
+                                            aria-hidden="true"></span><span class="visually-hidden">Shipment
+                                            updates</span></label>
+                                </li>
+                                <li class="toggle-row">
+                                    <div class="toggle-row__text"><strong>Delayed delivery
+                                            alerts</strong><small>Shipments that pass their expected delivery
+                                            time</small></div>
+                                    <label class="switch" for="nt_delayed"><input id="nt_delayed" type="checkbox"
+                                            name="delayed_alerts" {% if notifications_form.delayed_alerts.value
+                                            %}checked{% endif %}><span class="switch__track"
+                                            aria-hidden="true"></span><span class="visually-hidden">Delayed delivery
+                                            alerts</span></label>
+                                </li>
+                                <li class="toggle-row">
+                                    <div class="toggle-row__text"><strong>Driver assignment
+                                            alerts</strong><small>Assignments, acceptances and reassignments</small>
+                                    </div>
+                                    <label class="switch" for="nt_driver"><input id="nt_driver" type="checkbox"
+                                            name="driver_assignment_alerts" {% if
+                                            notifications_form.driver_assignment_alerts.value %}checked{% endif %}><span
+                                            class="switch__track" aria-hidden="true"></span><span
+                                            class="visually-hidden">Driver assignment alerts</span></label>
+                                </li>
+                                <li class="toggle-row">
+                                    <div class="toggle-row__text"><strong>Payment
+                                            notifications</strong><small>Completed, failed and refunded payments</small>
+                                    </div>
+                                    <label class="switch" for="nt_payment"><input id="nt_payment" type="checkbox"
+                                            name="payment_notifications" {% if
+                                            notifications_form.payment_notifications.value %}checked{% endif %}><span
+                                            class="switch__track" aria-hidden="true"></span><span
+                                            class="visually-hidden">Payment notifications</span></label>
+                                </li>
+                                <li class="toggle-row">
+                                    <div class="toggle-row__text"><strong>Complaint notifications</strong><small>New and
+                                            updated customer complaints</small></div>
+                                    <label class="switch" for="nt_complaint"><input id="nt_complaint" type="checkbox"
+                                            name="complaint_notifications" {% if
+                                            notifications_form.complaint_notifications.value %}checked{% endif %}><span
+                                            class="switch__track" aria-hidden="true"></span><span
+                                            class="visually-hidden">Complaint notifications</span></label>
+                                </li>
+                                <li class="toggle-row">
+                                    <div class="toggle-row__text"><strong>System
+                                            notifications</strong><small>Maintenance and system-level messages</small>
+                                    </div>
+                                    <label class="switch" for="nt_system"><input id="nt_system" type="checkbox"
+                                            name="system_notifications" {% if
+                                            notifications_form.system_notifications.value %}checked{% endif %}><span
+                                            class="switch__track" aria-hidden="true"></span><span
+                                            class="visually-hidden">System notifications</span></label>
+                                </li>
+                            </ul>
+
+                            <div class="form-actions form-actions--split">
+                                <div class="form-actions__main">
+                                    <button type="submit" name="action" value="save" class="btn btn--primary">Save
+                                        Changes</button>
+                                    <button type="reset" class="btn btn--ghost">Cancel</button>
+                                </div>
+                                <button type="submit" name="action" value="reset" class="btn btn--danger-soft"
+                                    formnovalidate data-confirm="Reset notification settings to their defaults?">
+                                    <svg class="icon icon--sm">
+                                        <use href="#i-refresh" />
+                                    </svg> Reset to Default
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+
+                    {# ================= SECURITY ================= #}
+                    <section class="panel settings-panel anim-card" style="--delay: 5" id="tab-security"
+                        data-settings-panel aria-labelledby="securityTitle">
+                        <header class="panel__header">
+                            <div>
+                                <h2 id="securityTitle" class="panel__title">Security Settings</h2>
+                                <p>Password, sessions and sign-in protection</p>
+                            </div>
+                        </header>
+
+                        {# Change password #}
+                        <div class="setting-block">
+                            <div class="setting-block__text">
+                                <h3>Change password</h3>
+                                <p>
+                                    Last updated:
+                                    {% if security.password_changed_at %}{{ security.password_changed_at|date:"d M Y"
+                                    }}{% else %}Not available{% endif %}
+                                </p>
+                            </div>
+                            {% if u_password %}
+                            <a class="btn btn--ghost" href="{{ u_password }}"><svg class="icon icon--sm">
+                                    <use href="#i-lock" />
+                                </svg> Change Password</a>
+                            {% else %}
+                            <button type="button" class="btn btn--ghost" disabled title="Not available yet"><svg
+                                    class="icon icon--sm">
+                                    <use href="#i-lock" />
+                                </svg> Change Password</button>
+                            {% endif %}
+                        </div>
+
+                        {# Session management #}
+                        <div class="setting-block setting-block--stack">
+                            <div class="setting-block__row">
+                                <div class="setting-block__text">
+                                    <h3>Session management</h3>
+                                    <p>Devices currently signed in to your account</p>
+                                </div>
+                                {% if u_sessions_revoke and active_sessions %}
+                                <form method="post" action="{{ u_sessions_revoke }}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn--danger-soft"
+                                        data-confirm="Sign out of all other sessions?">Sign out other sessions</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                            <ul class="session-list">
+                                {% for session in active_sessions %}
+                                <li class="session-item{% if session.is_current %} is-current{% endif %}">
+                                    <span class="session-item__icon" aria-hidden="true"><svg class="icon">
+                                            <use href="#i-monitor" />
+                                        </svg></span>
+                                    <div class="session-item__meta">
+                                        <strong>{{ session.device|default:"Unknown device" }}{% if session.is_current %}
+                                            <span class="badge badge--soft">This device</span>{% endif %}</strong>
+                                        <small>{{ session.ip_address|default:"—" }}{% if session.last_activity %} · {{
+                                            session.last_activity|timesince }} ago{% endif %}</small>
+                                    </div>
+                                </li>
+                                {% empty %}
+                                <li class="session-empty">Session information is not available.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        {# Login security #}
+                        <div class="setting-block setting-block--stack">
+                            <div class="setting-block__text">
+                                <h3>Login security</h3>
+                                <p>Recent sign-in activity and protection</p>
+                            </div>
+                            <dl class="detail-list detail-list--compact">
+                                <div>
+                                    <dt>Last login</dt>
+                                    <dd>{% if account.last_login %}{{ account.last_login|date:"d M Y, H:i" }}{% else
+                                        %}Not available{% endif %}</dd>
+                                </div>
+                                <div>
+                                    <dt>Last login IP</dt>
+                                    <dd>{{ security.last_login_ip|default:"Not available" }}</dd>
+                                </div>
+                                <div>
+                                    <dt>Failed attempts</dt>
+                                    <dd>{{ security.failed_login_attempts|default:"0" }}</dd>
+                                </div>
+                                <div>
+                                    <dt>Two-factor authentication</dt>
+                                    <dd>
+                                        {% if security.two_factor_enabled %}
+                                        <span class="badge badge--status badge--active"><i
+                                                class="dot"></i>Enabled</span>
+                                        {% else %}
+                                        <span class="badge badge--status badge--inactive"><i
+                                                class="dot"></i>Disabled</span>
+                                        {% endif %}
+                                        {% if u_two_factor %}<a class="link-inline"
+                                            href="{{ u_two_factor }}">Manage</a>{% endif %}
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+
+                        {# Account status #}
+                        <div class="setting-block">
+                            <div class="setting-block__text">
+                                <h3>Account status</h3>
+                                <p>Your manager account state</p>
+                            </div>
+                            {% if account.is_active %}
+                            <span class="badge badge--status badge--active"><i class="dot"></i>Active</span>
+                            {% else %}
+                            <span class="badge badge--status badge--inactive"><i class="dot"></i>Inactive</span>
+                            {% endif %}
+                        </div>
+                    </section>
+
+                    {# ================= SYSTEM PREFERENCES ================= #}
+                    <section class="panel settings-panel anim-card" style="--delay: 6" id="tab-preferences"
+                        data-settings-panel aria-labelledby="prefTitle">
+                        <header class="panel__header">
+                            <div>
+                                <h2 id="prefTitle" class="panel__title">System Preferences</h2>
+                                <p>How the dashboard behaves for you</p>
+                            </div>
+                        </header>
+
+                        <form class="settings-form" method="post" action="{{ u_settings }}">
+                            {% csrf_token %}
+                            <input type="hidden" name="section" value="preferences">
+
+                            {% if preferences_form.non_field_errors %}
+                            <div class="form-alert form-alert--error" role="alert">
+                                <svg class="icon icon--sm">
+                                    <use href="#i-alert" />
+                                </svg>
+                                <div>{% for error in preferences_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <div class="form-grid">
+                                <div
+                                    class="field {% if preferences_form.rows_per_page.errors %}field--error{% endif %}">
+                                    <label for="pr_rows">Rows per page</label>
+                                    <select id="pr_rows" name="rows_per_page">
+                                        {% for value, label in rows_per_page_choices %}
+                                        <option value="{{ value }}" {% if
+                                            preferences_form.rows_per_page.value|stringformat:"s"==value|stringformat:"s"
+                                            %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% for error in preferences_form.rows_per_page.errors %}<p class="field__error">{{
+                                        error }}</p>{% endfor %}
+                                </div>
+                            </div>
+
+                            <ul class="toggle-list">
+                                <li class="toggle-row">
+                                    <div class="toggle-row__text"><strong>Compact tables</strong><small>Show denser rows
+                                            in data tables</small></div>
+                                    <label class="switch" for="pr_compact"><input id="pr_compact" type="checkbox"
+                                            name="compact_tables" {% if preferences_form.compact_tables.value
+                                            %}checked{% endif %}><span class="switch__track"
+                                            aria-hidden="true"></span><span class="visually-hidden">Compact
+                                            tables</span></label>
+                                </li>
+                                <li class="toggle-row">
+                                    <div class="toggle-row__text"><strong>Auto-refresh dashboard</strong><small>Refresh
+                                            live statistics periodically</small></div>
+                                    <label class="switch" for="pr_refresh"><input id="pr_refresh" type="checkbox"
+                                            name="dashboard_auto_refresh" {% if
+                                            preferences_form.dashboard_auto_refresh.value %}checked{% endif %}><span
+                                            class="switch__track" aria-hidden="true"></span><span
+                                            class="visually-hidden">Auto-refresh dashboard</span></label>
+                                </li>
+                            </ul>
+
+                            <div class="form-actions form-actions--split">
+                                <div class="form-actions__main">
+                                    <button type="submit" name="action" value="save" class="btn btn--primary">Save
+                                        Changes</button>
+                                    <button type="reset" class="btn btn--ghost">Cancel</button>
+                                </div>
+                                <button type="submit" name="action" value="reset" class="btn btn--danger-soft"
+                                    formnovalidate data-confirm="Reset system preferences to their defaults?">
+                                    <svg class="icon icon--sm">
+                                        <use href="#i-refresh" />
+                                    </svg> Reset to Default
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+{% endwith %}
+
+{# Shared chatbot #}
+{% include "components/chatbot.html" %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+<script src="{% static 'js/settings.js' %}" defer></script>
+{% endblock %}

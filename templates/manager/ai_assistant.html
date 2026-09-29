@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+AI Logistics Assistant
+{% endblock %}
+
+{% block content %}
+<div class="mgr-ai-page page-fade-up" data-ai-root>
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="mgr-page-header">
+        <div class="mgr-header-left">
+            <div class="mgr-title-block">
+                <h1 class="mgr-page-title">
+                    <span class="ai-title-mark" aria-hidden="true">✦</span>
+                    AI Logistics Assistant
+                </h1>
+                <p class="mgr-page-subtitle">
+                    Use AI to analyze deliveries and assist with logistics operations.
+                </p>
+            </div>
+        </div>
+
+        <div class="mgr-header-actions">
+            <span class="ai-status-pill is-online" id="ai-status-indicator">
+                <span class="ai-status-dot" aria-hidden="true"></span>
+                AI Assistant Online
+            </span>
+
+            <button type="button" class="btn btn-secondary" data-ai-action="new-conversation">
+                New Conversation
+            </button>
+            <button type="button" class="btn btn-ghost" data-ai-action="clear-conversation">
+                Clear Conversation
+            </button>
+        </div>
+    </header>
+
+    {# ============================= MAIN LAYOUT ============================= #}
+    <div class="ai-layout">
+
+        {# ---------------- CHAT PANEL ---------------- #}
+        <section class="ai-chat-panel mgr-card card-enter">
+
+            {# Conversation area #}
+            <div class="ai-conversation" id="ai-conversation" data-conversation>
+
+                {# Initial AI greeting (rendered server-side for instant paint) #}
+                <div class="chat-message chat-message-ai chat-message-enter">
+                    <div class="chat-avatar chat-avatar-ai" aria-hidden="true">✦</div>
+                    <div class="chat-bubble">
+                        <div class="chat-bubble-head">
+                            <span class="chat-author">AI Assistant</span>
+                            <span class="chat-time">{{ now|date:"H:i" }}</span>
+                        </div>
+                        <div class="chat-content">
+                            <p>Hello Manager. I can help you review deliveries, find drivers, and analyze shipment data.
+                            </p>
+                            <p>Try a suggested prompt below, or type your question.</p>
+                        </div>
+                    </div>
+                </div>
+
+                {# Message template (hidden, cloned by JS) #}
+                <template id="chat-message-template">
+                    <div class="chat-message">
+                        <div class="chat-avatar" aria-hidden="true"></div>
+                        <div class="chat-bubble">
+                            <div class="chat-bubble-head">
+                                <span class="chat-author"></span>
+                                <span class="chat-time"></span>
+                            </div>
+                            <div class="chat-content"></div>
+                        </div>
+                    </div>
+                </template>
+
+                {# Typing indicator (hidden by default) #}
+                <div class="chat-typing" id="ai-typing" hidden>
+                    <div class="chat-avatar chat-avatar-ai" aria-hidden="true">✦</div>
+                    <div class="typing-bubble">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            {# ========== SUGGESTED PROMPTS ========== #}
+            <div class="ai-suggestions" id="ai-suggestions" data-suggestions>
+                <button type="button" class="ai-chip" data-prompt="Show delayed deliveries">
+                    Show delayed deliveries
+                </button>
+                <button type="button" class="ai-chip" data-prompt="Find available drivers">
+                    Find available drivers
+                </button>
+                <button type="button" class="ai-chip" data-prompt="Show today's shipment summary">
+                    Today's shipment summary
+                </button>
+                <button type="button" class="ai-chip" data-prompt="Find shipments that need attention">
+                    Shipments needing attention
+                </button>
+                <button type="button" class="ai-chip" data-prompt="Show driver availability">
+                    Driver availability
+                </button>
+            </div>
+
+            {# ========== INPUT BAR ========== #}
+            <form class="ai-input-bar" id="ai-input-form" autocomplete="off">
+                {% csrf_token %}
+                <label for="ai-input" class="visually-hidden">Message</label>
+                <textarea id="ai-input" name="message" class="ai-input" rows="1"
+                    placeholder="Ask about shipments, drivers, or operations…" aria-label="Message"></textarea>
+
+                <button type="button" class="icon-btn" data-ai-action="retry" title="Retry last response"
+                    aria-label="Retry last response">
+                    <span aria-hidden="true">↻</span>
+                </button>
+
+                <button type="submit" class="btn btn-primary ai-send-btn" id="ai-send-btn">
+                    Send
+                </button>
+            </form>
+        </section>
+
+        {# ---------------- SIDE PANEL ---------------- #}
+        <aside class="ai-side-panel">
+
+            {# ========== SECURITY NOTICE ========== #}
+            <section class="mgr-card card-security card-enter">
+                <div class="mgr-card-body">
+                    <div class="security-notice">
+                        <span class="security-icon" aria-hidden="true">🔒</span>
+                        <p>
+                            AI actions are permission-checked and validated by the system
+                            before execution.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {# ========== AVAILABLE ACTIONS ========== #}
+            <section class="mgr-card card-ai-actions card-enter">
+                <header class="mgr-card-header">
+                    <h2 class="mgr-card-title">AI Actions</h2>
+                    <span class="mgr-card-meta">Confirmation required</span>
+                </header>
+
+                <div class="mgr-card-body">
+                    <ul class="ai-action-list">
+                        <li class="ai-action-item">
+                            <span class="ai-action-icon" aria-hidden="true">🚚</span>
+                            <div class="ai-action-info">
+                                <span class="ai-action-title">Assign Driver</span>
+                                <span class="ai-action-desc">Ask AI to assign an available driver.</span>
+                            </div>
+                            <button type="button" class="btn btn-ghost btn-sm"
+                                data-prompt="Assign a driver to a shipment that needs one">
+                                Try
+                            </button>
+                        </li>
+
+                        <li class="ai-action-item">
+                            <span class="ai-action-icon" aria-hidden="true">🔁</span>
+                            <div class="ai-action-info">
+                                <span class="ai-action-title">Reassign Driver</span>
+                                <span class="ai-action-desc">Request a driver reassignment.</span>
+                            </div>
+                            <button type="button" class="btn btn-ghost btn-sm"
+                                data-prompt="Reassign a shipment to another available driver">
+                                Try
+                            </button>
+                        </li>
+
+                        <li class="ai-action-item">
+                            <span class="ai-action-icon" aria-hidden="true">↻</span>
+                            <div class="ai-action-info">
+                                <span class="ai-action-title">Update Shipment Status</span>
+                                <span class="ai-action-desc">Change a shipment's current status.</span>
+                            </div>
+                            <button type="button" class="btn btn-ghost btn-sm"
+                                data-prompt="Update the status of a shipment that is in transit">
+                                Try
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            {# ========== AI INFO ========== #}
+            <section class="mgr-card card-ai-info card-enter">
+                <div class="mgr-card-body">
+                    <h3 class="subsection-title">How it works</h3>
+                    <ul class="ai-info-list">
+                        <li>The AI reads aggregated logistics data through backend tools.</li>
+                        <li>Every action is validated and permission-checked before execution.</li>
+                        <li>Actions require your explicit confirmation.</li>
+                    </ul>
+                </div>
+            </section>
+
+        </aside>
+    </div>
+
+    {# ============================= CONFIRMATION MODAL ============================= #}
+    <div class="modal-backdrop" id="ai-confirm-modal" hidden aria-hidden="true">
+        <div class="modal-dialog modal-sm" role="dialog" aria-modal="true" aria-labelledby="ai-confirm-title">
+            <header class="modal-header">
+                <h2 class="modal-title" id="ai-confirm-title">Confirm Action</h2>
+                <button type="button" class="modal-close" data-ai-action="cancel-confirm" aria-label="Close">
+                    <span aria-hidden="true">✕</span>
+                </button>
+            </header>
+
+            <div class="modal-body">
+                <p class="confirm-text" id="ai-confirm-text">
+                    Are you sure you want to proceed?
+                </p>
+                <div class="confirm-meta" id="ai-confirm-meta"></div>
+            </div>
+
+            <footer class="modal-footer">
+                <button type="button" class="btn btn-ghost" data-ai-action="cancel-confirm">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" data-ai-action="approve-confirm">
+                    Confirm
+                </button>
+            </footer>
+        </div>
+    </div>
+
+</div>
+
+{# ============================= PAGE-SPECIFIC STYLES ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
+{# ============================= PAGE-SPECIFIC SCRIPT ============================= #}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+<script src="{% static 'js/chatbot.js' %}" defer></script>
+<script src="{% static 'js/ai_assistant.js' %}" defer></script>
+{% endblock %}

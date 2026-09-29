@@ -1,0 +1,341 @@
+{% load static %}
+
+{# ============================================================
+Shared Navbar Component
+Used across Customer / Driver / Manager pages via base.html
+============================================================ #}
+
+<nav class="app-navbar" role="navigation" aria-label="Primary">
+
+    <div class="app-navbar-inner">
+
+        {# ============================= BRAND ============================= #}
+        <a href="/" class="app-brand" aria-label="Smart Delivery home">
+            <span class="app-brand-mark" aria-hidden="true">
+                <span class="app-brand-dot"></span>
+            </span>
+            <span class="app-brand-text">
+                <span class="app-brand-title">Smart Delivery</span>
+                <span class="app-brand-sub">&amp; Logistics</span>
+            </span>
+        </a>
+
+        {# ============================= PRIMARY NAV ============================= #}
+        <ul class="app-nav" role="list">
+
+            {% if user.is_authenticated %}
+            {% with role=user.role|default:''|lower %}
+
+            {# ---------- CUSTOMER NAV ---------- #}
+            {% if role == 'customer' %}
+            <li>
+                <a href="{% url 'customer:dashboard' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'customer' and request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}">
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'customer:shipments' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'customer' and request.resolver_match.url_name == 'shipments' %}is-active{% endif %}">
+                    My Shipments
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'customer:new_shipment' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'customer' and request.resolver_match.url_name == 'new_shipment' %}is-active{% endif %}">
+                    New Shipment
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'customer:complaints' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'customer' and request.resolver_match.url_name == 'complaints' %}is-active{% endif %}">
+                    Complaints
+                </a>
+            </li>
+
+            {# ---------- DRIVER NAV ---------- #}
+            {% elif role == 'driver' %}
+            <li>
+                <a href="{% url 'driver:dashboard' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'driver' and request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}">
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'driver:assignments' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'driver' and request.resolver_match.url_name == 'assignments' %}is-active{% endif %}">
+                    Assignments
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'driver:history' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'driver' and request.resolver_match.url_name == 'history' %}is-active{% endif %}">
+                    History
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'driver:availability' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'driver' and request.resolver_match.url_name == 'availability' %}is-active{% endif %}">
+                    Availability
+                </a>
+            </li>
+
+            {# ---------- MANAGER NAV ---------- #}
+            {% elif role == 'manager' %}
+            <li>
+                <a href="{% url 'manager:dashboard' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'manager' and request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}">
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'manager:shipment_list' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'manager' and 'shipment' in request.resolver_match.url_name %}is-active{% endif %}">
+                    Shipments
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'manager:drivers' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'manager' and 'driver' in request.resolver_match.url_name %}is-active{% endif %}">
+                    Drivers
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'manager:customers' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'manager' and 'customer' in request.resolver_match.url_name %}is-active{% endif %}">
+                    Customers
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'manager:complaints' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'manager' and 'complaint' in request.resolver_match.url_name %}is-active{% endif %}">
+                    Complaints
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'manager:analytics' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'manager' and request.resolver_match.url_name == 'analytics' %}is-active{% endif %}">
+                    Analytics
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'manager:audit_logs' %}"
+                    class="app-nav-link {% if request.resolver_match.namespace == 'manager' and request.resolver_match.url_name == 'audit_logs' %}is-active{% endif %}">
+                    Audit Logs
+                </a>
+            </li>
+            {% endif %}
+
+            {% endwith %}
+            {% endif %}
+
+        </ul>
+
+        {# ============================= RIGHT-SIDE ACTIONS ============================= #}
+        <div class="app-navbar-actions">
+
+            {% if user.is_authenticated %}
+
+            {# ---------- AI ASSISTANT ---------- #}
+            <a href="{% url 'ai_assistant' %}" class="app-icon-btn app-ai-btn" data-action="open-ai-assistant"
+                aria-label="Open AI Assistant" title="AI Assistant">
+                <span class="app-ai-mark" aria-hidden="true">✦</span>
+                <span class="app-icon-btn-label">AI Assistant</span>
+            </a>
+
+            {# ---------- NOTIFICATIONS ---------- #}
+            <a href="{% url 'notifications:list' %}"
+                class="app-icon-btn app-notify-btn {% if unread_notifications_count %}has-unread{% endif %}"
+                aria-label="Notifications{% if unread_notifications_count %} ({{ unread_notifications_count }} unread){% endif %}"
+                title="Notifications">
+                <span class="app-notify-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+                    </svg>
+                </span>
+                {% if unread_notifications_count %}
+                <span class="app-notify-badge" aria-hidden="true">
+                    {{ unread_notifications_count }}
+                </span>
+                {% endif %}
+            </a>
+
+            {# ---------- USER DROPDOWN ---------- #}
+            <div class="app-user" data-dropdown="user">
+
+                <button type="button" class="app-user-trigger" data-dropdown-trigger aria-haspopup="true"
+                    aria-expanded="false" aria-controls="app-user-menu">
+
+                    <span class="app-user-avatar" aria-hidden="true">
+                        {% if user.get_full_name %}
+                        {{ user.get_full_name|slice:":1"|upper }}
+                        {% elif user.username %}
+                        {{ user.username|slice:":1"|upper }}
+                        {% else %}
+                        ?
+                        {% endif %}
+                    </span>
+
+                    <span class="app-user-meta">
+                        <span class="app-user-name">
+                            {{ user.get_full_name|default:user.username|default:"User" }}
+                        </span>
+                        <span class="app-user-role">
+                            {{ user.role|default:"Member" }}
+                        </span>
+                    </span>
+
+                    <span class="app-user-caret" aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </span>
+                </button>
+
+                <div class="app-dropdown-menu" id="app-user-menu" data-dropdown-menu role="menu" hidden>
+
+                    <div class="app-dropdown-head">
+                        <div class="app-dropdown-name">
+                            {{ user.get_full_name|default:user.username|default:"User" }}
+                        </div>
+                        <div class="app-dropdown-sub">
+                            {{ user.email|default:"" }}
+                        </div>
+                    </div>
+
+                    <div class="app-dropdown-sep" role="separator"></div>
+
+                    <a href="{% url 'accounts:profile' %}" class="app-dropdown-item" role="menuitem">
+                        <span class="app-dropdown-icon" aria-hidden="true">◉</span>
+                        Profile
+                    </a>
+
+                    <a href="{% url 'accounts:settings' %}" class="app-dropdown-item" role="menuitem">
+                        <span class="app-dropdown-icon" aria-hidden="true">⚙</span>
+                        Settings
+                    </a>
+
+                    <div class="app-dropdown-sep" role="separator"></div>
+
+                    <form method="post" action="{% url 'accounts:logout' %}" class="app-dropdown-form">
+                        {% csrf_token %}
+                        <button type="submit" class="app-dropdown-item app-dropdown-danger" role="menuitem">
+                            <span class="app-dropdown-icon" aria-hidden="true">⏻</span>
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {% else %}
+
+            {# ---------- GUEST ACTIONS ---------- #}
+            <a href="{% url 'accounts:login' %}" class="btn btn-ghost">
+                Log in
+            </a>
+            <a href="{% url 'accounts:register' %}" class="btn btn-primary">
+                Sign up
+            </a>
+
+            {% endif %}
+
+            {# ---------- MOBILE HAMBURGER ---------- #}
+            <button type="button" class="app-hamburger" data-mobile-menu-trigger aria-label="Open menu"
+                aria-expanded="false" aria-controls="app-mobile-menu">
+                <span class="app-hamburger-line"></span>
+                <span class="app-hamburger-line"></span>
+                <span class="app-hamburger-line"></span>
+            </button>
+
+        </div>
+    </div>
+
+    {# ============================= MOBILE NAVIGATION DRAWER ============================= #}
+    <div class="app-mobile-menu" id="app-mobile-menu" data-mobile-menu hidden aria-hidden="true">
+
+        {% if user.is_authenticated %}
+        {% with role=user.role|default:''|lower %}
+
+        <ul class="app-mobile-nav" role="list">
+
+            {% if role == 'customer' %}
+            <li><a href="{% url 'customer:dashboard' %}" class="app-mobile-link">Dashboard</a></li>
+            <li><a href="{% url 'customer:shipments' %}" class="app-mobile-link">My Shipments</a></li>
+            <li><a href="{% url 'customer:new_shipment' %}" class="app-mobile-link">New Shipment</a></li>
+            <li><a href="{% url 'customer:complaints' %}" class="app-mobile-link">Complaints</a></li>
+
+            {% elif role == 'driver' %}
+            <li><a href="{% url 'driver:dashboard' %}" class="app-mobile-link">Dashboard</a></li>
+            <li><a href="{% url 'driver:assignments' %}" class="app-mobile-link">Assignments</a></li>
+            <li><a href="{% url 'driver:history' %}" class="app-mobile-link">History</a></li>
+            <li><a href="{% url 'driver:availability' %}" class="app-mobile-link">Availability</a></li>
+
+            {% elif role == 'manager' %}
+            <li><a href="{% url 'manager:dashboard' %}" class="app-mobile-link">Dashboard</a></li>
+            <li><a href="{% url 'manager:shipment_list' %}" class="app-mobile-link">Shipments</a></li>
+            <li><a href="{% url 'manager:drivers' %}" class="app-mobile-link">Drivers</a></li>
+            <li><a href="{% url 'manager:customers' %}" class="app-mobile-link">Customers</a></li>
+            <li><a href="{% url 'manager:complaints' %}" class="app-mobile-link">Complaints</a></li>
+            <li><a href="{% url 'manager:analytics' %}" class="app-mobile-link">Analytics</a></li>
+            <li><a href="{% url 'manager:audit_logs' %}" class="app-mobile-link">Audit Logs</a></li>
+            {% endif %}
+
+        </ul>
+
+        <div class="app-mobile-sep"></div>
+
+        <ul class="app-mobile-nav" role="list">
+            <li>
+                <a href="{% url 'ai_assistant' %}" class="app-mobile-link app-mobile-ai">
+                    <span class="app-ai-mark" aria-hidden="true">✦</span>
+                    AI Assistant
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'notifications:list' %}" class="app-mobile-link">
+                    Notifications
+                    {% if unread_notifications_count %}
+                    <span class="app-notify-badge inline">
+                        {{ unread_notifications_count }}
+                    </span>
+                    {% endif %}
+                </a>
+            </li>
+        </ul>
+
+        <div class="app-mobile-sep"></div>
+
+        <ul class="app-mobile-nav" role="list">
+            <li>
+                <a href="{% url 'accounts:profile' %}" class="app-mobile-link">
+                    Profile
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'accounts:settings' %}" class="app-mobile-link">
+                    Settings
+                </a>
+            </li>
+            <li>
+                <form method="post" action="{% url 'accounts:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="app-mobile-link app-mobile-danger">
+                        Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+
+        {% endwith %}
+        {% else %}
+        <ul class="app-mobile-nav" role="list">
+            <li><a href="{% url 'accounts:login' %}" class="app-mobile-link">Log in</a></li>
+            <li><a href="{% url 'accounts:register' %}" class="app-mobile-link">Sign up</a></li>
+        </ul>
+        {% endif %}
+    </div>
+
+</nav>

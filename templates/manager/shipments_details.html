@@ -1,0 +1,542 @@
+{# templates/manager/shipment_detail.html #}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Shipment {{ shipment.tracking_number|default:"N/A" }} — Manager
+{% endblock %}
+
+{% block content %}
+<div class="mgr-shipment-page page-fade-up">
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="mgr-page-header">
+        <div class="mgr-header-left">
+            <a href="{% url 'manager:shipment_list' %}" class="mgr-back-link">
+                <span class="icon-arrow-left" aria-hidden="true">←</span>
+                <span>Back to Shipments</span>
+            </a>
+
+            <div class="mgr-title-block">
+                <h1 class="mgr-page-title">
+                    <span class="mgr-tracking-label">Tracking</span>
+                    <span class="mgr-tracking-number">{{ shipment.tracking_number|default:"N/A" }}</span>
+                </h1>
+
+                <div class="mgr-title-meta">
+                    <span class="mgr-status-badge status-{{ shipment.status|default:'unknown'|lower }}">
+                        {{ shipment.status|default:"Unknown" }}
+                    </span>
+                    <span class="mgr-meta-sep">•</span>
+                    <span class="mgr-meta-item">
+                        <span class="mgr-meta-label">Created</span>
+                        <span class="mgr-meta-value">{{ shipment.created_at|date:"M d, Y H:i"|default:"N/A" }}</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mgr-header-actions">
+            <button type="button" class="btn btn-primary" data-action="assign-driver">
+                Assign Driver
+            </button>
+            <button type="button" class="btn btn-secondary" data-action="reassign-driver">
+                Reassign Driver
+            </button>
+            <button type="button" class="btn btn-secondary" data-action="update-status">
+                Update Status
+            </button>
+            <button type="button" class="btn btn-ghost" data-action="edit-shipment">
+                Edit Shipment
+            </button>
+        </div>
+    </header>
+
+    {# ============================= MAIN GRID ============================= #}
+    <div class="mgr-shipment-grid">
+
+        {# ---------------- LEFT COLUMN ---------------- #}
+        <div class="mgr-col-main">
+
+            {# ========== SHIPMENT OVERVIEW ========== #}
+            <section class="mgr-card card-overview card-enter">
+                <header class="mgr-card-header">
+                    <h2 class="mgr-card-title">Shipment Overview</h2>
+                </header>
+
+                <div class="mgr-card-body">
+                    <dl class="mgr-detail-grid">
+                        <div class="mgr-detail-item">
+                            <dt>Tracking Number</dt>
+                            <dd class="strong">{{ shipment.tracking_number|default:"N/A" }}</dd>
+                        </div>
+
+                        <div class="mgr-detail-item">
+                            <dt>Customer</dt>
+                            <dd>{{ shipment.customer.get_full_name|default:shipment.customer.username|default:"N/A" }}
+                            </dd>
+                        </div>
+
+                        <div class="mgr-detail-item">
+                            <dt>Current Status</dt>
+                            <dd>
+                                <span class="mgr-status-badge status-{{ shipment.status|default:'unknown'|lower }}">
+                                    {{ shipment.status|default:"Unknown" }}
+                                </span>
+                            </dd>
+                        </div>
+
+                        <div class="mgr-detail-item">
+                            <dt>Pickup Address</dt>
+                            <dd>{{ shipment.pickup_address|default:"N/A" }}</dd>
+                        </div>
+
+                        <div class="mgr-detail-item">
+                            <dt>Delivery Address</dt>
+                            <dd>{{ shipment.delivery_address|default:"N/A" }}</dd>
+                        </div>
+
+                        <div class="mgr-detail-item">
+                            <dt>Package Description</dt>
+                            <dd>{{ shipment.package_description|default:"N/A" }}</dd>
+                        </div>
+
+                        <div class="mgr-detail-item">
+                            <dt>Package Weight</dt>
+                            <dd>{{ shipment.package_weight|default:"N/A" }}{% if shipment.package_weight %} kg{% endif
+                                %}</dd>
+                        </div>
+
+                        <div class="mgr-detail-item">
+                            <dt>Delivery Fee</dt>
+                            <dd class="strong">{{ shipment.delivery_fee|default:"N/A" }}</dd>
+                        </div>
+
+                        <div class="mgr-detail-item">
+                            <dt>Created Date</dt>
+                            <dd>{{ shipment.created_at|date:"M d, Y H:i"|default:"N/A" }}</dd>
+                        </div>
+
+                        <div class="mgr-detail-item">
+                            <dt>Updated Date</dt>
+                            <dd>{{ shipment.updated_at|date:"M d, Y H:i"|default:"N/A" }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </section>
+
+            {# ========== DELIVERY STATUS TRACKER ========== #}
+            <section class="mgr-card card-tracker card-enter">
+                <header class="mgr-card-header">
+                    <h2 class="mgr-card-title">Delivery Status</h2>
+                </header>
+
+                <div class="mgr-card-body">
+                    {% if shipment.status|lower == "cancelled" or shipment.status|lower == "failed" %}
+                    <div class="tracker-terminal tracker-{{ shipment.status|lower }}">
+                        <span class="tracker-terminal-icon" aria-hidden="true">!</span>
+                        <div>
+                            <strong>Shipment {{ shipment.status|title }}</strong>
+                            <p>This shipment will not continue through the normal delivery flow.</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <ol class="tracker tracker-reveal"
+                        data-current-status="{{ shipment.status|default:'created'|lower }}">
+                        {% with s=shipment.status|default:'created'|lower %}
+                        <li
+                            class="tracker-step {% if s == 'created' %}is-current{% elif s == 'assigned' or s == 'picked_up' or s == 'in_transit' or s == 'out_for_delivery' or s == 'delivered' %}is-complete{% endif %}">
+                            <span class="tracker-dot"></span>
+                            <span class="tracker-label">Created</span>
+                        </li>
+                        <li
+                            class="tracker-step {% if s == 'assigned' %}is-current{% elif s == 'picked_up' or s == 'in_transit' or s == 'out_for_delivery' or s == 'delivered' %}is-complete{% endif %}">
+                            <span class="tracker-dot"></span>
+                            <span class="tracker-label">Assigned</span>
+                        </li>
+                        <li
+                            class="tracker-step {% if s == 'picked_up' %}is-current{% elif s == 'in_transit' or s == 'out_for_delivery' or s == 'delivered' %}is-complete{% endif %}">
+                            <span class="tracker-dot"></span>
+                            <span class="tracker-label">Picked Up</span>
+                        </li>
+                        <li
+                            class="tracker-step {% if s == 'in_transit' %}is-current{% elif s == 'out_for_delivery' or s == 'delivered' %}is-complete{% endif %}">
+                            <span class="tracker-dot"></span>
+                            <span class="tracker-label">In Transit</span>
+                        </li>
+                        <li
+                            class="tracker-step {% if s == 'out_for_delivery' %}is-current{% elif s == 'delivered' %}is-complete{% endif %}">
+                            <span class="tracker-dot"></span>
+                            <span class="tracker-label">Out for Delivery</span>
+                        </li>
+                        <li class="tracker-step {% if s == 'delivered' %}is-current is-complete{% endif %}">
+                            <span class="tracker-dot"></span>
+                            <span class="tracker-label">Delivered</span>
+                        </li>
+                        {% endwith %}
+                    </ol>
+                    {% endif %}
+                </div>
+            </section>
+
+            {# ========== SHIPMENT STATUS HISTORY ========== #}
+            <section class="mgr-card card-history card-enter">
+                <header class="mgr-card-header">
+                    <h2 class="mgr-card-title">Shipment Status History</h2>
+                </header>
+
+                <div class="mgr-card-body">
+                    <ul class="status-timeline">
+                        {% for history in status_history %}
+                        <li class="timeline-item timeline-stagger">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-status-line">
+                                    <span
+                                        class="mgr-status-badge status-{{ history.old_status|default:'unknown'|lower }}">
+                                        {{ history.old_status|default:"—" }}
+                                    </span>
+                                    <span class="timeline-arrow" aria-hidden="true">→</span>
+                                    <span
+                                        class="mgr-status-badge status-{{ history.new_status|default:'unknown'|lower }}">
+                                        {{ history.new_status|default:"—" }}
+                                    </span>
+                                </div>
+
+                                <div class="timeline-meta">
+                                    <span class="timeline-actor">
+                                        by {{
+                                        history.changed_by.get_full_name|default:history.changed_by.username|default:"System"
+                                        }}
+                                    </span>
+                                    <span class="timeline-sep">•</span>
+                                    <span class="timeline-date">
+                                        {{ history.changed_at|date:"M d, Y H:i"|default:"N/A" }}
+                                    </span>
+                                </div>
+
+                                {% if history.note %}
+                                <p class="timeline-note">{{ history.note }}</p>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="timeline-empty">No status history available.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+
+            {# ========== ASSIGNMENT HISTORY ========== #}
+            <section class="mgr-card card-assignments card-enter">
+                <header class="mgr-card-header">
+                    <h2 class="mgr-card-title">Assignment History</h2>
+                </header>
+
+                <div class="mgr-card-body">
+                    <div class="mgr-table-wrap">
+                        <table class="mgr-table">
+                            <thead>
+                                <tr>
+                                    <th>Driver</th>
+                                    <th>Assigned By</th>
+                                    <th>Assigned At</th>
+                                    <th>Accepted At</th>
+                                    <th>Completed At</th>
+                                    <th>Active</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for assignment in assignment_history %}
+                                <tr class="assignment-row">
+                                    <td>
+                                        <div class="driver-inline">
+                                            <span class="avatar avatar-sm">
+                                                {{
+                                                assignment.driver.get_full_name|default:assignment.driver.username|default:"?"|slice:":1"|upper
+                                                }}
+                                            </span>
+                                            <span>{{
+                                                assignment.driver.get_full_name|default:assignment.driver.username|default:"N/A"
+                                                }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{
+                                        assignment.assigned_by.get_full_name|default:assignment.assigned_by.username|default:"System"
+                                        }}</td>
+                                    <td>{{ assignment.assigned_at|date:"M d, Y H:i"|default:"—" }}</td>
+                                    <td>{{ assignment.accepted_at|date:"M d, Y H:i"|default:"—" }}</td>
+                                    <td>{{ assignment.completed_at|date:"M d, Y H:i"|default:"—" }}</td>
+                                    <td>
+                                        {% if assignment.is_active %}
+                                        <span class="pill pill-active">Active</span>
+                                        {% else %}
+                                        <span class="pill pill-muted">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="table-empty">No assignment history available.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            {# ========== COMPLAINTS ========== #}
+            <section class="mgr-card card-complaints card-enter">
+                <header class="mgr-card-header">
+                    <h2 class="mgr-card-title">Complaints</h2>
+                </header>
+
+                <div class="mgr-card-body">
+                    <ul class="complaint-list">
+                        {% for complaint in complaints %}
+                        <li class="complaint-item complaint-reveal">
+                            <div class="complaint-top">
+                                <h3 class="complaint-subject">{{ complaint.subject|default:"No subject" }}</h3>
+                                <div class="complaint-badges">
+                                    <span class="pill pill-priority-{{ complaint.priority|default:'normal'|lower }}">
+                                        {{ complaint.priority|default:"Normal" }}
+                                    </span>
+                                    <span class="mgr-status-badge status-{{ complaint.status|default:'open'|lower }}">
+                                        {{ complaint.status|default:"Open" }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="complaint-meta">
+                                {{ complaint.created_at|date:"M d, Y H:i"|default:"N/A" }}
+                            </div>
+
+                            {% if complaint.response %}
+                            <div class="complaint-response">
+                                <strong>Response:</strong>
+                                <p>{{ complaint.response }}</p>
+                            </div>
+                            {% endif %}
+                        </li>
+                        {% empty %}
+                        <li class="complaint-empty">No complaints for this shipment.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+
+        </div>
+
+        {# ---------------- RIGHT COLUMN ---------------- #}
+        <aside class="mgr-col-side">
+
+            {# ========== ASSIGNED DRIVER ========== #}
+            <section class="mgr-card card-driver card-driver-hover card-enter">
+                <header class="mgr-card-header">
+                    <h2 class="mgr-card-title">Assigned Driver</h2>
+                </header>
+
+                <div class="mgr-card-body">
+                    {% if driver %}
+                    <div class="driver-profile">
+                        <div class="avatar avatar-lg">
+                            {{ driver.get_full_name|default:driver.username|default:"?"|slice:":1"|upper }}
+                        </div>
+                        <div class="driver-info">
+                            <h3 class="driver-name">{{ driver.get_full_name|default:driver.username|default:"N/A" }}
+                            </h3>
+                            <p class="driver-phone">{{ driver.phone|default:"N/A" }}</p>
+                        </div>
+                    </div>
+
+                    <dl class="mgr-detail-list">
+                        <div class="mgr-detail-item">
+                            <dt>Vehicle</dt>
+                            <dd>{{ driver.vehicle|default:"N/A" }}</dd>
+                        </div>
+                        <div class="mgr-detail-item">
+                            <dt>Plate Number</dt>
+                            <dd>{{ driver.plate_number|default:"N/A" }}</dd>
+                        </div>
+                        <div class="mgr-detail-item">
+                            <dt>Availability</dt>
+                            <dd>
+                                {% if driver.is_available %}
+                                <span class="pill pill-active">Available</span>
+                                {% else %}
+                                <span class="pill pill-muted">Unavailable</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div class="mgr-detail-item">
+                            <dt>Assignment Date</dt>
+                            <dd>{{ assignment_date|date:"M d, Y H:i"|default:"N/A" }}</dd>
+                        </div>
+                        <div class="mgr-detail-item">
+                            <dt>Accepted Date</dt>
+                            <dd>{{ accepted_date|date:"M d, Y H:i"|default:"N/A" }}</dd>
+                        </div>
+                    </dl>
+
+                    <div class="driver-actions">
+                        <button type="button" class="btn btn-secondary" data-action="assign-driver">Assign
+                            Driver</button>
+                        <button type="button" class="btn btn-secondary" data-action="reassign-driver">Reassign
+                            Driver</button>
+                        <a href="{% url 'manager:driver_detail' driver.id %}" class="btn btn-ghost">View Driver</a>
+                    </div>
+                    {% else %}
+                    <div class="driver-unassigned">
+                        <div class="avatar avatar-lg avatar-empty">?</div>
+                        <p class="unassigned-label">Unassigned</p>
+                        <p class="unassigned-hint">No driver has been assigned to this shipment yet.</p>
+                    </div>
+
+                    <div class="driver-actions">
+                        <button type="button" class="btn btn-primary" data-action="assign-driver">Assign Driver</button>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            {# ========== PAYMENT INFORMATION ========== #}
+            <section class="mgr-card card-payment card-payment-enter card-enter">
+                <header class="mgr-card-header">
+                    <h2 class="mgr-card-title">Payment Information</h2>
+                </header>
+
+                <div class="mgr-card-body">
+                    <dl class="mgr-detail-list">
+                        <div class="mgr-detail-item">
+                            <dt>Amount</dt>
+                            <dd class="strong">{{ payment.amount|default:"N/A" }}</dd>
+                        </div>
+                        <div class="mgr-detail-item">
+                            <dt>Payment Method</dt>
+                            <dd>{{ payment.method|default:"N/A" }}</dd>
+                        </div>
+                        <div class="mgr-detail-item">
+                            <dt>Payment Status</dt>
+                            <dd>
+                                {% with pstatus=payment.status|default:'pending'|lower %}
+                                <span class="mgr-status-badge status-{{ pstatus }}">
+                                    {{ payment.status|default:"Pending" }}
+                                </span>
+                                {% endwith %}
+                            </dd>
+                        </div>
+                        <div class="mgr-detail-item">
+                            <dt>Transaction Reference</dt>
+                            <dd>{{ payment.transaction_reference|default:"N/A" }}</dd>
+                        </div>
+                        <div class="mgr-detail-item">
+                            <dt>Paid At</dt>
+                            <dd>{{ payment.paid_at|date:"M d, Y H:i"|default:"—" }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </section>
+
+            {# ========== CUSTOMER INFORMATION ========== #}
+            <section class="mgr-card card-customer card-enter">
+                <header class="mgr-card-header">
+                    <h2 class="mgr-card-title">Customer Information</h2>
+                </header>
+
+                <div class="mgr-card-body">
+                    <div class="customer-profile">
+                        <div class="avatar avatar-md">
+                            {{
+                            shipment.customer.get_full_name|default:shipment.customer.username|default:"?"|slice:":1"|upper
+                            }}
+                        </div>
+                        <div class="customer-info">
+                            <h3 class="customer-name">
+                                {{ shipment.customer.get_full_name|default:shipment.customer.username|default:"N/A" }}
+                            </h3>
+                            <p class="customer-email">{{ shipment.customer.email|default:"N/A" }}</p>
+                            <p class="customer-phone">{{ shipment.customer.phone|default:"N/A" }}</p>
+                        </div>
+                    </div>
+
+                    {% if customer_shipment_count %}
+                    <div class="customer-stat">
+                        <span class="customer-stat-value">{{ customer_shipment_count }}</span>
+                        <span class="customer-stat-label">Total Shipments</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="customer-actions">
+                        <a href="{% url 'manager:customer_detail' shipment.customer.id %}"
+                            class="btn btn-secondary">View Customer</a>
+                        <a href="{% url 'manager:shipment_list' %}?customer={{ shipment.customer.id }}"
+                            class="btn btn-ghost">View Customer Shipments</a>
+                    </div>
+                </div>
+            </section>
+
+            {# ========== MANAGER ACTIONS ========== #}
+            <section class="mgr-card card-actions card-enter">
+                <header class="mgr-card-header">
+                    <h2 class="mgr-card-title">Manager Actions</h2>
+                </header>
+
+                <div class="mgr-card-body">
+                    <div class="actions-panel">
+                        <button type="button" class="btn btn-primary btn-block" data-action="assign-driver">
+                            Assign Driver
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-block" data-action="reassign-driver">
+                            Reassign Driver
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-block" data-action="update-status">
+                            Update Shipment Status
+                        </button>
+                        <button type="button" class="btn btn-danger btn-block" data-action="cancel-shipment">
+                            Cancel Shipment
+                        </button>
+                        <button type="button" class="btn btn-accent btn-block" data-action="open-ai-assistant">
+                            <span class="icon-ai" aria-hidden="true">✦</span>
+                            Open AI Assistant
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </aside>
+    </div>
+
+    {# ============================= AI ASSISTANT QUICK ACTIONS ============================= #}
+    <section class="mgr-card card-ai card-enter" data-ai-assistant-root>
+        <header class="mgr-card-header">
+            <h2 class="mgr-card-title">AI Assistant</h2>
+            <span class="ai-hint">Powered by backend tools</span>
+        </header>
+
+        <div class="mgr-card-body">
+            <div class="ai-suggestions">
+                <button type="button" class="ai-chip" data-ai-action="check_status">
+                    Check delivery status
+                </button>
+                <button type="button" class="ai-chip" data-ai-action="find_drivers">
+                    Find available drivers
+                </button>
+                <button type="button" class="ai-chip" data-ai-action="reassign">
+                    Reassign shipment
+                </button>
+                <button type="button" class="ai-chip" data-ai-action="analyze_delay">
+                    Analyze delay
+                </button>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+{# ============================= PAGE-SPECIFIC STYLES ============================= #}
+<link rel="stylesheet" href="{% static 'CSS/dashboard.css' %}">
+
+{# ============================= PAGE-SPECIFIC SCRIPT ============================= #}
+<script src="{% static 'js/manager_shipment_detail.js' %}" defer></script>
+{% endblock %}

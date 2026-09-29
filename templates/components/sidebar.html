@@ -1,0 +1,525 @@
+{% load static %}
+
+{# ============================================================
+Shared Sidebar Component
+Role-aware: Customer / Driver / Manager
+Collapsible on desktop, slide-in drawer on mobile.
+Renders only UI. Logic lives in static/js/sidebar.js
+============================================================ #}
+
+{% if user.is_authenticated %}
+{% with role=user.role|default:''|lower %}
+
+<aside class="app-sidebar" id="app-sidebar" data-sidebar data-sidebar-role="{{ role }}" aria-label="Primary sidebar">
+
+    {# ============================= HEADER ============================= #}
+    <div class="app-sidebar-head">
+
+        <a href="/" class="app-sidebar-brand" aria-label="Smart Delivery home">
+            <span class="app-sidebar-brand-mark" aria-hidden="true">
+                <span class="app-sidebar-brand-dot"></span>
+            </span>
+            <span class="app-sidebar-brand-text">
+                <span class="app-sidebar-brand-title">Smart Delivery</span>
+                <span class="app-sidebar-brand-sub">&amp; Logistics</span>
+            </span>
+        </a>
+
+        {# Mobile close (X) #}
+        <button type="button" class="app-sidebar-close" data-sidebar-close aria-label="Close menu">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+
+        {# Desktop collapse toggle #}
+        <button type="button" class="app-sidebar-collapse" data-sidebar-collapse aria-label="Collapse sidebar"
+            aria-expanded="true" aria-controls="app-sidebar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="15 6 9 12 15 18"></polyline>
+            </svg>
+        </button>
+    </div>
+
+    {# ============================= NAV ============================= #}
+    <nav class="app-sidebar-nav" role="navigation" aria-label="Sidebar navigation">
+        <ul class="app-sidebar-list" role="list">
+
+            {# ============================= MANAGER ============================= #}
+            {% if role == 'manager' %}
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'manager:dashboard' %}"
+                    class="app-sidebar-link {% if request.resolver_match.namespace == 'manager' and request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}"
+                    data-tooltip="Dashboard" {% if request.resolver_match.url_name=='dashboard' %}aria-current="page" {%
+                    endif %}>
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="9"></rect>
+                            <rect x="14" y="3" width="7" height="5"></rect>
+                            <rect x="14" y="12" width="7" height="9"></rect>
+                            <rect x="3" y="16" width="7" height="5"></rect>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Dashboard</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'manager:users' %}"
+                    class="app-sidebar-link {% if request.resolver_match.url_name == 'users' %}is-active{% endif %}"
+                    data-tooltip="Users">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Users</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'manager:customers' %}"
+                    class="app-sidebar-link {% if 'customer' in request.resolver_match.url_name %}is-active{% endif %}"
+                    data-tooltip="Customers">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Customers</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'manager:drivers' %}"
+                    class="app-sidebar-link {% if 'driver' in request.resolver_match.url_name %}is-active{% endif %}"
+                    data-tooltip="Drivers">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12h18"></path>
+                            <path d="M5 12V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5"></path>
+                            <circle cx="7.5" cy="16.5" r="2"></circle>
+                            <circle cx="16.5" cy="16.5" r="2"></circle>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Drivers</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'manager:warehouses' %}"
+                    class="app-sidebar-link {% if 'warehouse' in request.resolver_match.url_name %}is-active{% endif %}"
+                    data-tooltip="Warehouses">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 21V9l9-6 9 6v12"></path>
+                            <rect x="9" y="13" width="6" height="8"></rect>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Warehouses</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'manager:shipment_list' %}"
+                    class="app-sidebar-link {% if 'shipment' in request.resolver_match.url_name %}is-active{% endif %}"
+                    data-tooltip="Shipments">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8l-9-5-9 5v8l9 5 9-5Z"></path>
+                            <path d="M3.3 7.3 12 12l8.7-4.7"></path>
+                            <line x1="12" y1="22" x2="12" y2="12"></line>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Shipments</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'manager:assignments' %}"
+                    class="app-sidebar-link {% if 'assignment' in request.resolver_match.url_name %}is-active{% endif %}"
+                    data-tooltip="Assignments">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4"></path>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Assignments</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'manager:delayed_deliveries' %}"
+                    class="app-sidebar-link {% if 'delayed' in request.resolver_match.url_name %}is-active{% endif %}"
+                    data-tooltip="Delayed Deliveries">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <polyline points="12 7 12 12 15 15"></polyline>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Delayed Deliveries</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'manager:payments' %}"
+                    class="app-sidebar-link {% if 'payment' in request.resolver_match.url_name %}is-active{% endif %}"
+                    data-tooltip="Payments">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                            <line x1="2" y1="10" x2="22" y2="10"></line>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Payments</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'manager:complaints' %}"
+                    class="app-sidebar-link {% if 'complaint' in request.resolver_match.url_name %}is-active{% endif %}"
+                    data-tooltip="Complaints">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z">
+                            </path>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Complaints</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'manager:analytics' %}"
+                    class="app-sidebar-link {% if request.resolver_match.url_name == 'analytics' %}is-active{% endif %}"
+                    data-tooltip="Analytics">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3v18h18"></path>
+                            <path d="M7 14l4-4 3 3 5-6"></path>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Analytics</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'manager:ai_actions' %}"
+                    class="app-sidebar-link {% if request.resolver_match.url_name == 'ai_actions' %}is-active{% endif %}"
+                    data-tooltip="AI Actions">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2v4"></path>
+                            <path d="M12 18v4"></path>
+                            <path d="M4.9 4.9l2.8 2.8"></path>
+                            <path d="M16.3 16.3l2.8 2.8"></path>
+                            <path d="M2 12h4"></path>
+                            <path d="M18 12h4"></path>
+                            <path d="M4.9 19.1l2.8-2.8"></path>
+                            <path d="M16.3 7.7l2.8-2.8"></path>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">AI Actions</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'manager:audit_logs' %}"
+                    class="app-sidebar-link {% if request.resolver_match.url_name == 'audit_logs' %}is-active{% endif %}"
+                    data-tooltip="Audit Logs">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="8" y1="13" x2="16" y2="13"></line>
+                            <line x1="8" y1="17" x2="13" y2="17"></line>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Audit Logs</span>
+                </a>
+            </li>
+
+            {# ============================= DRIVER ============================= #}
+            {% elif role == 'driver' %}
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'driver:dashboard' %}"
+                    class="app-sidebar-link {% if request.resolver_match.namespace == 'driver' and request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}"
+                    data-tooltip="Dashboard">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="9"></rect>
+                            <rect x="14" y="3" width="7" height="5"></rect>
+                            <rect x="14" y="12" width="7" height="9"></rect>
+                            <rect x="3" y="16" width="7" height="5"></rect>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Dashboard</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'driver:deliveries' %}"
+                    class="app-sidebar-link {% if request.resolver_match.url_name == 'deliveries' %}is-active{% endif %}"
+                    data-tooltip="My Deliveries">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8l-9-5-9 5v8l9 5 9-5Z"></path>
+                            <path d="M3.3 7.3 12 12l8.7-4.7"></path>
+                            <line x1="12" y1="22" x2="12" y2="12"></line>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">My Deliveries</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'driver:history' %}"
+                    class="app-sidebar-link {% if request.resolver_match.url_name == 'history' %}is-active{% endif %}"
+                    data-tooltip="Shipment History">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <polyline points="12 7 12 12 15 15"></polyline>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Shipment History</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'driver:availability' %}"
+                    class="app-sidebar-link {% if request.resolver_match.url_name == 'availability' %}is-active{% endif %}"
+                    data-tooltip="Availability">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <path d="M12 8v4l3 2"></path>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Availability</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'driver:location' %}"
+                    class="app-sidebar-link {% if request.resolver_match.url_name == 'location' %}is-active{% endif %}"
+                    data-tooltip="Location">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0Z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Location</span>
+                </a>
+            </li>
+
+            {# ============================= CUSTOMER ============================= #}
+            {% elif role == 'customer' %}
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'customer:dashboard' %}"
+                    class="app-sidebar-link {% if request.resolver_match.namespace == 'customer' and request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}"
+                    data-tooltip="Dashboard">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="9"></rect>
+                            <rect x="14" y="3" width="7" height="5"></rect>
+                            <rect x="14" y="12" width="7" height="9"></rect>
+                            <rect x="3" y="16" width="7" height="5"></rect>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Dashboard</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'customer:shipments' %}"
+                    class="app-sidebar-link {% if 'shipment' in request.resolver_match.url_name %}is-active{% endif %}"
+                    data-tooltip="My Shipments">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8l-9-5-9 5v8l9 5 9-5Z"></path>
+                            <path d="M3.3 7.3 12 12l8.7-4.7"></path>
+                            <line x1="12" y1="22" x2="12" y2="12"></line>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">My Shipments</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'customer:track' %}"
+                    class="app-sidebar-link {% if request.resolver_match.url_name == 'track' %}is-active{% endif %}"
+                    data-tooltip="Track Shipment">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0Z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Track Shipment</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'customer:payments' %}"
+                    class="app-sidebar-link {% if 'payment' in request.resolver_match.url_name %}is-active{% endif %}"
+                    data-tooltip="Payments">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                            <line x1="2" y1="10" x2="22" y2="10"></line>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Payments</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'customer:complaints' %}"
+                    class="app-sidebar-link {% if 'complaint' in request.resolver_match.url_name %}is-active{% endif %}"
+                    data-tooltip="Complaints">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z">
+                            </path>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Complaints</span>
+                </a>
+            </li>
+
+            {% endif %}
+
+            {# ============================= SHARED ITEMS (ALL ROLES) ============================= #}
+
+            <li class="app-sidebar-sep" aria-hidden="true"></li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'ai_assistant' %}"
+                    class="app-sidebar-link app-sidebar-ai {% if request.resolver_match.url_name == 'ai_assistant' %}is-active{% endif %}"
+                    data-tooltip="AI Assistant">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <span class="app-ai-mark">✦</span>
+                    </span>
+                    <span class="app-sidebar-label">AI Assistant</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'notifications:list' %}"
+                    class="app-sidebar-link {% if request.resolver_match.namespace == 'notifications' %}is-active{% endif %}"
+                    data-tooltip="Notifications">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Notifications</span>
+                    {% if unread_notifications_count %}
+                    <span class="app-sidebar-badge" aria-hidden="true">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+
+    {# ============================= USER SECTION ============================= #}
+    <div class="app-sidebar-user">
+
+        <a href="{% url 'accounts:profile' %}" class="app-sidebar-user-link" data-tooltip="Profile">
+            <span class="app-sidebar-user-avatar" aria-hidden="true">
+                {% if user.get_full_name %}
+                {{ user.get_full_name|slice:":1"|upper }}
+                {% elif user.username %}
+                {{ user.username|slice:":1"|upper }}
+                {% else %}
+                ?
+                {% endif %}
+            </span>
+
+            <span class="app-sidebar-user-meta">
+                <span class="app-sidebar-user-name">
+                    {{ user.get_full_name|default:user.username|default:"User" }}
+                </span>
+                <span class="app-sidebar-user-role">
+                    {{ user.role|default:"Member" }}
+                </span>
+            </span>
+        </a>
+
+        <div class="app-sidebar-user-actions">
+
+            <a href="{% url 'accounts:settings' %}" class="app-sidebar-user-btn" data-tooltip="Settings"
+                aria-label="Settings">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z">
+                    </path>
+                </svg>
+            </a>
+
+            <form method="post" action="{% url 'accounts:logout' %}" class="app-sidebar-user-form">
+                {% csrf_token %}
+                <button type="submit" class="app-sidebar-user-btn app-sidebar-user-danger" data-tooltip="Logout"
+                    aria-label="Logout">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+</aside>
+
+{# ============================= MOBILE OVERLAY ============================= #}
+<div class="app-sidebar-overlay" data-sidebar-overlay hidden aria-hidden="true"></div>
+
+{% endwith %}
+{% endif %}

@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Audit Logs
+{% endblock %}
+
+{% block content %}
+<div class="mgr-audit-logs-page page-fade-up">
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="mgr-page-header">
+        <div class="mgr-header-left">
+            <div class="mgr-title-block">
+                <h1 class="mgr-page-title">Audit Logs</h1>
+                <p class="mgr-page-subtitle">
+                    Monitor important system activities and changes.
+                </p>
+            </div>
+        </div>
+
+        <div class="mgr-header-actions">
+            <span class="readonly-pill" aria-label="Read only">
+                <span class="readonly-dot" aria-hidden="true"></span>
+                Read only
+            </span>
+            <button type="button" class="btn btn-secondary" data-action="refresh-audit-logs">
+                Refresh
+            </button>
+        </div>
+    </header>
+
+    {# ============================= STATISTICS CARDS ============================= #}
+    <section class="mgr-stats-grid">
+        <div class="mgr-stat-card stat-stagger">
+            <div class="mgr-stat-icon" aria-hidden="true">Σ</div>
+            <div class="mgr-stat-body">
+                <span class="mgr-stat-label">Total Logs</span>
+                <span class="mgr-stat-value">{{ stats.total|default:"0" }}</span>
+            </div>
+        </div>
+
+        <div class="mgr-stat-card stat-stagger">
+            <div class="mgr-stat-icon" aria-hidden="true">◐</div>
+            <div class="mgr-stat-body">
+                <span class="mgr-stat-label">Today's Activities</span>
+                <span class="mgr-stat-value">{{ stats.today|default:"0" }}</span>
+            </div>
+        </div>
+
+        <div class="mgr-stat-card stat-stagger">
+            <div class="mgr-stat-icon" aria-hidden="true">✓</div>
+            <div class="mgr-stat-body">
+                <span class="mgr-stat-label">Successful Actions</span>
+                <span class="mgr-stat-value text-success">{{ stats.success|default:"0" }}</span>
+            </div>
+        </div>
+
+        <div class="mgr-stat-card stat-stagger stat-urgent">
+            <div class="mgr-stat-icon" aria-hidden="true">✕</div>
+            <div class="mgr-stat-body">
+                <span class="mgr-stat-label">Failed Actions</span>
+                <span class="mgr-stat-value text-danger">{{ stats.failed|default:"0" }}</span>
+            </div>
+        </div>
+    </section>
+
+    {# ============================= FILTERS ============================= #}
+    <section class="mgr-card card-filters card-enter">
+        <form method="get" class="mgr-filter-bar" id="audit-logs-filter-form">
+
+            <div class="filter-field">
+                <label for="filter-search">Search</label>
+                <input type="text" id="filter-search" name="q" class="input" placeholder="Search description, object…"
+                    value="{{ request.GET.q|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-user">User</label>
+                <input type="text" id="filter-user" name="user" class="input" placeholder="Username"
+                    value="{{ request.GET.user|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-action">Action</label>
+                <select id="filter-action" name="action" class="input">
+                    <option value="">All</option>
+                    <option value="CREATE" {% if request.GET.action=="CREATE" %}selected{% endif %}>Create</option>
+                    <option value="UPDATE" {% if request.GET.action=="UPDATE" %}selected{% endif %}>Update</option>
+                    <option value="DELETE" {% if request.GET.action=="DELETE" %}selected{% endif %}>Delete</option>
+                    <option value="ASSIGN" {% if request.GET.action=="ASSIGN" %}selected{% endif %}>Assign</option>
+                    <option value="REASSIGN" {% if request.GET.action=="REASSIGN" %}selected{% endif %}>Reassign
+                    </option>
+                    <option value="STATUS_CHANGE" {% if request.GET.action=="STATUS_CHANGE" %}selected{% endif %}>Status
+                        Change</option>
+                    <option value="LOGIN" {% if request.GET.action=="LOGIN" %}selected{% endif %}>Login</option>
+                    <option value="LOGOUT" {% if request.GET.action=="LOGOUT" %}selected{% endif %}>Logout</option>
+                    <option value="AI_ACTION" {% if request.GET.action=="AI_ACTION" %}selected{% endif %}>AI Action
+                    </option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-object">Object Type</label>
+                <input type="text" id="filter-object" name="object_type" class="input" placeholder="Shipment, Driver…"
+                    value="{{ request.GET.object_type|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-result">Result</label>
+                <select id="filter-result" name="result" class="input">
+                    <option value="">All</option>
+                    <option value="SUCCESS" {% if request.GET.result=="SUCCESS" %}selected{% endif %}>Success</option>
+                    <option value="FAILED" {% if request.GET.result=="FAILED" %}selected{% endif %}>Failed</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date-from">Date From</label>
+                <input type="date" id="filter-date-from" name="date_from" class="input"
+                    value="{{ request.GET.date_from|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date-to">Date To</label>
+                <input type="date" id="filter-date-to" name="date_to" class="input"
+                    value="{{ request.GET.date_to|default:'' }}">
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="{% url 'manager:audit_logs' %}" class="btn btn-ghost">Reset Filters</a>
+            </div>
+        </form>
+    </section>
+
+    {# ============================= AUDIT LOGS TABLE ============================= #}
+    <section class="mgr-card card-table card-enter">
+        <header class="mgr-card-header">
+            <h2 class="mgr-card-title">Activity Log</h2>
+            <span class="mgr-card-meta">
+                {{ audit_logs|length }} record{{ audit_logs|length|pluralize }}
+            </span>
+        </header>
+
+        <div class="mgr-card-body">
+            <div class="mgr-table-wrap">
+                <table class="mgr-table audit-logs-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Object Type</th>
+                            <th>Object ID</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in audit_logs %}
+                        <tr class="audit-log-row" data-log-id="{{ log.id }}">
+
+                            <td class="cell-id">
+                                <span class="mono">#{{ log.id|default:"—" }}</span>
+                            </td>
+
+                            <td class="cell-user">
+                                <div class="cell-user-wrap">
+                                    <span class="avatar avatar-sm">
+                                        {{ log.user.get_full_name|default:log.user.username|default:"?"|slice:":1"|upper
+                                        }}
+                                    </span>
+                                    <div class="cell-user-info">
+                                        <span class="cell-user-name">
+                                            {{ log.user.get_full_name|default:log.user.username|default:"System" }}
+                                        </span>
+                                        <span class="cell-user-role">
+                                            {{ log.user.role|default:"—" }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="cell-action">
+                                <span class="action-badge action-{{ log.action|default:'unknown'|lower }}">
+                                    {{ log.action|default:"—" }}
+                                </span>
+                            </td>
+
+                            <td class="cell-object">
+                                <span class="object-type">
+                                    {{ log.object_type|default:"—" }}
+                                </span>
+                            </td>
+
+                            <td class="cell-object-id">
+                                <span class="mono">
+                                    {{ log.object_id|default:"—" }}
+                                </span>
+                            </td>
+
+                            <td class="cell-description">
+                                <span class="description-text">
+                                    {{ log.description|default:"—" }}
+                                </span>
+                            </td>
+
+                            <td class="cell-status">
+                                {% with s=log.success|yesno:"SUCCESS,FAILED" %}
+                                <span class="mgr-status-badge status-{{ s|lower }}">
+                                    {{ s }}
+                                </span>
+                                {% endwith %}
+                            </td>
+
+                            <td class="cell-date">
+                                {{ log.created_at|date:"M d, Y H:i"|default:"—" }}
+                            </td>
+
+                            <td class="cell-actions">
+                                <div class="row-actions">
+                                    <button type="button" class="icon-btn" data-action="view-audit-log"
+                                        data-log-id="{{ log.id }}" title="View Details" aria-label="View Details">
+                                        <span aria-hidden="true">👁</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="table-empty">
+                                <div class="empty-state">
+                                    <div class="empty-icon" aria-hidden="true">🗂</div>
+                                    <h3 class="empty-title">No audit logs found</h3>
+                                    <p class="empty-desc">
+                                        There are no audit records matching the current filters.
+                                        Try adjusting your search criteria or reset the filters.
+                                    </p>
+                                    <a href="{% url 'manager:audit_logs' %}" class="btn btn-secondary">
+                                        Reset Filters
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    {# ============================= PAGINATION ============================= #}
+    {% include "components/pagination.html" with page_obj=page_obj %}
+
+</div>
+
+{# ============================= LOG DETAILS MODAL ============================= #}
+<div class="modal-backdrop" id="audit-log-modal" hidden aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="dialog" aria-modal="true" aria-labelledby="audit-log-modal-title">
+        <header class="modal-header">
+            <h2 class="modal-title" id="audit-log-modal-title">Audit Log Details</h2>
+            <button type="button" class="modal-close" data-action="close-modal" aria-label="Close">
+                <span aria-hidden="true">✕</span>
+            </button>
+        </header>
+
+        <div class="modal-body" id="audit-log-modal-body">
+            {# Populated by JS from safe, sanitized backend data #}
+            <div class="modal-loading">Loading log details…</div>
+        </div>
+
+        <footer class="modal-footer">
+            <span class="modal-footer-note">Read-only record</span>
+            <button type="button" class="btn btn-ghost" data-action="close-modal">Close</button>
+        </footer>
+    </div>
+</div>
+
+{# ============================= PAGE-SPECIFIC STYLES ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
+{# ============================= PAGE-SPECIFIC SCRIPT ============================= #}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+<script src="{% static 'js/audit_logs.js' %}" defer></script>
+{% endblock %}
