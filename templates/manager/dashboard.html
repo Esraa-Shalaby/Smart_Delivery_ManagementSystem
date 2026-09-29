@@ -1,0 +1,772 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manager Dashboard | Smart Delivery{% endblock %}
+
+{% block content %}
+{# ---------- SVG icon sprite (no external icon library) ---------- #}
+<svg xmlns="http://www.w3.org/2000/svg" hidden aria-hidden="true">
+    <symbol id="i-dashboard" viewBox="0 0 24 24">
+        <path d="M3 3h8v10H3zM13 3h8v6h-8zM13 11h8v10h-8zM3 15h8v6H3z" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-box" viewBox="0 0 24 24">
+        <path d="M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24">
+        <path d="M2 6h11v10H2zM13 9h5l4 4v3h-9zM6 19a2 2 0 100-4 2 2 0 000 4zM17 19a2 2 0 100-4 2 2 0 000 4z"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M8 12.5l3 3 5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24">
+        <path d="M12 3l10 18H2zM12 10v5M12 18h.01" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-user" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M4 21c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-users" viewBox="0 0 24 24">
+        <circle cx="9" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M2 20c0-3.5 3-5 7-5s7 1.5 7 5M16 4.5a3.5 3.5 0 010 7M18 15c2.5.5 4 2 4 5" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-link" viewBox="0 0 24 24">
+        <path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3A4 4 0 0011 18.7l1-1"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-money" viewBox="0 0 24 24">
+        <rect x="2" y="6" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2" />
+        <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2" />
+    </symbol>
+    <symbol id="i-warehouse" viewBox="0 0 24 24">
+        <path d="M3 10l9-6 9 6v10H3zM8 20v-6h8v6" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24">
+        <path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24">
+        <path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24">
+        <path d="M6 16V11a6 6 0 0112 0v5l2 2H4zM10 21h4" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24">
+        <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-file" viewBox="0 0 24 24">
+        <path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h6M9 17h6" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24">
+        <path d="M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-7" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" />
+    </symbol>
+</svg>
+
+{# ---------- Resolve URL names safely  ---------- #}
+{% url 'manager:dashboard' as u_dashboard %}
+{% url 'manager:analytics' as u_analytics %}
+{% url 'manager:shipments' as u_shipments %}
+{% url 'manager:shipment_create' as u_shipment_create %}
+{% url 'manager:assignments' as u_assignments %}
+{% url 'manager:delayed_deliveries' as u_delayed %}
+{% url 'manager:warehouses' as u_warehouses %}
+{% url 'manager:warehouse_create' as u_warehouse_create %}
+{% url 'manager:users' as u_users %}
+{% url 'manager:customers' as u_customers %}
+{% url 'manager:drivers' as u_drivers %}
+{% url 'manager:payments' as u_payments %}
+{% url 'manager:complaints' as u_complaints %}
+{% url 'manager:ai_assistant' as u_ai %}
+{% url 'manager:ai_actions' as u_ai_actions %}
+{% url 'manager:audit_logs' as u_audit %}
+{% url 'manager:notifications' as u_notifications %}
+{% url 'manager:profile' as u_profile %}
+{% url 'manager:settings' as u_settings %}
+
+<div class="manager-layout" id="managerLayout">
+
+    {# ================= SIDEBAR ================= #}
+    <aside class="sidebar" id="managerSidebar" aria-label="Manager navigation">
+        <div class="sidebar__brand">
+            <svg class="icon icon--lg">
+                <use href="#i-truck" />
+            </svg>
+            <div>
+                <strong>Smart Delivery</strong>
+                <small>Command Center</small>
+            </div>
+        </div>
+
+        <nav class="sidebar__nav">
+            <p class="sidebar__section">Overview</p>
+            <a class="sidebar__link is-active" href="{{ u_dashboard|default:'#' }}" aria-current="page">
+                <svg class="icon">
+                    <use href="#i-dashboard" />
+                </svg><span>Dashboard</span>
+            </a>
+            <a class="sidebar__link" href="{{ u_analytics|default:'#' }}">
+                <svg class="icon">
+                    <use href="#i-chart" />
+                </svg><span>Analytics</span>
+            </a>
+
+            <p class="sidebar__section">Operations</p>
+            <a class="sidebar__link" href="{{ u_shipments|default:'#' }}"><svg class="icon">
+                    <use href="#i-box" />
+                </svg><span>Shipments</span></a>
+            <a class="sidebar__link" href="{{ u_assignments|default:'#' }}"><svg class="icon">
+                    <use href="#i-link" />
+                </svg><span>Assignments</span></a>
+            <a class="sidebar__link" href="{{ u_delayed|default:'#' }}"><svg class="icon">
+                    <use href="#i-alert" />
+                </svg><span>Delayed Deliveries</span></a>
+            <a class="sidebar__link" href="{{ u_warehouses|default:'#' }}"><svg class="icon">
+                    <use href="#i-warehouse" />
+                </svg><span>Warehouses</span></a>
+
+            <p class="sidebar__section">People</p>
+            <a class="sidebar__link" href="{{ u_users|default:'#' }}"><svg class="icon">
+                    <use href="#i-users" />
+                </svg><span>Users</span></a>
+            <a class="sidebar__link" href="{{ u_customers|default:'#' }}"><svg class="icon">
+                    <use href="#i-user" />
+                </svg><span>Customers</span></a>
+            <a class="sidebar__link" href="{{ u_drivers|default:'#' }}"><svg class="icon">
+                    <use href="#i-truck" />
+                </svg><span>Drivers</span></a>
+
+            <p class="sidebar__section">Finance &amp; Support</p>
+            <a class="sidebar__link" href="{{ u_payments|default:'#' }}"><svg class="icon">
+                    <use href="#i-money" />
+                </svg><span>Payments</span></a>
+            <a class="sidebar__link" href="{{ u_complaints|default:'#' }}"><svg class="icon">
+                    <use href="#i-chat" />
+                </svg><span>Complaints</span></a>
+
+            <p class="sidebar__section">AI</p>
+            <a class="sidebar__link" href="{{ u_ai|default:'#' }}"><svg class="icon">
+                    <use href="#i-spark" />
+                </svg><span>AI Assistant</span></a>
+            <a class="sidebar__link" href="{{ u_ai_actions|default:'#' }}"><svg class="icon">
+                    <use href="#i-spark" />
+                </svg><span>AI Actions</span></a>
+
+            <p class="sidebar__section">System</p>
+            <a class="sidebar__link" href="{{ u_audit|default:'#' }}"><svg class="icon">
+                    <use href="#i-file" />
+                </svg><span>Audit Logs</span></a>
+            <a class="sidebar__link" href="{{ u_notifications|default:'#' }}"><svg class="icon">
+                    <use href="#i-bell" />
+                </svg><span>Notifications</span></a>
+            <a class="sidebar__link" href="{{ u_profile|default:'#' }}"><svg class="icon">
+                    <use href="#i-user" />
+                </svg><span>Profile</span></a>
+            <a class="sidebar__link" href="{{ u_settings|default:'#' }}"><svg class="icon">
+                    <use href="#i-settings" />
+                </svg><span>Settings</span></a>
+        </nav>
+    </aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
+
+    {# ================= MAIN ================= #}
+    <div class="manager-main">
+
+        {# ---------- TOPBAR ---------- #}
+        <header class="topbar">
+            <button type="button" class="icon-btn topbar__toggle" id="sidebarToggle" aria-label="Toggle sidebar"
+                aria-controls="managerSidebar" aria-expanded="false">
+                <svg class="icon">
+                    <use href="#i-menu" />
+                </svg>
+            </button>
+
+            <div class="topbar__title">
+                <h1>Dashboard</h1>
+                <p>Live overview of your logistics operation</p>
+            </div>
+
+            <form class="topbar__search" role="search" action="{{ u_shipments|default:'#' }}" method="get">
+                <svg class="icon">
+                    <use href="#i-search" />
+                </svg>
+                <input type="search" name="q" placeholder="Search tracking number, customer, driver…"
+                    aria-label="Search" autocomplete="off">
+            </form>
+
+            <div class="topbar__actions">
+                <a class="icon-btn" href="{{ u_notifications|default:'#' }}" aria-label="Notifications">
+                    <svg class="icon">
+                        <use href="#i-bell" />
+                    </svg>
+                    {% if unread_notifications_count %}
+                    <span class="icon-btn__dot">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </a>
+                <a class="profile-chip" href="{{ u_profile|default:'#' }}">
+                    <span class="profile-chip__avatar" aria-hidden="true">
+                        {{ request.user.get_full_name|default:request.user.username|default:"M"|slice:":1"|upper }}
+                    </span>
+                    <span class="profile-chip__meta">
+                        <strong>{{ request.user.get_full_name|default:request.user.username|default:"Manager"
+                            }}</strong>
+                        <small>Manager</small>
+                    </span>
+                </a>
+            </div>
+        </header>
+
+        {% include "components/alerts.html" %}
+
+        <main class="dashboard page-fade-up" id="dashboardMain">
+
+            {# ---------- WELCOME ---------- #}
+            <section class="welcome anim-card" style="--delay: 0">
+                <div class="welcome__text">
+                    <span class="welcome__eyebrow">Manager Command Center</span>
+                    <h2>
+                        {{ greeting|default:"Welcome back" }},
+                        {{ request.user.first_name|default:"Manager" }}.
+                    </h2>
+                    <p>
+                        Monitor your delivery network, shipments, drivers and operational activity.
+                        {% if delayed_count %}
+                        <strong class="text-danger">{{ delayed_count }} delayed deliveries</strong> need your attention.
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="welcome__cta">
+                    <a class="btn btn--primary" href="{{ u_shipment_create|default:'#' }}">
+                        <svg class="icon">
+                            <use href="#i-plus" />
+                        </svg> Create Shipment
+                    </a>
+                    <a class="btn btn--ghost" href="{{ u_ai|default:'#' }}">
+                        <svg class="icon">
+                            <use href="#i-spark" />
+                        </svg> Ask AI Assistant
+                    </a>
+                </div>
+            </section>
+
+            {# ---------- STATISTICS ---------- #}
+            <section class="stats-grid" aria-label="Key statistics">
+                <article class="stat-card anim-card" style="--delay: 1">
+                    <span class="stat-card__icon stat-card__icon--blue"><svg class="icon">
+                            <use href="#i-box" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Total Shipments</span>
+                        <strong class="stat-card__value" data-counter>{{ total_shipments|default:"0" }}</strong>
+                        <span class="stat-card__desc">All time</span>
+                    </div>
+                    {% if shipments_trend %}<span
+                        class="trend {% if shipments_trend_up %}trend--up{% else %}trend--down{% endif %}">{{
+                        shipments_trend }}</span>{% endif %}
+                </article>
+
+                <article class="stat-card anim-card" style="--delay: 2">
+                    <span class="stat-card__icon stat-card__icon--amber"><svg class="icon">
+                            <use href="#i-clock" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Pending Shipments</span>
+                        <strong class="stat-card__value" data-counter>{{ pending_shipments|default:"0" }}</strong>
+                        <span class="stat-card__desc">Awaiting assignment</span>
+                    </div>
+                    {% if pending_trend %}<span
+                        class="trend {% if pending_trend_up %}trend--up{% else %}trend--down{% endif %}">{{
+                        pending_trend }}</span>{% endif %}
+                </article>
+
+                <article class="stat-card anim-card" style="--delay: 3">
+                    <span class="stat-card__icon stat-card__icon--indigo"><svg class="icon">
+                            <use href="#i-truck" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">In Transit</span>
+                        <strong class="stat-card__value" data-counter>{{ in_transit_shipments|default:"0" }}</strong>
+                        <span class="stat-card__desc">On the road now</span>
+                    </div>
+                    {% if transit_trend %}<span
+                        class="trend {% if transit_trend_up %}trend--up{% else %}trend--down{% endif %}">{{
+                        transit_trend }}</span>{% endif %}
+                </article>
+
+                <article class="stat-card anim-card" style="--delay: 4">
+                    <span class="stat-card__icon stat-card__icon--green"><svg class="icon">
+                            <use href="#i-check" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Delivered</span>
+                        <strong class="stat-card__value" data-counter>{{ delivered_shipments|default:"0" }}</strong>
+                        <span class="stat-card__desc">Completed deliveries</span>
+                    </div>
+                    {% if delivered_trend %}<span
+                        class="trend {% if delivered_trend_up %}trend--up{% else %}trend--down{% endif %}">{{
+                        delivered_trend }}</span>{% endif %}
+                </article>
+
+                <article class="stat-card stat-card--danger anim-card" style="--delay: 5">
+                    <span class="stat-card__icon stat-card__icon--red"><svg class="icon">
+                            <use href="#i-alert" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Delayed Deliveries</span>
+                        <strong class="stat-card__value" data-counter>{{ delayed_count|default:"0" }}</strong>
+                        <span class="stat-card__desc">Need attention</span>
+                    </div>
+                </article>
+
+                <article class="stat-card anim-card" style="--delay: 6">
+                    <span class="stat-card__icon stat-card__icon--teal"><svg class="icon">
+                            <use href="#i-user" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Available Drivers</span>
+                        <strong class="stat-card__value" data-counter>{{ available_drivers|default:"0" }}</strong>
+                        <span class="stat-card__desc">Ready for assignment</span>
+                    </div>
+                </article>
+
+                <article class="stat-card anim-card" style="--delay: 7">
+                    <span class="stat-card__icon stat-card__icon--violet"><svg class="icon">
+                            <use href="#i-link" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Active Assignments</span>
+                        <strong class="stat-card__value" data-counter>{{ active_assignments|default:"0" }}</strong>
+                        <span class="stat-card__desc">Currently in progress</span>
+                    </div>
+                </article>
+
+                <article class="stat-card anim-card" style="--delay: 8">
+                    <span class="stat-card__icon stat-card__icon--gold"><svg class="icon">
+                            <use href="#i-money" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Total Revenue</span>
+                        <strong class="stat-card__value">{{ total_revenue|default:"0" }}</strong>
+                        <span class="stat-card__desc">Completed payments</span>
+                    </div>
+                    {% if revenue_trend %}<span
+                        class="trend {% if revenue_trend_up %}trend--up{% else %}trend--down{% endif %}">{{
+                        revenue_trend }}</span>{% endif %}
+                </article>
+            </section>
+
+            {# ---------- SHIPMENT OVERVIEW + QUICK ACTIONS ---------- #}
+            <div class="grid grid--main-side">
+
+                <section class="panel anim-card" style="--delay: 2" aria-labelledby="overviewTitle">
+                    <header class="panel__header">
+                        <div>
+                            <h3 id="overviewTitle">Shipment Overview</h3>
+                            <p>Status distribution across the network</p>
+                        </div>
+                        <a class="btn btn--sm btn--ghost" href="{{ u_analytics|default:'#' }}">Full analytics</a>
+                    </header>
+
+                    {# Chart-ready: dashboard.js can read data-* attributes; bars work with CSS only #}
+                    <div class="status-chart" id="statusChart" data-chart="shipment-status">
+                        <div class="status-chart__row" data-status="pending"
+                            data-count="{{ status_counts.pending|default:'0' }}">
+                            <span class="status-chart__label"><i class="dot dot--pending"></i>Pending</span>
+                            <div class="status-chart__track">
+                                <div class="status-chart__bar bar--pending"
+                                    style="--value: {{ status_percent.pending|default:'0' }}"></div>
+                            </div>
+                            <span class="status-chart__count">{{ status_counts.pending|default:"0" }}</span>
+                        </div>
+                        <div class="status-chart__row" data-status="assigned"
+                            data-count="{{ status_counts.assigned|default:'0' }}">
+                            <span class="status-chart__label"><i class="dot dot--assigned"></i>Assigned</span>
+                            <div class="status-chart__track">
+                                <div class="status-chart__bar bar--assigned"
+                                    style="--value: {{ status_percent.assigned|default:'0' }}"></div>
+                            </div>
+                            <span class="status-chart__count">{{ status_counts.assigned|default:"0" }}</span>
+                        </div>
+                        <div class="status-chart__row" data-status="picked_up"
+                            data-count="{{ status_counts.picked_up|default:'0' }}">
+                            <span class="status-chart__label"><i class="dot dot--picked_up"></i>Picked Up</span>
+                            <div class="status-chart__track">
+                                <div class="status-chart__bar bar--picked_up"
+                                    style="--value: {{ status_percent.picked_up|default:'0' }}"></div>
+                            </div>
+                            <span class="status-chart__count">{{ status_counts.picked_up|default:"0" }}</span>
+                        </div>
+                        <div class="status-chart__row" data-status="in_transit"
+                            data-count="{{ status_counts.in_transit|default:'0' }}">
+                            <span class="status-chart__label"><i class="dot dot--in_transit"></i>In Transit</span>
+                            <div class="status-chart__track">
+                                <div class="status-chart__bar bar--in_transit"
+                                    style="--value: {{ status_percent.in_transit|default:'0' }}"></div>
+                            </div>
+                            <span class="status-chart__count">{{ status_counts.in_transit|default:"0" }}</span>
+                        </div>
+                        <div class="status-chart__row" data-status="out_for_delivery"
+                            data-count="{{ status_counts.out_for_delivery|default:'0' }}">
+                            <span class="status-chart__label"><i class="dot dot--out_for_delivery"></i>Out for
+                                Delivery</span>
+                            <div class="status-chart__track">
+                                <div class="status-chart__bar bar--out_for_delivery"
+                                    style="--value: {{ status_percent.out_for_delivery|default:'0' }}"></div>
+                            </div>
+                            <span class="status-chart__count">{{ status_counts.out_for_delivery|default:"0" }}</span>
+                        </div>
+                        <div class="status-chart__row" data-status="delivered"
+                            data-count="{{ status_counts.delivered|default:'0' }}">
+                            <span class="status-chart__label"><i class="dot dot--delivered"></i>Delivered</span>
+                            <div class="status-chart__track">
+                                <div class="status-chart__bar bar--delivered"
+                                    style="--value: {{ status_percent.delivered|default:'0' }}"></div>
+                            </div>
+                            <span class="status-chart__count">{{ status_counts.delivered|default:"0" }}</span>
+                        </div>
+                        <div class="status-chart__row" data-status="cancelled"
+                            data-count="{{ status_counts.cancelled|default:'0' }}">
+                            <span class="status-chart__label"><i class="dot dot--cancelled"></i>Cancelled</span>
+                            <div class="status-chart__track">
+                                <div class="status-chart__bar bar--cancelled"
+                                    style="--value: {{ status_percent.cancelled|default:'0' }}"></div>
+                            </div>
+                            <span class="status-chart__count">{{ status_counts.cancelled|default:"0" }}</span>
+                        </div>
+                        <div class="status-chart__row" data-status="failed"
+                            data-count="{{ status_counts.failed|default:'0' }}">
+                            <span class="status-chart__label"><i class="dot dot--failed"></i>Failed</span>
+                            <div class="status-chart__track">
+                                <div class="status-chart__bar bar--failed"
+                                    style="--value: {{ status_percent.failed|default:'0' }}"></div>
+                            </div>
+                            <span class="status-chart__count">{{ status_counts.failed|default:"0" }}</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel anim-card" style="--delay: 3" aria-labelledby="quickTitle">
+                    <header class="panel__header">
+                        <div>
+                            <h3 id="quickTitle">Quick Actions</h3>
+                            <p>Jump straight into common tasks</p>
+                        </div>
+                    </header>
+                    <div class="quick-actions">
+                        <a class="quick-action" href="{{ u_shipment_create|default:'#' }}">
+                            <span class="quick-action__icon"><svg class="icon">
+                                    <use href="#i-plus" />
+                                </svg></span>
+                            <span><strong>Create Shipment</strong><small>Register a new delivery</small></span>
+                        </a>
+                        <a class="quick-action" href="{{ u_assignments|default:'#' }}">
+                            <span class="quick-action__icon"><svg class="icon">
+                                    <use href="#i-link" />
+                                </svg></span>
+                            <span><strong>Assign Driver</strong><small>Match drivers to shipments</small></span>
+                        </a>
+                        <a class="quick-action" href="{{ u_warehouse_create|default:'#' }}">
+                            <span class="quick-action__icon"><svg class="icon">
+                                    <use href="#i-warehouse" />
+                                </svg></span>
+                            <span><strong>Add Warehouse</strong><small>Extend your network</small></span>
+                        </a>
+                        <a class="quick-action quick-action--danger" href="{{ u_delayed|default:'#' }}">
+                            <span class="quick-action__icon"><svg class="icon">
+                                    <use href="#i-alert" />
+                                </svg></span>
+                            <span><strong>View Delayed Deliveries</strong><small>Resolve bottlenecks</small></span>
+                        </a>
+                        <a class="quick-action quick-action--ai" href="{{ u_ai|default:'#' }}">
+                            <span class="quick-action__icon"><svg class="icon">
+                                    <use href="#i-spark" />
+                                </svg></span>
+                            <span><strong>Open AI Assistant</strong><small>Ask, analyze, act</small></span>
+                        </a>
+                    </div>
+                </section>
+            </div>
+
+            {# ---------- DELAYED DELIVERIES ---------- #}
+            <section class="panel panel--alert anim-card" style="--delay: 3" aria-labelledby="delayedTitle">
+                <header class="panel__header">
+                    <div>
+                        <h3 id="delayedTitle">
+                            <span class="alert-pulse" aria-hidden="true"></span> Delayed Deliveries
+                        </h3>
+                        <p>Shipments past their expected delivery time</p>
+                    </div>
+                    <a class="btn btn--sm btn--ghost" href="{{ u_delayed|default:'#' }}">View all</a>
+                </header>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tracking Number</th>
+                                <th>Customer</th>
+                                <th>Driver</th>
+                                <th>Delay</th>
+                                <th>Status</th>
+                                <th>Destination</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for shipment in delayed_shipments %}
+                            <tr class="row--delayed">
+                                <td><strong>{{ shipment.tracking_number|default:"—" }}</strong></td>
+                                <td>{{ shipment.customer|default:"—" }}</td>
+                                <td>{{ shipment.driver|default:"Unassigned" }}</td>
+                                <td><span class="badge badge--danger">{{ shipment.delay_duration|default:"—" }}</span>
+                                </td>
+                                <td><span class="badge badge--status badge--{{ shipment.status|default:'pending' }}">{{
+                                        shipment.get_status_display|default:shipment.status }}</span></td>
+                                <td>{{ shipment.destination|default:"—" }}</td>
+                                <td>
+                                    <div class="row-actions">
+                                        <a class="btn btn--xs btn--ghost"
+                                            href="{{ shipment.get_absolute_url|default:'#' }}">View Shipment</a>
+                                        <form method="post" action="{{ shipment.reassign_url|default:'#' }}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="shipment_id" value="{{ shipment.pk }}">
+                                            <button type="submit" class="btn btn--xs btn--warning">Reassign
+                                                Driver</button>
+                                        </form>
+                                        <a class="btn btn--xs btn--ai"
+                                            href="{{ u_ai|default:'#' }}?shipment={{ shipment.pk }}" data-open-chatbot
+                                            data-shipment="{{ shipment.pk }}">
+                                            <svg class="icon icon--sm">
+                                                <use href="#i-spark" />
+                                            </svg> Open AI Assistant
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr class="table-empty">
+                                <td colspan="7">No delayed deliveries. Everything is on schedule.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            {# ---------- RECENT SHIPMENTS ---------- #}
+            <section class="panel anim-card" style="--delay: 4" aria-labelledby="recentTitle">
+                <header class="panel__header">
+                    <div>
+                        <h3 id="recentTitle">Recent Shipments</h3>
+                        <p>Latest activity across the network</p>
+                    </div>
+                    <a class="btn btn--sm btn--ghost" href="{{ u_shipments|default:'#' }}">View all</a>
+                </header>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tracking Number</th>
+                                <th>Customer</th>
+                                <th>Destination</th>
+                                <th>Driver</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for shipment in recent_shipments %}
+                            <tr>
+                                <td><strong>{{ shipment.tracking_number|default:"—" }}</strong></td>
+                                <td>{{ shipment.customer|default:"—" }}</td>
+                                <td>{{ shipment.destination|default:"—" }}</td>
+                                <td>{{ shipment.driver|default:"Unassigned" }}</td>
+                                <td><span class="badge badge--status badge--{{ shipment.status|default:'pending' }}">{{
+                                        shipment.get_status_display|default:shipment.status }}</span></td>
+                                <td><time datetime="{{ shipment.created_at|date:'c' }}">{{ shipment.created_at|date:"d M
+                                        Y, H:i" }}</time></td>
+                                <td>
+                                    <div class="row-actions">
+                                        <a class="btn btn--xs btn--ghost"
+                                            href="{{ shipment.get_absolute_url|default:'#' }}">View</a>
+                                        <a class="btn btn--xs btn--primary"
+                                            href="{{ shipment.manage_url|default:'#' }}">Edit / Manage</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr class="table-empty">
+                                <td colspan="7">No recent shipments.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            {# ---------- DRIVERS + COMPLAINTS ---------- #}
+            <div class="grid grid--two">
+
+                <section class="panel anim-card" style="--delay: 5" aria-labelledby="driversTitle">
+                    <header class="panel__header">
+                        <div>
+                            <h3 id="driversTitle">Driver Availability</h3>
+                            <p>Live fleet status</p>
+                        </div>
+                        <a class="btn btn--sm btn--ghost" href="{{ u_drivers|default:'#' }}">All drivers</a>
+                    </header>
+
+                    <ul class="availability-summary">
+                        <li><i class="presence presence--available"></i> Available <strong>{{
+                                available_drivers|default:"0" }}</strong></li>
+                        <li><i class="presence presence--busy"></i> Busy <strong>{{ busy_drivers|default:"0" }}</strong>
+                        </li>
+                        <li><i class="presence presence--offline"></i> Offline <strong>{{ offline_drivers|default:"0"
+                                }}</strong></li>
+                    </ul>
+
+                    <div class="table-wrap">
+                        <table class="data-table data-table--compact">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Vehicle</th>
+                                    <th>Status</th>
+                                    <th>Active</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for driver in drivers_overview %}
+                                <tr>
+                                    <td><strong>{{ driver.name|default:"—" }}</strong></td>
+                                    <td>{{ driver.vehicle|default:"—" }}</td>
+                                    <td>
+                                        <span class="presence-label">
+                                            <i class="presence presence--{{ driver.status|default:'offline' }}"></i>
+                                            {{ driver.status_display|default:driver.status|default:"Offline" }}
+                                        </span>
+                                    </td>
+                                    <td>{{ driver.active_deliveries|default:"0" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr class="table-empty">
+                                    <td colspan="4">No drivers to display.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="panel anim-card" style="--delay: 6" aria-labelledby="complaintsTitle">
+                    <header class="panel__header">
+                        <div>
+                            <h3 id="complaintsTitle">Recent Complaints</h3>
+                            <p>Latest customer issues</p>
+                        </div>
+                        <a class="btn btn--sm btn--ghost" href="{{ u_complaints|default:'#' }}">View all</a>
+                    </header>
+
+                    <div class="table-wrap">
+                        <table class="data-table data-table--compact">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Subject</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for complaint in recent_complaints %}
+                                <tr>
+                                    <td>{{ complaint.customer|default:"—" }}</td>
+                                    <td>{{ complaint.subject|default:"—"|truncatechars:36 }}</td>
+                                    <td><span
+                                            class="badge badge--priority badge--priority-{{ complaint.priority|default:'low' }}">{{
+                                            complaint.get_priority_display|default:complaint.priority }}</span></td>
+                                    <td><span
+                                            class="badge badge--complaint badge--complaint-{{ complaint.status|default:'open' }}">{{
+                                            complaint.get_status_display|default:complaint.status }}</span></td>
+                                    <td>{{ complaint.created_at|date:"d M" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr class="table-empty">
+                                    <td colspan="5">No recent complaints.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            {# ---------- RECENT ACTIVITY ---------- #}
+            <section class="panel anim-card" style="--delay: 7" aria-labelledby="activityTitle">
+                <header class="panel__header">
+                    <div>
+                        <h3 id="activityTitle">Recent Activity</h3>
+                        <p>Shipments, assignments, payments, complaints and AI actions</p>
+                    </div>
+                    <a class="btn btn--sm btn--ghost" href="{{ u_audit|default:'#' }}">Audit logs</a>
+                </header>
+
+                <ol class="timeline">
+                    {% for activity in recent_activities %}
+                    <li class="timeline__item timeline__item--{{ activity.type|default:'system' }}"
+                        style="--delay: {{ forloop.counter0 }}">
+                        <span class="timeline__marker" aria-hidden="true"></span>
+                        <div class="timeline__content">
+                            <p>{{ activity.message|default:activity.description|default:"Activity recorded" }}</p>
+                            <time datetime="{{ activity.created_at|date:'c' }}">{{ activity.created_at|timesince }}
+                                ago</time>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="timeline__empty">No recent activity yet.</li>
+                    {% endfor %}
+                </ol>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+{# ---------- Shared chatbot (no separate Manager implementation) ---------- #}
+{% include "components/chatbot.html" %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}
