@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+My Deliveries — Smart Delivery &amp; Logistics
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page page-fade-up" data-driver-deliveries-root>
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="dashboard-header">
+        <div class="dashboard-header-left">
+            <span class="dashboard-eyebrow">Driver · Operations</span>
+            <h1 class="dashboard-title">My Deliveries</h1>
+            <p class="dashboard-subtitle">
+                Review your assigned deliveries and update their status as you go.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+            <a href="{% url 'driver:availability' %}" class="btn btn-ghost">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <path d="M12 8v4l3 2"></path>
+                    </svg>
+                </span>
+                Availability
+            </a>
+            <a href="{% url 'driver:dashboard' %}" class="btn btn-secondary">
+                Dashboard
+            </a>
+        </div>
+    </header>
+
+    {# ============================= SUMMARY CARDS ============================= #}
+    <section class="dashboard-stats" aria-label="Delivery summary">
+
+        <article class="stat-card stat-stagger">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 11l3 3L22 4"></path>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Total Assigned</h2>
+            </header>
+            <p class="stat-card-value">{{ total_assigned|default:"0" }}</p>
+            <p class="stat-card-meta">All time</p>
+        </article>
+
+        <article class="stat-card stat-stagger stat-card-active">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12h18"></path>
+                        <path d="M5 12V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5"></path>
+                        <circle cx="7.5" cy="16.5" r="2"></circle>
+                        <circle cx="16.5" cy="16.5" r="2"></circle>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Active</h2>
+            </header>
+            <p class="stat-card-value">{{ active_count|default:"0" }}</p>
+            <p class="stat-card-meta">
+                <span class="stat-pulse" aria-hidden="true"></span>
+                In progress
+            </p>
+        </article>
+
+        <article class="stat-card stat-stagger stat-card-success">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Completed</h2>
+            </header>
+            <p class="stat-card-value">{{ completed_count|default:"0" }}</p>
+            <p class="stat-card-meta">Delivered successfully</p>
+        </article>
+
+        <article class="stat-card stat-stagger stat-card-warning">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <polyline points="12 7 12 12 15 15"></polyline>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Pending</h2>
+            </header>
+            <p class="stat-card-value">{{ pending_count|default:"0" }}</p>
+            <p class="stat-card-meta">Awaiting action</p>
+        </article>
+
+    </section>
+
+    {# ============================= FILTERS ============================= #}
+    <section class="dash-card card-enter" aria-labelledby="deliveries-filter-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="deliveries-filter-title">
+                Filter Deliveries
+            </h2>
+            {% if page_obj %}
+            <span class="dash-card-meta">
+                {{ page_obj.paginator.count|default:0 }} result{{ page_obj.paginator.count|default:0|pluralize }}
+            </span>
+            {% endif %}
+        </header>
+
+        <form method="get" class="shipments-filter" role="search" aria-label="Filter deliveries">
+
+            <div class="filter-field">
+                <label for="filter-q" class="filter-label">Search</label>
+                <div class="filter-input-wrap">
+                    <span class="filter-input-icon" aria-hidden="true">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="search" id="filter-q" name="q" class="filter-input"
+                        placeholder="Tracking number, address…" value="{{ request.GET.q|default:'' }}"
+                        autocomplete="off">
+                </div>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-status" class="filter-label">Status</label>
+                <select id="filter-status" name="status" class="filter-input filter-select">
+                    <option value="">All statuses</option>
+                    <option value="ASSIGNED" {% if request.GET.status=="ASSIGNED" %}selected{% endif %}>Assigned
+                    </option>
+                    <option value="PICKED_UP" {% if request.GET.status=="PICKED_UP" %}selected{% endif %}>Picked Up
+                    </option>
+                    <option value="IN_TRANSIT" {% if request.GET.status=="IN_TRANSIT" %}selected{% endif %}>In Transit
+                    </option>
+                    <option value="OUT_FOR_DELIVERY" {% if request.GET.status=="OUT_FOR_DELIVERY" %}selected{% endif %}>
+                        Out for Delivery</option>
+                    <option value="DELIVERED" {% if request.GET.status=="DELIVERED" %}selected{% endif %}>Delivered
+                    </option>
+                    <option value="FAILED" {% if request.GET.status=="FAILED" %}selected{% endif %}>Failed</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date-from" class="filter-label">From</label>
+                <input type="date" id="filter-date-from" name="date_from" class="filter-input"
+                    value="{{ request.GET.date_from|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date-to" class="filter-label">To</label>
+                <input type="date" id="filter-date-to" name="date_to" class="filter-input"
+                    value="{{ request.GET.date_to|default:'' }}">
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+                <a href="{% url 'driver:deliveries' %}" class="btn btn-ghost btn-sm">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    {# ============================= DELIVERIES LIST ============================= #}
+    <section class="dash-card card-enter" aria-labelledby="deliveries-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="deliveries-title">
+                Deliveries
+            </h2>
+            {% if page_obj %}
+            <span class="dash-card-meta">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            {% endif %}
+        </header>
+
+        {% if deliveries %}
+
+        {# ---------- TABLE (desktop / tablet) ---------- #}
+        <div class="dash-table-wrap deliveries-table-wrap">
+            <table class="dash-table deliveries-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Tracking</th>
+                        <th scope="col">Customer Ref</th>
+                        <th scope="col">Pickup</th>
+                        <th scope="col">Delivery</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Assigned</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for delivery in deliveries %}
+                    <tr class="dash-table-row delivery-row" data-delivery-id="{{ delivery.id }}">
+
+                        <td class="dash-cell-tracking">
+                            <span class="mono">
+                                {{ delivery.shipment.tracking_number|default:"—" }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-customer-ref">
+                            <span class="cell-customer-ref">
+                                {{
+                                delivery.shipment.customer.get_full_name|default:delivery.shipment.customer.username|default:"—"
+                                }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-address">
+                            <span class="cell-address">
+                                {{ delivery.shipment.pickup_address|default:"—"|truncatechars:40 }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-address">
+                            <span class="cell-address">
+                                {{ delivery.shipment.delivery_address|default:"—"|truncatechars:40 }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-status">
+                            <span class="status-badge status-{{ delivery.shipment.status|default:'unknown'|lower }}">
+                                {{
+                                delivery.shipment.get_status_display|default:delivery.shipment.status|default:"Unknown"
+                                }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-date">
+                            {{ delivery.assigned_at|date:"M d, Y"|default:"—" }}
+                        </td>
+
+                        <td class="dash-cell-actions">
+                            <a href="{% url 'driver:delivery_detail' delivery.id %}" class="dash-row-link"
+                                aria-label="View delivery for {{ delivery.shipment.tracking_number|default:'' }}">
+                                View
+                            </a>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {# ---------- CARDS (mobile) ---------- #}
+        <div class="deliveries-cards">
+            {% for delivery in deliveries %}
+            <article class="delivery-card">
+                <header class="delivery-card-head">
+                    <span class="delivery-card-tracking mono">
+                        {{ delivery.shipment.tracking_number|default:"—" }}
+                    </span>
+                    <span class="status-badge status-{{ delivery.shipment.status|default:'unknown'|lower }}">
+                        {{ delivery.shipment.get_status_display|default:delivery.shipment.status|default:"Unknown" }}
+                    </span>
+                </header>
+
+                <dl class="delivery-card-body">
+                    <div class="delivery-card-row">
+                        <dt>Customer</dt>
+                        <dd>
+                            {{
+                            delivery.shipment.customer.get_full_name|default:delivery.shipment.customer.username|default:"—"|truncatechars:40
+                            }}
+                        </dd>
+                    </div>
+                    <div class="delivery-card-row">
+                        <dt>Pickup</dt>
+                        <dd>{{ delivery.shipment.pickup_address|default:"—"|truncatechars:60 }}</dd>
+                    </div>
+                    <div class="delivery-card-row">
+                        <dt>Delivery</dt>
+                        <dd>{{ delivery.shipment.delivery_address|default:"—"|truncatechars:60 }}</dd>
+                    </div>
+                    <div class="delivery-card-row">
+                        <dt>Assigned</dt>
+                        <dd>{{ delivery.assigned_at|date:"M d, Y"|default:"—" }}</dd>
+                    </div>
+                </dl>
+
+                <footer class="delivery-card-foot">
+                    <a href="{% url 'driver:delivery_detail' delivery.id %}" class="btn btn-secondary btn-sm">
+                        View &amp; Update
+                    </a>
+                </footer>
+            </article>
+            {% endfor %}
+        </div>
+
+        {% else %}
+
+        {# ---------- EMPTY STATE ---------- #}
+        <div class="dash-empty">
+            <div class="dash-empty-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8l-9-5-9 5v8l9 5 9-5Z"></path>
+                    <path d="M3.3 7.3 12 12l8.7-4.7"></path>
+                    <line x1="12" y1="22" x2="12" y2="12"></line>
+                </svg>
+            </div>
+            <h3 class="dash-empty-title">
+                {% if request.GET.q or request.GET.status or request.GET.date_from or request.GET.date_to %}
+                No deliveries found
+                {% else %}
+                No deliveries assigned yet
+                {% endif %}
+            </h3>
+            <p class="dash-empty-text">
+                {% if request.GET.q or request.GET.status or request.GET.date_from or request.GET.date_to %}
+                No deliveries match your current filters. Try adjusting or resetting them.
+                {% else %}
+                You don't have any assigned deliveries at the moment.
+                Make sure your availability is set so the operations team can assign you.
+                {% endif %}
+            </p>
+
+            {% if request.GET.q or request.GET.status or request.GET.date_from or request.GET.date_to %}
+            <a href="{% url 'driver:deliveries' %}" class="btn btn-secondary">
+                Reset Filters
+            </a>
+            {% else %}
+            <a href="{% url 'driver:availability' %}" class="btn btn-primary">
+                Manage Availability
+            </a>
+            {% endif %}
+        </div>
+
+        {% endif %}
+    </section>
+
+    {# ============================= PAGINATION ============================= #}
+    {% if page_obj and page_obj.paginator.num_pages > 1 %}
+    {% include "components/pagination.html" with page_obj=page_obj %}
+    {% endif %}
+
+</div>
+
+{# ============================= PAGE-SPECIFIC ASSETS ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/shipments.js' %}" defer></script>
+{% endblock %}

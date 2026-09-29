@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Delivery History — Smart Delivery &amp; Logistics
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page page-fade-up" data-driver-history-root>
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="dashboard-header">
+        <div class="dashboard-header-left">
+            <span class="dashboard-eyebrow">Driver · History</span>
+            <h1 class="dashboard-title">Delivery History</h1>
+            <p class="dashboard-subtitle">
+                Review your completed and past deliveries.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+            <a href="{% url 'driver:deliveries' %}" class="btn btn-secondary">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8l-9-5-9 5v8l9 5 9-5Z"></path>
+                        <path d="M3.3 7.3 12 12l8.7-4.7"></path>
+                    </svg>
+                </span>
+                Active Deliveries
+            </a>
+            <a href="{% url 'driver:dashboard' %}" class="btn btn-ghost">
+                Dashboard
+            </a>
+        </div>
+    </header>
+
+    {# ============================= SUMMARY CARDS ============================= #}
+    <section class="dashboard-stats" aria-label="History summary">
+
+        <article class="stat-card stat-stagger stat-card-success">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Completed</h2>
+            </header>
+            <p class="stat-card-value">{{ completed_count|default:"0" }}</p>
+            <p class="stat-card-meta">Successfully delivered</p>
+        </article>
+
+        <article class="stat-card stat-stagger stat-card-danger">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Cancelled / Failed</h2>
+            </header>
+            <p class="stat-card-value">{{ failed_count|default:"0" }}</p>
+            <p class="stat-card-meta">Unsuccessful deliveries</p>
+        </article>
+
+        <article class="stat-card stat-stagger">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 11l3 3L22 4"></path>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Total Deliveries</h2>
+            </header>
+            <p class="stat-card-value">{{ total_count|default:"0" }}</p>
+            <p class="stat-card-meta">All time</p>
+        </article>
+
+    </section>
+
+    {# ============================= FILTERS ============================= #}
+    <section class="dash-card card-enter" aria-labelledby="history-filter-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="history-filter-title">
+                Filter History
+            </h2>
+            {% if page_obj %}
+            <span class="dash-card-meta">
+                {{ page_obj.paginator.count|default:0 }} result{{ page_obj.paginator.count|default:0|pluralize }}
+            </span>
+            {% endif %}
+        </header>
+
+        <form method="get" class="shipments-filter" role="search" aria-label="Filter delivery history">
+
+            <div class="filter-field">
+                <label for="filter-q" class="filter-label">Search</label>
+                <div class="filter-input-wrap">
+                    <span class="filter-input-icon" aria-hidden="true">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="search" id="filter-q" name="q" class="filter-input"
+                        placeholder="Tracking number, address…" value="{{ request.GET.q|default:'' }}"
+                        autocomplete="off">
+                </div>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-status" class="filter-label">Final Status</label>
+                <select id="filter-status" name="status" class="filter-input filter-select">
+                    <option value="">All statuses</option>
+                    <option value="DELIVERED" {% if request.GET.status=="DELIVERED" %}selected{% endif %}>Delivered
+                    </option>
+                    <option value="FAILED" {% if request.GET.status=="FAILED" %}selected{% endif %}>Failed</option>
+                    <option value="CANCELLED" {% if request.GET.status=="CANCELLED" %}selected{% endif %}>Cancelled
+                    </option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date-from" class="filter-label">From</label>
+                <input type="date" id="filter-date-from" name="date_from" class="filter-input"
+                    value="{{ request.GET.date_from|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date-to" class="filter-label">To</label>
+                <input type="date" id="filter-date-to" name="date_to" class="filter-input"
+                    value="{{ request.GET.date_to|default:'' }}">
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+                <a href="{% url 'driver:history' %}" class="btn btn-ghost btn-sm">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    {# ============================= HISTORY LIST ============================= #}
+    <section class="dash-card card-enter" aria-labelledby="history-list-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="history-list-title">
+                Past Deliveries
+            </h2>
+            {% if page_obj %}
+            <span class="dash-card-meta">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            {% endif %}
+        </header>
+
+        {% if history %}
+
+        {# ---------- TABLE (desktop / tablet) ---------- #}
+        <div class="dash-table-wrap history-table-wrap">
+            <table class="dash-table history-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Tracking</th>
+                        <th scope="col">Pickup</th>
+                        <th scope="col">Delivery</th>
+                        <th scope="col">Final Status</th>
+                        <th scope="col">Completed</th>
+                        <th scope="col">Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in history %}
+                    <tr class="dash-table-row history-row">
+
+                        <td class="dash-cell-tracking">
+                            <span class="mono">
+                                {{ entry.shipment.tracking_number|default:"—" }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-address">
+                            <span class="cell-address">
+                                {{ entry.shipment.pickup_address|default:"—"|truncatechars:40 }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-address">
+                            <span class="cell-address">
+                                {{ entry.shipment.delivery_address|default:"—"|truncatechars:40 }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-status">
+                            <span class="status-badge status-{{ entry.shipment.status|default:'unknown'|lower }}">
+                                {{ entry.shipment.get_status_display|default:entry.shipment.status|default:"Unknown" }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-date">
+                            {{ entry.completed_at|date:"M d, Y H:i"|default:"—" }}
+                        </td>
+
+                        <td class="dash-cell-duration">
+                            {% if entry.duration %}
+                            <span class="cell-duration">
+                                {{ entry.duration }}
+                            </span>
+                            {% else %}
+                            <span class="cell-muted">—</span>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {# ---------- CARDS (mobile) ---------- #}
+        <div class="history-cards">
+            {% for entry in history %}
+            <article class="history-card">
+                <header class="history-card-head">
+                    <span class="history-card-tracking mono">
+                        {{ entry.shipment.tracking_number|default:"—" }}
+                    </span>
+                    <span class="status-badge status-{{ entry.shipment.status|default:'unknown'|lower }}">
+                        {{ entry.shipment.get_status_display|default:entry.shipment.status|default:"Unknown" }}
+                    </span>
+                </header>
+
+                <dl class="history-card-body">
+                    <div class="history-card-row">
+                        <dt>Pickup</dt>
+                        <dd>{{ entry.shipment.pickup_address|default:"—"|truncatechars:60 }}</dd>
+                    </div>
+                    <div class="history-card-row">
+                        <dt>Delivery</dt>
+                        <dd>{{ entry.shipment.delivery_address|default:"—"|truncatechars:60 }}</dd>
+                    </div>
+                    <div class="history-card-row">
+                        <dt>Completed</dt>
+                        <dd>{{ entry.completed_at|date:"M d, Y H:i"|default:"—" }}</dd>
+                    </div>
+                    {% if entry.duration %}
+                    <div class="history-card-row">
+                        <dt>Duration</dt>
+                        <dd>{{ entry.duration }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </article>
+            {% endfor %}
+        </div>
+
+        {% else %}
+
+        {# ---------- EMPTY STATE ---------- #}
+        <div class="dash-empty">
+            <div class="dash-empty-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <polyline points="12 7 12 12 15 15"></polyline>
+                </svg>
+            </div>
+            <h3 class="dash-empty-title">
+                {% if request.GET.q or request.GET.status or request.GET.date_from or request.GET.date_to %}
+                No deliveries found
+                {% else %}
+                No delivery history yet
+                {% endif %}
+            </h3>
+            <p class="dash-empty-text">
+                {% if request.GET.q or request.GET.status or request.GET.date_from or request.GET.date_to %}
+                No past deliveries match your current filters. Try adjusting or resetting them.
+                {% else %}
+                Once you complete deliveries, they will appear here.
+                {% endif %}
+            </p>
+
+            {% if request.GET.q or request.GET.status or request.GET.date_from or request.GET.date_to %}
+            <a href="{% url 'driver:history' %}" class="btn btn-secondary">
+                Reset Filters
+            </a>
+            {% else %}
+            <a href="{% url 'driver:deliveries' %}" class="btn btn-primary">
+                View Active Deliveries
+            </a>
+            {% endif %}
+        </div>
+
+        {% endif %}
+    </section>
+
+    {# ============================= PAGINATION ============================= #}
+    {% if page_obj and page_obj.paginator.num_pages > 1 %}
+    {% include "components/pagination.html" with page_obj=page_obj %}
+    {% endif %}
+
+</div>
+
+{# ============================= PAGE-SPECIFIC ASSETS ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+My Location — Smart Delivery &amp; Logistics
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page page-fade-up" data-driver-location-root>
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="dashboard-header">
+        <div class="dashboard-header-left">
+            <span class="dashboard-eyebrow">Driver · Tracking</span>
+            <h1 class="dashboard-title">My Location</h1>
+            <p class="dashboard-subtitle">
+                Share and review your current position to help coordinate deliveries.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+            <a href="{% url 'driver:dashboard' %}" class="btn btn-ghost">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </span>
+                Back to Dashboard
+            </a>
+        </div>
+    </header>
+
+    {# ============================= SHARED ALERTS ============================= #}
+    {% if messages %}
+    {% include "components/alerts.html" %}
+    {% endif %}
+
+    {# ============================= NON-FIELD ERRORS ============================= #}
+    {% if form.non_field_errors %}
+    <div class="dash-error-block" role="alert" aria-live="assertive" aria-atomic="true">
+        <ul class="dash-error-list">
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {# ============================= MAIN GRID ============================= #}
+    <div class="location-grid">
+
+        {# ---------------- LEFT COLUMN: STATUS + MAP ---------------- #}
+        <div class="location-col-main">
+
+            {# ========== CURRENT STATUS CARD ========== #}
+            <section class="dash-card card-enter" aria-labelledby="location-status-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="location-status-title">
+                        Current Location
+                    </h2>
+
+                    {% if location_available %}
+                    <span class="status-badge status-available status-pulse">
+                        Location available
+                    </span>
+                    {% else %}
+                    <span class="status-badge status-unavailable">
+                        Location unavailable
+                    </span>
+                    {% endif %}
+                </header>
+
+                <div class="location-status-body">
+
+                    {% if location_available %}
+                    <dl class="location-coords">
+                        <div class="location-coord-item">
+                            <dt>Latitude</dt>
+                            <dd class="mono">
+                                {{ driver.latitude|default:"—" }}
+                            </dd>
+                        </div>
+                        <div class="location-coord-item">
+                            <dt>Longitude</dt>
+                            <dd class="mono">
+                                {{ driver.longitude|default:"—" }}
+                            </dd>
+                        </div>
+                        {% if driver.location_accuracy %}
+                        <div class="location-coord-item">
+                            <dt>Accuracy</dt>
+                            <dd>{{ driver.location_accuracy }} m</dd>
+                        </div>
+                        {% endif %}
+                        {% if driver.location_updated_at %}
+                        <div class="location-coord-item">
+                            <dt>Last Update</dt>
+                            <dd>
+                                <time datetime="{{ driver.location_updated_at|date:'c' }}">
+                                    {{ driver.location_updated_at|date:"M d, Y H:i" }}
+                                </time>
+                            </dd>
+                        </div>
+                        {% endif %}
+                    </dl>
+                    {% else %}
+                    <div class="dash-empty dash-empty-inline">
+                        <p class="dash-empty-text">
+                            Your location is not currently available.
+                            Update it to help with delivery coordination.
+                        </p>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </section>
+
+            {# ========== MAP CONTAINER PLACEHOLDER ========== #}
+            <section class="dash-card card-enter" aria-labelledby="location-map-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="location-map-title">
+                        Map View
+                    </h2>
+                    <span class="dash-card-meta">
+                        Preview only
+                    </span>
+                </header>
+
+                <div class="location-map-wrap">
+
+                    {# ---------- Map container (populated by future integration) ---------- #}
+                    <div class="location-map" id="driver-location-map" data-location-map
+                        data-latitude="{{ driver.latitude|default:'' }}"
+                        data-longitude="{{ driver.longitude|default:'' }}" role="img"
+                        aria-label="Driver location map preview">
+
+                        {# ---------- Placeholder (shown when no coordinates) ---------- #}
+                        {% if not location_available %}
+                        <div class="location-map-placeholder">
+                            <div class="location-map-placeholder-icon" aria-hidden="true">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0Z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                            </div>
+                            <p class="location-map-placeholder-text">
+                                Location map will appear once your position is available.
+                            </p>
+                        </div>
+                        {% else %}
+                        {# ---------- Grid-based visual placeholder ---------- #}
+                        <div class="location-map-placeholder location-map-placeholder-with-coords">
+                            <div class="location-map-grid" aria-hidden="true"></div>
+                            <div class="location-map-pin" aria-hidden="true">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0Z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                            </div>
+                            <p class="location-map-coords mono">
+                                {{ driver.latitude|default:"" }},
+                                {{ driver.longitude|default:"" }}
+                            </p>
+                        </div>
+                        {% endif %}
+
+                    </div>
+
+                    {# ---------- Map note (no API key, no direct integration) ---------- #}
+                    <p class="location-map-note">
+                        Map integration is configured by the platform.
+                        Location data is shared only with the operations team.
+                    </p>
+                </div>
+            </section>
+
+            {# ========== LOCATION HISTORY ========== #}
+            <section class="dash-card card-enter" aria-labelledby="location-history-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="location-history-title">
+                        Recent Updates
+                    </h2>
+                </header>
+
+                {% if location_history %}
+                <ol class="location-history" role="list">
+                    {% for entry in location_history %}
+                    <li class="location-history-item">
+                        <span class="location-history-marker" aria-hidden="true"></span>
+                        <div class="location-history-body">
+                            <div class="location-history-coords mono">
+                                {{ entry.latitude|default:"—" }},
+                                {{ entry.longitude|default:"—" }}
+                            </div>
+                            <div class="location-history-meta">
+                                {% if entry.source %}
+                                <span class="location-history-source">
+                                    {{ entry.source }}
+                                </span>
+                                <span class="location-history-sep">•</span>
+                                {% endif %}
+                                <time datetime="{{ entry.created_at|date:'c' }}">
+                                    {{ entry.created_at|date:"M d, Y H:i"|default:"—" }}
+                                </time>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ol>
+                {% else %}
+                <div class="dash-empty dash-empty-inline">
+                    <p class="dash-empty-text">
+                        No recent location updates.
+                    </p>
+                </div>
+                {% endif %}
+            </section>
+
+        </div>
+
+        {# ---------------- RIGHT COLUMN: ACTIONS + INFO ---------------- #}
+        <aside class="location-col-side">
+
+            {# ========== UPDATE LOCATION ========== #}
+            <section class="dash-card card-enter" aria-labelledby="update-location-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="update-location-title">
+                        Update Location
+                    </h2>
+                </header>
+
+                {% if form %}
+                <form method="post" action="{% url 'driver:location' %}" class="location-form" data-location-form
+                    novalidate>
+                    {% csrf_token %}
+
+                    {# ---------- Manual Coordinates (optional) ---------- #}
+                    {% for field in form %}
+                    {% if field.name != "driver" and field.name != "user" and field.name != "source" %}
+                    <div class="form-field form-field-full {% if field.errors %}has-error{% endif %}">
+                        <label for="{{ field.id_for_label }}" class="form-label">
+                            {{ field.label }}
+                            {% if field.field.required %}
+                            <span class="form-required" aria-hidden="true">*</span>
+                            {% endif %}
+                        </label>
+
+                        <div class="form-input-wrap">
+                            {{ field }}
+                        </div>
+
+                        {% if field.help_text %}
+                        <p class="form-help">{{ field.help_text }}</p>
+                        {% endif %}
+
+                        {% if field.errors %}
+                        <ul class="form-errors" id="{{ field.id_for_label }}-errors">
+                            {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+
+                    {# ---------- Auto-detect button (browser geolocation, no API key) ---------- #}
+                    <div class="location-detect">
+                        <button type="button" class="btn btn-secondary btn-block" data-location-detect
+                            data-lat-field="{{ form.latitude.id_for_label|default:'id_latitude' }}"
+                            data-lng-field="{{ form.longitude.id_for_label|default:'id_longitude' }}">
+                            <span class="btn-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M12 2v3"></path>
+                                    <path d="M12 19v3"></path>
+                                    <path d="M2 12h3"></path>
+                                    <path d="M19 12h3"></path>
+                                </svg>
+                            </span>
+                            <span class="btn-label">Detect my location</span>
+                            <span class="btn-spinner" aria-hidden="true"></span>
+                        </button>
+                        <p class="location-detect-note">
+                            Uses your device's location service. The browser may ask for permission.
+                        </p>
+                    </div>
+
+                    {# ---------- Submit ---------- #}
+                    <div class="location-form-actions">
+                        <button type="submit" class="btn btn-primary btn-block" data-location-submit
+                            data-loading-label="Updating…">
+                            <span class="btn-label" data-submit-label>Update Location</span>
+                            <span class="btn-spinner" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="dash-empty dash-empty-inline">
+                    <p class="dash-empty-text">
+                        Manual location updates are not available. Your location
+                        is updated automatically by the app.
+                    </p>
+                </div>
+                {% endif %}
+            </section>
+
+            {# ========== HOW IT WORKS ========== #}
+            <section class="dash-card card-enter" aria-labelledby="how-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="how-title">
+                        How it works
+                    </h2>
+                </header>
+
+                <ul class="info-notes" role="list">
+                    <li>
+                        Your location helps the operations team coordinate pickups and deliveries.
+                    </li>
+                    <li>
+                        Location data is visible only to the operations team.
+                    </li>
+                    <li>
+                        You can update your location manually or let the app update it automatically.
+                    </li>
+                    <li>
+                        Availability and location are separate settings.
+                    </li>
+                </ul>
+            </section>
+
+            {# ========== PRIVACY NOTE ========== #}
+            <section class="dash-card card-enter" aria-labelledby="privacy-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="privacy-title">
+                        Privacy
+                    </h2>
+                </header>
+
+                <p class="location-privacy-text">
+                    Your location is shared only with the operations team for delivery coordination.
+                    It is never shared with customers or other drivers.
+                </p>
+            </section>
+
+        </aside>
+    </div>
+
+</div>
+
+{# ============================= PAGE-SPECIFIC ASSETS ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}

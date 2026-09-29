@@ -1,0 +1,489 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Driver Dashboard — Smart Delivery &amp; Logistics
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page page-fade-up" data-driver-dashboard-root>
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="dashboard-header">
+        <div class="dashboard-header-left">
+            <span class="dashboard-eyebrow">Driver · Dashboard</span>
+            <h1 class="dashboard-title">
+                Welcome back,
+                <span class="dashboard-title-name">
+                    {{ user.get_full_name|default:user.username|default:"Driver" }}
+                </span>
+            </h1>
+            <p class="dashboard-subtitle">
+                Here's your delivery activity and today's schedule.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+            <a href="{% url 'driver:deliveries' %}" class="btn btn-primary">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8l-9-5-9 5v8l9 5 9-5Z"></path>
+                        <path d="M3.3 7.3 12 12l8.7-4.7"></path>
+                    </svg>
+                </span>
+                My Deliveries
+            </a>
+        </div>
+    </header>
+
+    {# ============================= AVAILABILITY STATUS ============================= #}
+    <section class="dash-card card-enter availability-card" aria-labelledby="availability-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="availability-title">
+                Availability
+            </h2>
+
+            {% if driver.is_available %}
+            <span class="status-badge status-available status-pulse" data-availability-badge>
+                Available
+            </span>
+            {% else %}
+            <span class="status-badge status-unavailable" data-availability-badge>
+                Unavailable
+            </span>
+            {% endif %}
+        </header>
+
+        <div class="availability-body">
+            <div class="availability-meta">
+                <div class="availability-meta-row">
+                    <span class="availability-label">Vehicle</span>
+                    <span class="availability-value">
+                        {{ driver.vehicle|default:"—" }}
+                    </span>
+                </div>
+                <div class="availability-meta-row">
+                    <span class="availability-label">Plate Number</span>
+                    <span class="availability-value mono">
+                        {{ driver.plate_number|default:"—" }}
+                    </span>
+                </div>
+                <div class="availability-meta-row">
+                    <span class="availability-label">Last Updated</span>
+                    <span class="availability-value">
+                        {{ driver.availability_updated_at|date:"M d, H:i"|default:"—" }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="availability-actions">
+                <a href="{% url 'driver:availability' %}" class="btn btn-secondary btn-sm">
+                    Manage Availability
+                </a>
+            </div>
+        </div>
+    </section>
+
+    {# ============================= SUMMARY CARDS ============================= #}
+    <section class="dashboard-stats" aria-label="Delivery summary">
+
+        <article class="stat-card stat-stagger">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 11l3 3L22 4"></path>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Assigned Deliveries</h2>
+            </header>
+            <p class="stat-card-value">{{ assigned_count|default:"0" }}</p>
+            <p class="stat-card-meta">Awaiting pickup</p>
+        </article>
+
+        <article class="stat-card stat-stagger stat-card-active">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12h18"></path>
+                        <path d="M5 12V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5"></path>
+                        <circle cx="7.5" cy="16.5" r="2"></circle>
+                        <circle cx="16.5" cy="16.5" r="2"></circle>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Active Deliveries</h2>
+            </header>
+            <p class="stat-card-value">{{ active_count|default:"0" }}</p>
+            <p class="stat-card-meta">
+                <span class="stat-pulse" aria-hidden="true"></span>
+                In progress
+            </p>
+        </article>
+
+        <article class="stat-card stat-stagger stat-card-success">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Completed</h2>
+            </header>
+            <p class="stat-card-value">{{ completed_count|default:"0" }}</p>
+            <p class="stat-card-meta">All time</p>
+        </article>
+
+        <article class="stat-card stat-stagger stat-card-warning">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <polyline points="12 7 12 12 15 15"></polyline>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Pending</h2>
+            </header>
+            <p class="stat-card-value">{{ pending_count|default:"0" }}</p>
+            <p class="stat-card-meta">Awaiting action</p>
+        </article>
+
+    </section>
+
+    {# ============================= MAIN GRID ============================= #}
+    <div class="dashboard-grid">
+
+        {# ---------------- LEFT COLUMN ---------------- #}
+        <div class="dashboard-col-main">
+
+            {# ========== CURRENT ACTIVE DELIVERY ========== #}
+            <section class="dash-card card-enter" aria-labelledby="active-delivery-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="active-delivery-title">
+                        Current Delivery
+                    </h2>
+                    <a href="{% url 'driver:deliveries' %}" class="dash-card-link">
+                        View all
+                    </a>
+                </header>
+
+                {% if active_delivery %}
+                <div class="active-delivery">
+
+                    <div class="active-delivery-head">
+                        <div>
+                            <span class="active-delivery-label">Tracking Number</span>
+                            <span class="active-delivery-tracking mono">
+                                {{ active_delivery.shipment.tracking_number|default:"—" }}
+                            </span>
+                        </div>
+                        <span class="status-badge status-{{ active_delivery.shipment.status|default:'unknown'|lower }}">
+                            {{
+                            active_delivery.shipment.get_status_display|default:active_delivery.shipment.status|default:"Unknown"
+                            }}
+                        </span>
+                    </div>
+
+                    <dl class="active-delivery-body">
+                        <div class="active-delivery-row">
+                            <dt>Pickup</dt>
+                            <dd>{{ active_delivery.shipment.pickup_address|default:"—" }}</dd>
+                        </div>
+                        <div class="active-delivery-row">
+                            <dt>Delivery</dt>
+                            <dd>{{ active_delivery.shipment.delivery_address|default:"—" }}</dd>
+                        </div>
+                        <div class="active-delivery-row">
+                            <dt>Package</dt>
+                            <dd>{{ active_delivery.shipment.package_description|default:"—" }}</dd>
+                        </div>
+                        <div class="active-delivery-row">
+                            <dt>Weight</dt>
+                            <dd>
+                                {{ active_delivery.shipment.package_weight|default:"—" }}
+                                {% if active_delivery.shipment.package_weight %} kg{% endif %}
+                            </dd>
+                        </div>
+                    </dl>
+
+                    <footer class="active-delivery-foot">
+                        <a href="{% url 'driver:deliveries' %}" class="btn btn-primary btn-sm">
+                            Update Status
+                        </a>
+                        {% if active_delivery.shipment.customer.phone %}
+                        <a href="tel:{{ active_delivery.shipment.customer.phone }}" class="btn btn-ghost btn-sm">
+                            Call Customer
+                        </a>
+                        {% endif %}
+                    </footer>
+                </div>
+                {% else %}
+                <div class="dash-empty dash-empty-inline">
+                    <p class="dash-empty-text">
+                        No active delivery at the moment.
+                    </p>
+                </div>
+                {% endif %}
+            </section>
+
+            {# ========== TODAY'S DELIVERIES ========== #}
+            <section class="dash-card card-enter" aria-labelledby="today-deliveries-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="today-deliveries-title">
+                        Today's Deliveries
+                    </h2>
+                    <span class="dash-card-meta">
+                        {{ today_deliveries|length }} scheduled
+                    </span>
+                </header>
+
+                {% if today_deliveries %}
+                <ul class="today-list" role="list">
+                    {% for delivery in today_deliveries %}
+                    <li class="today-item">
+                        <div class="today-item-time">
+                            <span class="today-time">
+                                {{ delivery.scheduled_at|time:"H:i"|default:"—" }}
+                            </span>
+                        </div>
+
+                        <div class="today-item-body">
+                            <div class="today-item-head">
+                                <span class="today-tracking mono">
+                                    {{ delivery.shipment.tracking_number|default:"—" }}
+                                </span>
+                                <span
+                                    class="status-badge status-{{ delivery.shipment.status|default:'unknown'|lower }}">
+                                    {{
+                                    delivery.shipment.get_status_display|default:delivery.shipment.status|default:"Unknown"
+                                    }}
+                                </span>
+                            </div>
+                            <p class="today-address">
+                                {{ delivery.shipment.delivery_address|default:"—"|truncatechars:60 }}
+                            </p>
+                        </div>
+
+                        <div class="today-item-action">
+                            <a href="{% url 'driver:deliveries' %}" class="dash-row-link">
+                                Open
+                            </a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="dash-empty dash-empty-inline">
+                    <p class="dash-empty-text">
+                        No deliveries scheduled for today.
+                    </p>
+                </div>
+                {% endif %}
+            </section>
+
+            {# ========== RECENT DELIVERY HISTORY ========== #}
+            <section class="dash-card card-enter" aria-labelledby="recent-history-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="recent-history-title">
+                        Recent Deliveries
+                    </h2>
+                    <a href="{% url 'driver:history' %}" class="dash-card-link">
+                        View all
+                    </a>
+                </header>
+
+                {% if recent_history %}
+                <div class="dash-table-wrap">
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Tracking</th>
+                                <th scope="col">Destination</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Delivered</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in recent_history %}
+                            <tr class="dash-table-row">
+                                <td class="dash-cell-tracking">
+                                    <span class="mono">
+                                        {{ entry.shipment.tracking_number|default:"—" }}
+                                    </span>
+                                </td>
+                                <td class="dash-cell-address">
+                                    <span class="cell-address">
+                                        {{ entry.shipment.delivery_address|default:"—"|truncatechars:40 }}
+                                    </span>
+                                </td>
+                                <td class="dash-cell-status">
+                                    <span
+                                        class="status-badge status-{{ entry.shipment.status|default:'unknown'|lower }}">
+                                        {{
+                                        entry.shipment.get_status_display|default:entry.shipment.status|default:"Unknown"
+                                        }}
+                                    </span>
+                                </td>
+                                <td class="dash-cell-date">
+                                    {{ entry.completed_at|date:"M d, Y"|default:"—" }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="dash-empty dash-empty-inline">
+                    <p class="dash-empty-text">
+                        No recent completed deliveries.
+                    </p>
+                </div>
+                {% endif %}
+            </section>
+
+        </div>
+
+        {# ---------------- RIGHT COLUMN ---------------- #}
+        <aside class="dashboard-col-side">
+
+            {# ========== QUICK ACTIONS ========== #}
+            <section class="dash-card card-enter" aria-labelledby="quick-actions-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="quick-actions-title">
+                        Quick Actions
+                    </h2>
+                </header>
+
+                <div class="quick-actions">
+
+                    <a href="{% url 'driver:deliveries' %}" class="quick-action">
+                        <span class="quick-action-icon" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 16V8l-9-5-9 5v8l9 5 9-5Z"></path>
+                                <path d="M3.3 7.3 12 12l8.7-4.7"></path>
+                                <line x1="12" y1="22" x2="12" y2="12"></line>
+                            </svg>
+                        </span>
+                        <span class="quick-action-label">My Deliveries</span>
+                    </a>
+
+                    <a href="{% url 'driver:availability' %}" class="quick-action">
+                        <span class="quick-action-icon" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9"></circle>
+                                <path d="M12 8v4l3 2"></path>
+                            </svg>
+                        </span>
+                        <span class="quick-action-label">Availability</span>
+                    </a>
+
+                    <a href="{% url 'driver:location' %}" class="quick-action">
+                        <span class="quick-action-icon" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0Z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                        </span>
+                        <span class="quick-action-label">Location</span>
+                    </a>
+
+                    <a href="{% url 'driver:history' %}" class="quick-action">
+                        <span class="quick-action-icon" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9"></circle>
+                                <polyline points="12 7 12 12 15 15"></polyline>
+                            </svg>
+                        </span>
+                        <span class="quick-action-label">History</span>
+                    </a>
+
+                    <a href="{% url 'notifications:list' %}" class="quick-action">
+                        <span class="quick-action-icon" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+                            </svg>
+                        </span>
+                        <span class="quick-action-label">Notifications</span>
+                        {% if unread_notifications_count %}
+                        <span class="quick-action-badge" aria-hidden="true">
+                            {{ unread_notifications_count }}
+                        </span>
+                        {% endif %}
+                    </a>
+
+                    <a href="{% url 'ai_assistant' %}" class="quick-action quick-action-ai">
+                        <span class="quick-action-icon" aria-hidden="true">
+                            <span class="app-ai-mark">✦</span>
+                        </span>
+                        <span class="quick-action-label">AI Assistant</span>
+                    </a>
+
+                    <a href="{% url 'accounts:profile' %}" class="quick-action">
+                        <span class="quick-action-icon" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </span>
+                        <span class="quick-action-label">Profile</span>
+                    </a>
+
+                </div>
+            </section>
+
+            {# ========== NOTIFICATIONS PREVIEW ========== #}
+            <section class="dash-card card-enter" aria-labelledby="notif-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="notif-title">
+                        Notifications
+                    </h2>
+                    <a href="{% url 'notifications:list' %}" class="dash-card-link">
+                        View all
+                    </a>
+                </header>
+
+                {% if recent_notifications %}
+                <ul class="notif-list" role="list">
+                    {% for notification in recent_notifications %}
+                    <li class="notif-item {% if not notification.is_read %}is-unread{% endif %}">
+                        <span class="notif-dot" aria-hidden="true"></span>
+                        <div class="notif-body">
+                            <p class="notif-text">
+                                {{ notification.message|default:notification.title|default:"Notification" }}
+                            </p>
+                            <span class="notif-time">
+                                {{ notification.created_at|date:"M d, H:i"|default:"" }}
+                            </span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="dash-empty dash-empty-inline">
+                    <p class="dash-empty-text">
+                        No notifications yet.
+                    </p>
+                </div>
+                {% endif %}
+            </section>
+
+        </aside>
+    </div>
+
+</div>
+
+{# ============================= PAGE-SPECIFIC ASSETS ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}

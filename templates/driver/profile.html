@@ -1,0 +1,651 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+My Profile — Smart Delivery &amp; Logistics
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page page-fade-up" data-driver-profile-root>
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="dashboard-header">
+        <div class="dashboard-header-left">
+            <span class="dashboard-eyebrow">Driver · Account</span>
+            <h1 class="dashboard-title">My Profile</h1>
+            <p class="dashboard-subtitle">
+                Review and update your account and vehicle information.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+            <a href="{% url 'driver:dashboard' %}" class="btn btn-ghost">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </span>
+                Back to Dashboard
+            </a>
+        </div>
+    </header>
+
+    {# ============================= SHARED ALERTS ============================= #}
+    {% if messages %}
+    {% include "components/alerts.html" %}
+    {% endif %}
+
+    {# ============================= NON-FIELD ERRORS ============================= #}
+    {% if form.non_field_errors %}
+    <div class="dash-error-block" role="alert" aria-live="assertive" aria-atomic="true">
+        <ul class="dash-error-list">
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {# ============================= PROFILE GRID ============================= #}
+    <div class="profile-grid">
+
+        {# ---------------- IDENTITY CARD ---------------- #}
+        <section class="dash-card card-enter profile-identity-card" aria-labelledby="profile-identity-title">
+            <header class="dash-card-head">
+                <h2 class="dash-card-title" id="profile-identity-title">
+                    Account
+                </h2>
+            </header>
+
+            <div class="profile-identity">
+
+                <div class="profile-avatar" aria-hidden="true">
+                    {% if user.get_full_name %}
+                    {{ user.get_full_name|slice:":1"|upper }}
+                    {% elif user.username %}
+                    {{ user.username|slice:":1"|upper }}
+                    {% else %}
+                    ?
+                    {% endif %}
+                </div>
+
+                <div class="profile-identity-body">
+                    <h3 class="profile-name">
+                        {{ user.get_full_name|default:user.username|default:"Driver" }}
+                    </h3>
+
+                    <span class="profile-role-badge">
+                        {{ user.role|default:"Driver" }}
+                    </span>
+
+                    {% if user.date_joined %}
+                    <p class="profile-meta">
+                        Member since
+                        <time datetime="{{ user.date_joined|date:'c' }}">
+                            {{ user.date_joined|date:"M Y" }}
+                        </time>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <dl class="profile-summary">
+                <div class="profile-summary-row">
+                    <dt>Email</dt>
+                    <dd>{{ user.email|default:"—" }}</dd>
+                </div>
+                {% if user.phone %}
+                <div class="profile-summary-row">
+                    <dt>Phone</dt>
+                    <dd>{{ user.phone }}</dd>
+                </div>
+                {% endif %}
+                {% if driver.license_number %}
+                <div class="profile-summary-row">
+                    <dt>License Number</dt>
+                    <dd class="mono">{{ driver.license_number }}</dd>
+                </div>
+                {% endif %}
+                <div class="profile-summary-row">
+                    <dt>Account Role</dt>
+                    <dd>
+                        <span class="pill pill-role-{{ user.role|default:'driver'|lower }}">
+                            {{ user.role|default:"Driver" }}
+                        </span>
+                    </dd>
+                </div>
+                <div class="profile-summary-row">
+                    <dt>Availability</dt>
+                    <dd>
+                        {% if driver.is_available %}
+                        <span class="status-badge status-available status-pulse">
+                            Available
+                        </span>
+                        {% else %}
+                        <span class="status-badge status-unavailable">
+                            Unavailable
+                        </span>
+                        {% endif %}
+                    </dd>
+                </div>
+            </dl>
+        </section>
+
+        {# ---------------- EDIT FORM ---------------- #}
+        <section class="dash-card card-enter profile-edit-card" aria-labelledby="profile-edit-title">
+            <header class="dash-card-head">
+                <h2 class="dash-card-title" id="profile-edit-title">
+                    Edit Profile
+                </h2>
+                <span class="dash-card-meta">
+                    <span class="required-hint">
+                        <span class="required-dot" aria-hidden="true"></span>
+                        Required fields
+                    </span>
+                </span>
+            </header>
+
+            {% if form %}
+            <form method="post" action="{% url 'driver:profile' %}" class="create-form" data-profile-form novalidate>
+                {% csrf_token %}
+
+                {# ---------- PERSONAL INFO ---------- #}
+                <fieldset class="form-section">
+                    <legend class="form-section-title">
+                        Personal information
+                    </legend>
+
+                    <div class="form-grid-2">
+
+                        {# First name #}
+                        {% if form.first_name %}
+                        <div class="form-field {% if form.first_name.errors %}has-error{% endif %}">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                {{ form.first_name.label }}
+                                {% if form.first_name.field.required %}
+                                <span class="form-required" aria-hidden="true">*</span>
+                                {% endif %}
+                            </label>
+                            <div class="form-input-wrap">
+                                <span class="form-input-icon" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                </span>
+                                <input type="text" name="{{ form.first_name.html_name }}"
+                                    id="{{ form.first_name.id_for_label }}" class="form-input"
+                                    value="{{ form.first_name.value|default:'' }}" autocomplete="given-name" {% if
+                                    form.first_name.field.required %}required{% endif %} {% if form.first_name.errors
+                                    %}aria-invalid="true" aria-describedby="{{ form.first_name.id_for_label }}-errors"
+                                    {% endif %}>
+                            </div>
+                            {% if form.first_name.help_text %}
+                            <p class="form-help">{{ form.first_name.help_text }}</p>
+                            {% endif %}
+                            {% if form.first_name.errors %}
+                            <ul class="form-errors" id="{{ form.first_name.id_for_label }}-errors">
+                                {% for error in form.first_name.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {# Last name #}
+                        {% if form.last_name %}
+                        <div class="form-field {% if form.last_name.errors %}has-error{% endif %}">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                {{ form.last_name.label }}
+                                {% if form.last_name.field.required %}
+                                <span class="form-required" aria-hidden="true">*</span>
+                                {% endif %}
+                            </label>
+                            <div class="form-input-wrap">
+                                <span class="form-input-icon" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                </span>
+                                <input type="text" name="{{ form.last_name.html_name }}"
+                                    id="{{ form.last_name.id_for_label }}" class="form-input"
+                                    value="{{ form.last_name.value|default:'' }}" autocomplete="family-name" {% if
+                                    form.last_name.field.required %}required{% endif %} {% if form.last_name.errors
+                                    %}aria-invalid="true" aria-describedby="{{ form.last_name.id_for_label }}-errors" {%
+                                    endif %}>
+                            </div>
+                            {% if form.last_name.help_text %}
+                            <p class="form-help">{{ form.last_name.help_text }}</p>
+                            {% endif %}
+                            {% if form.last_name.errors %}
+                            <ul class="form-errors" id="{{ form.last_name.id_for_label }}-errors">
+                                {% for error in form.last_name.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </fieldset>
+
+                {# ---------- CONTACT INFO ---------- #}
+                <fieldset class="form-section">
+                    <legend class="form-section-title">
+                        Contact information
+                    </legend>
+
+                    <div class="form-grid-2">
+
+                        {# Email #}
+                        {% if form.email %}
+                        <div class="form-field {% if form.email.errors %}has-error{% endif %}">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">
+                                {{ form.email.label }}
+                                {% if form.email.field.required %}
+                                <span class="form-required" aria-hidden="true">*</span>
+                                {% endif %}
+                            </label>
+                            <div class="form-input-wrap">
+                                <span class="form-input-icon" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                                        <polyline points="3 7 12 13 21 7"></polyline>
+                                    </svg>
+                                </span>
+                                <input type="email" name="{{ form.email.html_name }}" id="{{ form.email.id_for_label }}"
+                                    class="form-input" value="{{ form.email.value|default:'' }}" autocomplete="email" {%
+                                    if form.email.field.required %}required{% endif %} {% if form.email.errors
+                                    %}aria-invalid="true" aria-describedby="{{ form.email.id_for_label }}-errors" {%
+                                    endif %}>
+                            </div>
+                            {% if form.email.help_text %}
+                            <p class="form-help">{{ form.email.help_text }}</p>
+                            {% endif %}
+                            {% if form.email.errors %}
+                            <ul class="form-errors" id="{{ form.email.id_for_label }}-errors">
+                                {% for error in form.email.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {# Phone #}
+                        {% if form.phone %}
+                        <div class="form-field {% if form.phone.errors %}has-error{% endif %}">
+                            <label for="{{ form.phone.id_for_label }}" class="form-label">
+                                {{ form.phone.label }}
+                                {% if form.phone.field.required %}
+                                <span class="form-required" aria-hidden="true">*</span>
+                                {% endif %}
+                            </label>
+                            <div class="form-input-wrap">
+                                <span class="form-input-icon" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path
+                                            d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.7a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2Z">
+                                        </path>
+                                    </svg>
+                                </span>
+                                <input type="tel" name="{{ form.phone.html_name }}" id="{{ form.phone.id_for_label }}"
+                                    class="form-input" value="{{ form.phone.value|default:'' }}" autocomplete="tel" {%
+                                    if form.phone.field.required %}required{% endif %} {% if form.phone.errors
+                                    %}aria-invalid="true" aria-describedby="{{ form.phone.id_for_label }}-errors" {%
+                                    endif %}>
+                            </div>
+                            {% if form.phone.help_text %}
+                            <p class="form-help">{{ form.phone.help_text }}</p>
+                            {% endif %}
+                            {% if form.phone.errors %}
+                            <ul class="form-errors" id="{{ form.phone.id_for_label }}-errors">
+                                {% for error in form.phone.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </fieldset>
+
+                {# ---------- VEHICLE INFO ---------- #}
+                {% if form.vehicle or form.plate_number or form.vehicle_type or form.model or form.capacity %}
+                <fieldset class="form-section">
+                    <legend class="form-section-title">
+                        Vehicle information
+                    </legend>
+
+                    <div class="form-grid-2">
+
+                        {% if form.vehicle %}
+                        <div class="form-field {% if form.vehicle.errors %}has-error{% endif %}">
+                            <label for="{{ form.vehicle.id_for_label }}" class="form-label">
+                                {{ form.vehicle.label }}
+                                {% if form.vehicle.field.required %}
+                                <span class="form-required" aria-hidden="true">*</span>
+                                {% endif %}
+                            </label>
+                            <div class="form-input-wrap">
+                                <span class="form-input-icon" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 12h18"></path>
+                                        <path d="M5 12V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5"></path>
+                                        <circle cx="7.5" cy="16.5" r="2"></circle>
+                                        <circle cx="16.5" cy="16.5" r="2"></circle>
+                                    </svg>
+                                </span>
+                                <input type="text" name="{{ form.vehicle.html_name }}"
+                                    id="{{ form.vehicle.id_for_label }}" class="form-input"
+                                    value="{{ form.vehicle.value|default:'' }}" {% if form.vehicle.field.required
+                                    %}required{% endif %} {% if form.vehicle.errors %}aria-invalid="true"
+                                    aria-describedby="{{ form.vehicle.id_for_label }}-errors" {% endif %}>
+                            </div>
+                            {% if form.vehicle.help_text %}
+                            <p class="form-help">{{ form.vehicle.help_text }}</p>
+                            {% endif %}
+                            {% if form.vehicle.errors %}
+                            <ul class="form-errors" id="{{ form.vehicle.id_for_label }}-errors">
+                                {% for error in form.vehicle.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.plate_number %}
+                        <div class="form-field {% if form.plate_number.errors %}has-error{% endif %}">
+                            <label for="{{ form.plate_number.id_for_label }}" class="form-label">
+                                {{ form.plate_number.label }}
+                                {% if form.plate_number.field.required %}
+                                <span class="form-required" aria-hidden="true">*</span>
+                                {% endif %}
+                            </label>
+                            <div class="form-input-wrap">
+                                <span class="form-input-icon" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                                        <path d="M7 9h10"></path>
+                                        <path d="M7 13h4"></path>
+                                        <path d="M13 13h4"></path>
+                                    </svg>
+                                </span>
+                                <input type="text" name="{{ form.plate_number.html_name }}"
+                                    id="{{ form.plate_number.id_for_label }}" class="form-input mono"
+                                    value="{{ form.plate_number.value|default:'' }}" {% if
+                                    form.plate_number.field.required %}required{% endif %} {% if
+                                    form.plate_number.errors %}aria-invalid="true"
+                                    aria-describedby="{{ form.plate_number.id_for_label }}-errors" {% endif %}>
+                            </div>
+                            {% if form.plate_number.help_text %}
+                            <p class="form-help">{{ form.plate_number.help_text }}</p>
+                            {% endif %}
+                            {% if form.plate_number.errors %}
+                            <ul class="form-errors" id="{{ form.plate_number.id_for_label }}-errors">
+                                {% for error in form.plate_number.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.vehicle_type %}
+                        <div class="form-field {% if form.vehicle_type.errors %}has-error{% endif %}">
+                            <label for="{{ form.vehicle_type.id_for_label }}" class="form-label">
+                                {{ form.vehicle_type.label }}
+                                {% if form.vehicle_type.field.required %}
+                                <span class="form-required" aria-hidden="true">*</span>
+                                {% endif %}
+                            </label>
+                            <div class="form-input-wrap">
+                                {{ form.vehicle_type }}
+                            </div>
+                            {% if form.vehicle_type.help_text %}
+                            <p class="form-help">{{ form.vehicle_type.help_text }}</p>
+                            {% endif %}
+                            {% if form.vehicle_type.errors %}
+                            <ul class="form-errors" id="{{ form.vehicle_type.id_for_label }}-errors">
+                                {% for error in form.vehicle_type.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.model %}
+                        <div class="form-field {% if form.model.errors %}has-error{% endif %}">
+                            <label for="{{ form.model.id_for_label }}" class="form-label">
+                                {{ form.model.label }}
+                                {% if form.model.field.required %}
+                                <span class="form-required" aria-hidden="true">*</span>
+                                {% endif %}
+                            </label>
+                            <div class="form-input-wrap">
+                                <input type="text" name="{{ form.model.html_name }}" id="{{ form.model.id_for_label }}"
+                                    class="form-input" value="{{ form.model.value|default:'' }}" {% if
+                                    form.model.field.required %}required{% endif %} {% if form.model.errors
+                                    %}aria-invalid="true" aria-describedby="{{ form.model.id_for_label }}-errors" {%
+                                    endif %}>
+                            </div>
+                            {% if form.model.help_text %}
+                            <p class="form-help">{{ form.model.help_text }}</p>
+                            {% endif %}
+                            {% if form.model.errors %}
+                            <ul class="form-errors" id="{{ form.model.id_for_label }}-errors">
+                                {% for error in form.model.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.capacity %}
+                        <div class="form-field {% if form.capacity.errors %}has-error{% endif %}">
+                            <label for="{{ form.capacity.id_for_label }}" class="form-label">
+                                {{ form.capacity.label }}
+                                {% if form.capacity.field.required %}
+                                <span class="form-required" aria-hidden="true">*</span>
+                                {% endif %}
+                            </label>
+                            <div class="form-input-wrap">
+                                <input type="text" name="{{ form.capacity.html_name }}"
+                                    id="{{ form.capacity.id_for_label }}" class="form-input"
+                                    value="{{ form.capacity.value|default:'' }}" {% if form.capacity.field.required
+                                    %}required{% endif %} {% if form.capacity.errors %}aria-invalid="true"
+                                    aria-describedby="{{ form.capacity.id_for_label }}-errors" {% endif %}>
+                            </div>
+                            {% if form.capacity.help_text %}
+                            <p class="form-help">{{ form.capacity.help_text }}</p>
+                            {% endif %}
+                            {% if form.capacity.errors %}
+                            <ul class="form-errors" id="{{ form.capacity.id_for_label }}-errors">
+                                {% for error in form.capacity.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </fieldset>
+                {% endif %}
+
+                {# ---------- ADDITIONAL FIELDS (dynamic, safe-list) ---------- #}
+                {% for field in form %}
+                {% if field.name != "first_name" and field.name != "last_name" and field.name != "email" and field.name
+                != "phone" and field.name != "vehicle" and field.name != "plate_number" and field.name != "vehicle_type"
+                and field.name != "model" and field.name != "capacity" and field.name != "license_number" and field.name
+                != "role" and field.name != "password" and field.name != "password1" and field.name != "password2" and
+                field.name != "is_staff" and field.name != "is_superuser" and field.name != "is_active" and field.name
+                != "groups" and field.name != "user_permissions" and field.name != "is_available" %}
+                <div class="form-field form-field-full {% if field.errors %}has-error{% endif %}">
+                    <label for="{{ field.id_for_label }}" class="form-label">
+                        {{ field.label }}
+                        {% if field.field.required %}
+                        <span class="form-required" aria-hidden="true">*</span>
+                        {% endif %}
+                    </label>
+                    <div class="form-input-wrap">
+                        {{ field }}
+                    </div>
+                    {% if field.help_text %}
+                    <p class="form-help">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% if field.errors %}
+                    <ul class="form-errors" id="{{ field.id_for_label }}-errors">
+                        {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endfor %}
+
+                {# ---------- FORM ACTIONS ---------- #}
+                <div class="form-actions">
+                    <a href="{% url 'driver:dashboard' %}" class="btn btn-ghost">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary" data-profile-submit data-loading-label="Saving…">
+                        <span class="btn-label" data-submit-label>Save Changes</span>
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <div class="dash-empty dash-empty-inline">
+                <p class="dash-empty-text">
+                    Profile editing is not available at the moment.
+                </p>
+            </div>
+            {% endif %}
+        </section>
+
+        {# ---------------- SIDE COLUMN ---------------- #}
+        <aside class="profile-side">
+
+            {# ========== SECURITY CARD ========== #}
+            <section class="dash-card card-enter" aria-labelledby="security-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="security-title">
+                        Security
+                    </h2>
+                </header>
+
+                <ul class="profile-security-list" role="list">
+
+                    <li class="profile-security-item">
+                        <div class="profile-security-body">
+                            <span class="profile-security-title">Password</span>
+                            <span class="profile-security-text">
+                                Change your password regularly to keep your account secure.
+                            </span>
+                        </div>
+                        <a href="{% url 'accounts:password_change' %}" class="btn btn-secondary btn-sm">
+                            Change
+                        </a>
+                    </li>
+
+                    <li class="profile-security-item">
+                        <div class="profile-security-body">
+                            <span class="profile-security-title">Sessions</span>
+                            <span class="profile-security-text">
+                                Log out from all devices if you suspect unauthorized access.
+                            </span>
+                        </div>
+                        <form method="post" action="{% url 'accounts:logout' %}" class="inline-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-ghost btn-sm">
+                                Log out
+                            </button>
+                        </form>
+                    </li>
+
+                </ul>
+            </section>
+
+            {# ========== AVAILABILITY QUICK LINK ========== #}
+            <section class="dash-card card-enter" aria-labelledby="availability-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="availability-title">
+                        Availability
+                    </h2>
+                </header>
+
+                <div class="profile-role-notice">
+                    <p class="profile-role-notice-text">
+                        Your availability status is separate from your profile.
+                    </p>
+                    <a href="{% url 'driver:availability' %}" class="btn btn-secondary btn-sm">
+                        Manage Availability
+                    </a>
+                </div>
+            </section>
+
+            {# ========== ROLE NOTICE ========== #}
+            <section class="dash-card card-enter" aria-labelledby="role-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="role-title">
+                        Role
+                    </h2>
+                </header>
+
+                <div class="profile-role-notice">
+                    <p class="profile-role-notice-text">
+                        Your account role is managed by the system.
+                        You cannot change it to a privileged role.
+                    </p>
+                    <span class="pill pill-role-{{ user.role|default:'driver'|lower }}">
+                        {{ user.role|default:"Driver" }}
+                    </span>
+                </div>
+            </section>
+
+            {# ========== HELP CARD ========== #}
+            <section class="dash-card card-enter" aria-labelledby="help-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="help-title">
+                        Need help?
+                    </h2>
+                </header>
+
+                <div class="profile-help">
+                    <p class="profile-help-text">
+                        If you need to change information you can't edit here,
+                        please contact operations.
+                    </p>
+                    <a href="{% url 'ai_assistant' %}" class="btn btn-accent btn-sm btn-block">
+                        <span class="app-ai-mark" aria-hidden="true">✦</span>
+                        Ask AI Assistant
+                    </a>
+                </div>
+            </section>
+
+        </aside>
+    </div>
+
+</div>
+
+{# ============================= PAGE-SPECIFIC ASSETS ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,398 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Delivery {{ delivery.shipment.tracking_number|default:"Details" }} — Smart Delivery
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page page-fade-up" data-driver-delivery-detail-root>
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="dashboard-header">
+        <div class="dashboard-header-left">
+            <span class="dashboard-eyebrow">Driver · Delivery</span>
+            <h1 class="dashboard-title">
+                <span class="mono dashboard-title-tracking">
+                    {{ delivery.shipment.tracking_number|default:"—" }}
+                </span>
+            </h1>
+            <p class="dashboard-subtitle">
+                Review the delivery details and update its status as you progress.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+            <a href="{% url 'driver:deliveries' %}" class="btn btn-ghost">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </span>
+                Back to Deliveries
+            </a>
+        </div>
+    </header>
+
+    {# ============================= SHARED ALERTS ============================= #}
+    {% if messages %}
+    {% include "components/alerts.html" %}
+    {% endif %}
+
+    {# ============================= TOP STATUS BAR ============================= #}
+    <section class="dash-card card-enter delivery-status-bar" aria-labelledby="delivery-status-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="delivery-status-title">
+                Current Status
+            </h2>
+            <span class="status-badge status-{{ delivery.shipment.status|default:'unknown'|lower }}">
+                {{ delivery.shipment.get_status_display|default:delivery.shipment.status|default:"Unknown" }}
+            </span>
+        </header>
+
+        <div class="delivery-status-meta">
+            <div class="delivery-status-meta-item">
+                <span class="delivery-status-meta-label">Assigned</span>
+                <span class="delivery-status-meta-value">
+                    {{ delivery.assigned_at|date:"M d, Y H:i"|default:"—" }}
+                </span>
+            </div>
+
+            {% if delivery.accepted_at %}
+            <div class="delivery-status-meta-item">
+                <span class="delivery-status-meta-label">Accepted</span>
+                <span class="delivery-status-meta-value">
+                    {{ delivery.accepted_at|date:"M d, Y H:i" }}
+                </span>
+            </div>
+            {% endif %}
+
+            {% if delivery.completed_at %}
+            <div class="delivery-status-meta-item">
+                <span class="delivery-status-meta-label">Completed</span>
+                <span class="delivery-status-meta-value">
+                    {{ delivery.completed_at|date:"M d, Y H:i" }}
+                </span>
+            </div>
+            {% endif %}
+
+            {% if delivery.is_active %}
+            <div class="delivery-status-meta-item">
+                <span class="delivery-status-meta-label">Assignment</span>
+                <span class="delivery-status-meta-value">
+                    <span class="pill pill-active">Active</span>
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    {# ============================= MAIN GRID ============================= #}
+    <div class="dashboard-grid">
+
+        {# ---------------- LEFT COLUMN ---------------- #}
+        <div class="dashboard-col-main">
+
+            {# ========== SHIPMENT OVERVIEW ========== #}
+            <section class="dash-card card-enter" aria-labelledby="shipment-overview-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="shipment-overview-title">
+                        Shipment Details
+                    </h2>
+                </header>
+
+                <dl class="delivery-detail-grid">
+
+                    <div class="delivery-detail-item">
+                        <dt>Tracking Number</dt>
+                        <dd class="mono">{{ delivery.shipment.tracking_number|default:"—" }}</dd>
+                    </div>
+
+                    <div class="delivery-detail-item">
+                        <dt>Package Description</dt>
+                        <dd>{{ delivery.shipment.package_description|default:"—" }}</dd>
+                    </div>
+
+                    <div class="delivery-detail-item">
+                        <dt>Package Weight</dt>
+                        <dd>
+                            {{ delivery.shipment.package_weight|default:"—" }}
+                            {% if delivery.shipment.package_weight %} kg{% endif %}
+                        </dd>
+                    </div>
+
+                    {% if delivery.shipment.delivery_fee %}
+                    <div class="delivery-detail-item">
+                        <dt>Delivery Fee</dt>
+                        <dd class="strong">{{ delivery.shipment.delivery_fee }}</dd>
+                    </div>
+                    {% endif %}
+
+                    <div class="delivery-detail-item delivery-detail-item-full">
+                        <dt>Pickup Address</dt>
+                        <dd class="delivery-detail-address">
+                            {{ delivery.shipment.pickup_address|default:"—" }}
+                        </dd>
+                    </div>
+
+                    <div class="delivery-detail-item delivery-detail-item-full">
+                        <dt>Delivery Address</dt>
+                        <dd class="delivery-detail-address">
+                            {{ delivery.shipment.delivery_address|default:"—" }}
+                        </dd>
+                    </div>
+
+                </dl>
+            </section>
+
+            {# ========== PROGRESS TRACKER ========== #}
+            <section class="dash-card card-enter" aria-labelledby="progress-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="progress-title">
+                        Delivery Progress
+                    </h2>
+                </header>
+
+                {% with s=delivery.shipment.status|default:'assigned'|lower %}
+
+                {% if s == 'cancelled' or s == 'failed' %}
+                <div class="tracking-terminal tracking-terminal-{{ s }}" role="alert">
+                    <span class="tracking-terminal-icon" aria-hidden="true">
+                        {% if s == 'cancelled' %}✕{% else %}!{% endif %}
+                    </span>
+                    <div>
+                        <strong class="tracking-terminal-title">
+                            Shipment {{ delivery.shipment.get_status_display|default:s|title }}
+                        </strong>
+                        <p class="tracking-terminal-text">
+                            This delivery will not continue through the normal flow.
+                        </p>
+                    </div>
+                </div>
+                {% else %}
+                <ol class="tracking-progress" role="list" data-tracker data-current="{{ s }}">
+                    <li
+                        class="tracking-progress-step
+                                       {% if s == 'assigned' %}is-current
+                                       {% elif s == 'picked_up' or s == 'in_transit' or s == 'out_for_delivery' or s == 'delivered' %}is-done{% endif %}">
+                        <span class="tracking-progress-dot" aria-hidden="true"></span>
+                        <span class="tracking-progress-label">Assigned</span>
+                    </li>
+                    <li
+                        class="tracking-progress-step
+                                       {% if s == 'picked_up' %}is-current
+                                       {% elif s == 'in_transit' or s == 'out_for_delivery' or s == 'delivered' %}is-done{% endif %}">
+                        <span class="tracking-progress-dot" aria-hidden="true"></span>
+                        <span class="tracking-progress-label">Picked Up</span>
+                    </li>
+                    <li class="tracking-progress-step
+                                       {% if s == 'in_transit' %}is-current
+                                       {% elif s == 'out_for_delivery' or s == 'delivered' %}is-done{% endif %}">
+                        <span class="tracking-progress-dot" aria-hidden="true"></span>
+                        <span class="tracking-progress-label">In Transit</span>
+                    </li>
+                    <li class="tracking-progress-step
+                                       {% if s == 'out_for_delivery' %}is-current
+                                       {% elif s == 'delivered' %}is-done{% endif %}">
+                        <span class="tracking-progress-dot" aria-hidden="true"></span>
+                        <span class="tracking-progress-label">Out for Delivery</span>
+                    </li>
+                    <li class="tracking-progress-step
+                                       {% if s == 'delivered' %}is-current is-done{% endif %}">
+                        <span class="tracking-progress-dot" aria-hidden="true"></span>
+                        <span class="tracking-progress-label">Delivered</span>
+                    </li>
+                </ol>
+                {% endif %}
+
+                {% endwith %}
+            </section>
+
+            {# ========== STATUS HISTORY ========== #}
+            <section class="dash-card card-enter" aria-labelledby="history-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="history-title">
+                        Status History
+                    </h2>
+                </header>
+
+                {% if status_history %}
+                <ol class="tracking-timeline" role="list">
+                    {% for event in status_history %}
+                    <li class="tracking-timeline-item {% if forloop.first %}is-latest{% endif %}">
+                        <span class="tracking-timeline-marker" aria-hidden="true"></span>
+                        <div class="tracking-timeline-body">
+                            <div class="tracking-timeline-status">
+                                {% if event.old_status %}
+                                <span class="status-badge status-{{ event.old_status|lower }}">
+                                    {{ event.old_status_display|default:event.old_status }}
+                                </span>
+                                <span class="tracking-timeline-arrow" aria-hidden="true">→</span>
+                                {% endif %}
+                                <span class="status-badge status-{{ event.new_status|default:'unknown'|lower }}">
+                                    {{ event.new_status_display|default:event.new_status|default:"—" }}
+                                </span>
+                            </div>
+
+                            <div class="tracking-timeline-meta">
+                                <time class="tracking-timeline-time" datetime="{{ event.changed_at|date:'c' }}">
+                                    {{ event.changed_at|date:"M d, Y H:i"|default:"—" }}
+                                </time>
+                            </div>
+
+                            {% if event.note %}
+                            <p class="tracking-timeline-note">{{ event.note }}</p>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ol>
+                {% else %}
+                <div class="dash-empty dash-empty-inline">
+                    <p class="dash-empty-text">
+                        No status history available yet.
+                    </p>
+                </div>
+                {% endif %}
+            </section>
+
+        </div>
+
+        {# ---------------- RIGHT COLUMN ---------------- #}
+        <aside class="dashboard-col-side">
+
+            {# ========== DELIVERY ACTIONS ========== #}
+            <section class="dash-card card-enter" aria-labelledby="actions-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="actions-title">
+                        Delivery Actions
+                    </h2>
+                </header>
+
+                <div class="delivery-actions-panel">
+
+                    {# ---------- ACCEPT ASSIGNMENT ---------- #}
+                    {% if delivery.can_accept %}
+                    <form method="post" action="{% url 'driver:accept_delivery' delivery.id %}"
+                        class="delivery-action-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-block" data-loading-label="Accepting…">
+                            <span class="btn-label">Accept Assignment</span>
+                            <span class="btn-spinner" aria-hidden="true"></span>
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    {# ---------- ALLOWED STATUS TRANSITIONS ---------- #}
+                    {% if allowed_transitions %}
+                    <div class="delivery-actions-group">
+                        <h3 class="delivery-actions-group-title">
+                            Update Status
+                        </h3>
+
+                        {% for transition in allowed_transitions %}
+                        <form method="post" action="{% url 'driver:update_delivery_status' delivery.id %}"
+                            class="delivery-action-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="{{ transition.value }}">
+                            <button type="submit" class="btn btn-secondary btn-block" data-loading-label="Updating…">
+                                <span class="btn-label">{{ transition.label }}</span>
+                                <span class="btn-spinner" aria-hidden="true"></span>
+                            </button>
+                        </form>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {# ---------- NO ACTIONS AVAILABLE ---------- #}
+                    {% if not delivery.can_accept and not allowed_transitions %}
+                    <div class="dash-empty dash-empty-inline">
+                        <p class="dash-empty-text">
+                            No actions available for this delivery.
+                        </p>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </section>
+
+            {# ========== CUSTOMER CONTACT (only if provided) ========== #}
+            {% if delivery.shipment.customer_contact %}
+            <section class="dash-card card-enter" aria-labelledby="contact-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="contact-title">
+                        Contact
+                    </h2>
+                </header>
+
+                <div class="delivery-contact">
+                    {% if delivery.shipment.customer_contact.name %}
+                    <div class="delivery-contact-row">
+                        <span class="delivery-contact-label">Name</span>
+                        <span class="delivery-contact-value">
+                            {{ delivery.shipment.customer_contact.name }}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    {% if delivery.shipment.customer_contact.phone %}
+                    <div class="delivery-contact-row">
+                        <span class="delivery-contact-label">Phone</span>
+                        <span class="delivery-contact-value mono">
+                            {{ delivery.shipment.customer_contact.phone }}
+                        </span>
+                    </div>
+                    <a href="tel:{{ delivery.shipment.customer_contact.phone }}"
+                        class="btn btn-secondary btn-sm btn-block">
+                        Call
+                    </a>
+                    {% endif %}
+                </div>
+            </section>
+            {% endif %}
+
+            {# ========== DELIVERY NOTES ========== #}
+            {% if delivery.notes %}
+            <section class="dash-card card-enter" aria-labelledby="notes-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="notes-title">
+                        Notes
+                    </h2>
+                </header>
+
+                <p class="delivery-notes">
+                    {{ delivery.notes }}
+                </p>
+            </section>
+            {% endif %}
+
+            {# ========== HELP CARD ========== #}
+            <section class="dash-card card-enter" aria-labelledby="help-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="help-title">
+                        Need help?
+                    </h2>
+                </header>
+
+                <div class="delivery-help">
+                    <p class="delivery-help-text">
+                        If there's a problem with this delivery, contact operations.
+                    </p>
+                    <a href="{% url 'ai_assistant' %}" class="btn btn-accent btn-sm btn-block">
+                        <span class="app-ai-mark" aria-hidden="true">✦</span>
+                        Ask AI Assistant
+                    </a>
+                </div>
+            </section>
+
+        </aside>
+    </div>
+
+</div>
+
+{# ============================= PAGE-SPECIFIC ASSETS ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/shipments.js' %}" defer></script>
+{% endblock %}

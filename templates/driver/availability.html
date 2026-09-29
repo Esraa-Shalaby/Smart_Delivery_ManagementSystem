@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Availability — Smart Delivery &amp; Logistics
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page page-fade-up" data-driver-availability-root>
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="dashboard-header">
+        <div class="dashboard-header-left">
+            <span class="dashboard-eyebrow">Driver · Status</span>
+            <h1 class="dashboard-title">Availability</h1>
+            <p class="dashboard-subtitle">
+                Control whether you can receive new delivery assignments.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+            <a href="{% url 'driver:dashboard' %}" class="btn btn-ghost">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </span>
+                Back to Dashboard
+            </a>
+        </div>
+    </header>
+
+    {# ============================= SHARED ALERTS ============================= #}
+    {% if messages %}
+    {% include "components/alerts.html" %}
+    {% endif %}
+
+    {# ============================= NON-FIELD ERRORS ============================= #}
+    {% if form.non_field_errors %}
+    <div class="dash-error-block" role="alert" aria-live="assertive" aria-atomic="true">
+        <ul class="dash-error-list">
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {# ============================= MAIN GRID ============================= #}
+    <div class="availability-grid">
+
+        {# ---------------- PRIMARY STATUS CARD ---------------- #}
+        <section class="dash-card card-enter availability-primary-card" aria-labelledby="availability-primary-title">
+
+            <header class="dash-card-head">
+                <h2 class="dash-card-title" id="availability-primary-title">
+                    Current Status
+                </h2>
+            </header>
+
+            <div class="availability-hero">
+
+                {# ---------- Large Visual Indicator ---------- #}
+                <div class="availability-hero-indicator
+                            {% if driver.is_available %}is-available{% else %}is-unavailable{% endif %}"
+                    data-availability-indicator role="img"
+                    aria-label="{% if driver.is_available %}Available for assignments{% else %}Not available for assignments{% endif %}">
+
+                    <span class="availability-hero-ring" aria-hidden="true"></span>
+
+                    <span class="availability-hero-icon" aria-hidden="true">
+                        {% if driver.is_available %}
+                        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        {% else %}
+                        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        {% endif %}
+                    </span>
+
+                    <span class="availability-hero-label" data-availability-label>
+                        {% if driver.is_available %}
+                        Available
+                        {% else %}
+                        Unavailable
+                        {% endif %}
+                    </span>
+                </div>
+
+                {# ---------- Description ---------- #}
+                <p class="availability-hero-desc" data-availability-description>
+                    {% if driver.is_available %}
+                    You are currently visible to the operations team and can receive new assignments.
+                    {% else %}
+                    You are hidden from new assignments. Existing deliveries remain in your queue.
+                    {% endif %}
+                </p>
+
+                {# ---------- Toggle Form ---------- #}
+                {% if form %}
+                <form method="post" action="{% url 'driver:availability' %}" class="availability-form"
+                    data-availability-form novalidate>
+                    {% csrf_token %}
+
+                    <div class="availability-toggle-wrap">
+
+                        <span class="availability-toggle-label
+                                         {% if not driver.is_available %}is-active{% endif %}" aria-hidden="true">
+                            Unavailable
+                        </span>
+
+                        <label class="availability-toggle"
+                            for="{{ form.is_available.id_for_label|default:'id_is_available' }}">
+                            <input type="checkbox" name="{{ form.is_available.html_name|default:'is_available' }}"
+                                id="{{ form.is_available.id_for_label|default:'id_is_available' }}"
+                                class="availability-toggle-input" data-availability-toggle {% if driver.is_available
+                                %}checked{% endif %}>
+                            <span class="availability-toggle-track" aria-hidden="true">
+                                <span class="availability-toggle-thumb"></span>
+                            </span>
+                            <span class="visually-hidden">
+                                Toggle availability
+                            </span>
+                        </label>
+
+                        <span class="availability-toggle-label
+                                         {% if driver.is_available %}is-active{% endif %}" aria-hidden="true">
+                            Available
+                        </span>
+
+                    </div>
+
+                    {% if form.is_available.errors %}
+                    <ul class="form-errors" id="{{ form.is_available.id_for_label|default:'id_is_available' }}-errors">
+                        {% for error in form.is_available.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    {# ---------- Additional form fields (dynamic, safe) ---------- #}
+                    {% for field in form %}
+                    {% if field.name != "is_available" and field.name != "driver" and field.name != "user" %}
+                    <div class="form-field form-field-full {% if field.errors %}has-error{% endif %}">
+                        <label for="{{ field.id_for_label }}" class="form-label">
+                            {{ field.label }}
+                            {% if field.field.required %}
+                            <span class="form-required" aria-hidden="true">*</span>
+                            {% endif %}
+                        </label>
+
+                        <div class="form-input-wrap">
+                            {{ field }}
+                        </div>
+
+                        {% if field.help_text %}
+                        <p class="form-help">{{ field.help_text }}</p>
+                        {% endif %}
+
+                        {% if field.errors %}
+                        <ul class="form-errors" id="{{ field.id_for_label }}-errors">
+                            {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+
+                    <div class="availability-form-actions">
+                        <button type="submit" class="btn btn-primary" data-availability-submit
+                            data-loading-label="Saving…">
+                            <span class="btn-label" data-submit-label>Save Changes</span>
+                            <span class="btn-spinner" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="dash-empty dash-empty-inline">
+                    <p class="dash-empty-text">
+                        Availability editing is not available at the moment.
+                    </p>
+                </div>
+                {% endif %}
+
+                {# ---------- Last Updated ---------- #}
+                {% if driver.availability_updated_at %}
+                <p class="availability-last-updated">
+                    Last updated
+                    <time datetime="{{ driver.availability_updated_at|date:'c' }}">
+                        {{ driver.availability_updated_at|date:"M d, Y H:i" }}
+                    </time>
+                </p>
+                {% endif %}
+
+            </div>
+        </section>
+
+        {# ---------------- SIDE COLUMN ---------------- #}
+        <aside class="availability-side">
+
+            {# ========== VEHICLE CARD ========== #}
+            <section class="dash-card card-enter" aria-labelledby="vehicle-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="vehicle-title">
+                        Vehicle
+                    </h2>
+                </header>
+
+                <dl class="availability-detail-list">
+                    <div class="availability-detail-row">
+                        <dt>Vehicle</dt>
+                        <dd>{{ driver.vehicle|default:"—" }}</dd>
+                    </div>
+                    <div class="availability-detail-row">
+                        <dt>Plate Number</dt>
+                        <dd class="mono">{{ driver.plate_number|default:"—" }}</dd>
+                    </div>
+                    {% if driver.vehicle_type %}
+                    <div class="availability-detail-row">
+                        <dt>Type</dt>
+                        <dd>{{ driver.vehicle_type }}</dd>
+                    </div>
+                    {% endif %}
+                    {% if driver.capacity %}
+                    <div class="availability-detail-row">
+                        <dt>Capacity</dt>
+                        <dd>{{ driver.capacity }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+
+                <p class="availability-help-text">
+                    Vehicle details are managed by the operations team.
+                    Contact support if any information needs to be updated.
+                </p>
+            </section>
+
+            {# ========== CURRENT ASSIGNMENT SUMMARY ========== #}
+            <section class="dash-card card-enter" aria-labelledby="assignment-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="assignment-title">
+                        Current Load
+                    </h2>
+                    <a href="{% url 'driver:deliveries' %}" class="dash-card-link">
+                        View all
+                    </a>
+                </header>
+
+                <div class="availability-load">
+                    <div class="availability-load-stat">
+                        <span class="availability-load-value">
+                            {{ active_assignments_count|default:"0" }}
+                        </span>
+                        <span class="availability-load-label">Active</span>
+                    </div>
+
+                    <div class="availability-load-stat">
+                        <span class="availability-load-value">
+                            {{ today_assignments_count|default:"0" }}
+                        </span>
+                        <span class="availability-load-label">Today</span>
+                    </div>
+
+                    <div class="availability-load-stat">
+                        <span class="availability-load-value">
+                            {{ pending_acceptance_count|default:"0" }}
+                        </span>
+                        <span class="availability-load-label">Awaiting Accept</span>
+                    </div>
+                </div>
+
+                {% if pending_acceptance_count %}
+                <p class="availability-help-text">
+                    You have assignments awaiting acceptance.
+                    Setting yourself unavailable will not remove them.
+                </p>
+                {% endif %}
+            </section>
+
+            {# ========== HOW IT WORKS ========== #}
+            <section class="dash-card card-enter" aria-labelledby="how-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="how-title">
+                        How it works
+                    </h2>
+                </header>
+
+                <ul class="info-notes" role="list">
+                    <li>
+                        <strong>Available</strong> — you can receive new assignments from the operations team.
+                    </li>
+                    <li>
+                        <strong>Unavailable</strong> — you are hidden from new assignments,
+                        but existing ones remain in your queue.
+                    </li>
+                    <li>
+                        Availability does not affect your delivery history or ratings.
+                    </li>
+                    <li>
+                        You can change availability at any time.
+                    </li>
+                </ul>
+            </section>
+
+            {# ========== HELP CARD ========== #}
+            <section class="dash-card card-enter" aria-labelledby="help-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="help-title">
+                        Need help?
+                    </h2>
+                </header>
+
+                <div class="availability-help">
+                    <p class="availability-help-text">
+                        If you need a longer break or a schedule change, contact operations.
+                    </p>
+                    <a href="{% url 'ai_assistant' %}" class="btn btn-accent btn-sm btn-block">
+                        <span class="app-ai-mark" aria-hidden="true">✦</span>
+                        Ask AI Assistant
+                    </a>
+                </div>
+            </section>
+
+        </aside>
+    </div>
+
+</div>
+
+{# ============================= PAGE-SPECIFIC ASSETS ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}

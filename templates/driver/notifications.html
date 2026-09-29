@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Notifications — Smart Delivery &amp; Logistics
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page page-fade-up" data-notifications-root>
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="dashboard-header">
+        <div class="dashboard-header-left">
+            <span class="dashboard-eyebrow">Driver</span>
+            <h1 class="dashboard-title">
+                Notifications
+                {% if unread_count %}
+                <span class="title-badge" aria-label="{{ unread_count }} unread notifications">
+                    {{ unread_count }}
+                </span>
+                {% endif %}
+            </h1>
+            <p class="dashboard-subtitle">
+                Updates about your assignments, deliveries, and account activity.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+            {% if unread_count %}
+            <form method="post" action="{% url 'notifications:mark_all_read' %}" class="inline-form">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary" data-loading-label="Marking…">
+                    <span class="btn-icon" aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </span>
+                    <span class="btn-label">Mark all as read</span>
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                </button>
+            </form>
+            {% endif %}
+
+            <a href="{% url 'driver:dashboard' %}" class="btn btn-ghost">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </span>
+                Back to Dashboard
+            </a>
+        </div>
+    </header>
+
+    {# ============================= SHARED ALERTS ============================= #}
+    {% if messages %}
+    {% include "components/alerts.html" %}
+    {% endif %}
+
+    {# ============================= FILTERS ============================= #}
+    <section class="dash-card card-enter" aria-labelledby="notif-filter-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="notif-filter-title">
+                Filter Notifications
+            </h2>
+            {% if page_obj %}
+            <span class="dash-card-meta">
+                {{ page_obj.paginator.count|default:0 }} result{{ page_obj.paginator.count|default:0|pluralize }}
+            </span>
+            {% endif %}
+        </header>
+
+        <form method="get" class="shipments-filter" role="search" aria-label="Filter notifications">
+
+            <div class="filter-field">
+                <label for="filter-q" class="filter-label">Search</label>
+                <div class="filter-input-wrap">
+                    <span class="filter-input-icon" aria-hidden="true">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="search" id="filter-q" name="q" class="filter-input" placeholder="Search notifications…"
+                        value="{{ request.GET.q|default:'' }}" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-state" class="filter-label">State</label>
+                <select id="filter-state" name="state" class="filter-input filter-select">
+                    <option value="">All</option>
+                    <option value="unread" {% if request.GET.state=="unread" %}selected{% endif %}>Unread</option>
+                    <option value="read" {% if request.GET.state=="read" %}selected{% endif %}>Read</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-type" class="filter-label">Type</label>
+                <select id="filter-type" name="type" class="filter-input filter-select">
+                    <option value="">All types</option>
+                    <option value="ASSIGNMENT" {% if request.GET.type=="ASSIGNMENT" %}selected{% endif %}>Assignment
+                    </option>
+                    <option value="DELIVERY" {% if request.GET.type=="DELIVERY" %}selected{% endif %}>Delivery</option>
+                    <option value="PAYMENT" {% if request.GET.type=="PAYMENT" %}selected{% endif %}>Payment</option>
+                    <option value="SYSTEM" {% if request.GET.type=="SYSTEM" %}selected{% endif %}>System</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date-from" class="filter-label">From</label>
+                <input type="date" id="filter-date-from" name="date_from" class="filter-input"
+                    value="{{ request.GET.date_from|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date-to" class="filter-label">To</label>
+                <input type="date" id="filter-date-to" name="date_to" class="filter-input"
+                    value="{{ request.GET.date_to|default:'' }}">
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+                <a href="{% url 'notifications:list' %}" class="btn btn-ghost btn-sm">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    {# ============================= NOTIFICATIONS LIST ============================= #}
+    <section class="dash-card card-enter" aria-labelledby="notif-list-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="notif-list-title">
+                All Notifications
+            </h2>
+            {% if page_obj %}
+            <span class="dash-card-meta">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            {% endif %}
+        </header>
+
+        {% if notifications %}
+        <ul class="notif-center-list" role="list">
+            {% for notification in notifications %}
+            <li class="notif-center-item {% if not notification.is_read %}is-unread{% endif %}"
+                data-notification-id="{{ notification.id }}"
+                data-notification-state="{% if notification.is_read %}read{% else %}unread{% endif %}">
+
+                <span class="notif-center-icon notif-center-icon-{{ notification.type|default:'system'|lower }}"
+                    aria-hidden="true">
+                    {% if notification.type|lower == 'assignment' %}
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 11l3 3L22 4"></path>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                    {% elif notification.type|lower == 'delivery' %}
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8l-9-5-9 5v8l9 5 9-5Z"></path>
+                        <path d="M3.3 7.3 12 12l8.7-4.7"></path>
+                        <line x1="12" y1="22" x2="12" y2="12"></line>
+                    </svg>
+                    {% elif notification.type|lower == 'payment' %}
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                        <line x1="2" y1="10" x2="22" y2="10"></line>
+                    </svg>
+                    {% else %}
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+                    </svg>
+                    {% endif %}
+                </span>
+
+                <div class="notif-center-body">
+
+                    <header class="notif-center-head">
+                        <h3 class="notif-center-title">
+                            {{ notification.title|default:"Notification" }}
+                        </h3>
+                        <time class="notif-center-time" datetime="{{ notification.created_at|date:'c' }}">
+                            {{ notification.created_at|date:"M d, Y H:i"|default:"" }}
+                        </time>
+                    </header>
+
+                    <p class="notif-center-message">
+                        {{ notification.message|default:"" }}
+                    </p>
+
+                    <div class="notif-center-meta">
+                        {% if notification.type %}
+                        <span class="notif-center-type">
+                            {{ notification.get_type_display|default:notification.type }}
+                        </span>
+                        {% endif %}
+
+                        {% if not notification.is_read %}
+                        <span class="notif-center-unread-pill">
+                            <span class="notif-dot" aria-hidden="true"></span>
+                            Unread
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    {% if notification.url and not notification.is_read %}
+                    <div class="notif-center-actions">
+                        <form method="post" action="{% url 'notifications:mark_read' notification.id %}"
+                            class="inline-form">
+                            {% csrf_token %}
+                            <button type="submit" class="notif-center-btn" data-loading-label="Marking…">
+                                <span class="btn-label">Mark as read</span>
+                                <span class="btn-spinner" aria-hidden="true"></span>
+                            </button>
+                        </form>
+                        <a href="{{ notification.url }}" class="notif-center-btn notif-center-btn-primary">
+                            Open
+                        </a>
+                    </div>
+                    {% elif not notification.is_read %}
+                    <div class="notif-center-actions">
+                        <form method="post" action="{% url 'notifications:mark_read' notification.id %}"
+                            class="inline-form">
+                            {% csrf_token %}
+                            <button type="submit" class="notif-center-btn" data-loading-label="Marking…">
+                                <span class="btn-label">Mark as read</span>
+                                <span class="btn-spinner" aria-hidden="true"></span>
+                            </button>
+                        </form>
+                    </div>
+                    {% elif notification.url %}
+                    <div class="notif-center-actions">
+                        <a href="{{ notification.url }}" class="notif-center-btn notif-center-btn-primary">
+                            Open
+                        </a>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+
+        {% else %}
+
+        {# ---------- EMPTY STATE ---------- #}
+        <div class="dash-empty">
+            <div class="dash-empty-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+                </svg>
+            </div>
+            <h3 class="dash-empty-title">
+                {% if request.GET.q or request.GET.state or request.GET.type or request.GET.date_from or
+                request.GET.date_to %}
+                No notifications found
+                {% else %}
+                No notifications yet
+                {% endif %}
+            </h3>
+            <p class="dash-empty-text">
+                {% if request.GET.q or request.GET.state or request.GET.type or request.GET.date_from or
+                request.GET.date_to %}
+                No notifications match your current filters. Try adjusting or resetting them.
+                {% else %}
+                You'll see updates about your assignments, deliveries, and account here.
+                {% endif %}
+            </p>
+
+            {% if request.GET.q or request.GET.state or request.GET.type or request.GET.date_from or request.GET.date_to
+            %}
+            <a href="{% url 'notifications:list' %}" class="btn btn-secondary">
+                Reset Filters
+            </a>
+            {% else %}
+            <a href="{% url 'driver:dashboard' %}" class="btn btn-primary">
+                Back to Dashboard
+            </a>
+            {% endif %}
+        </div>
+
+        {% endif %}
+    </section>
+
+    {# ============================= PAGINATION ============================= #}
+    {% if page_obj and page_obj.paginator.num_pages > 1 %}
+    {% include "components/pagination.html" with page_obj=page_obj %}
+    {% endif %}
+
+</div>
+
+{# ============================= PAGE-SPECIFIC ASSETS ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/notifications.js' %}" defer></script>
+{% endblock %}
