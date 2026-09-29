@@ -1,0 +1,616 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ driver.full_name|default:driver.name|default:"Driver" }} | Drivers | Manager{% endblock %}
+
+{% block content %}
+{# ---------- Small icon sprite ---------- #}
+<svg xmlns="http://www.w3.org/2000/svg" hidden aria-hidden="true">
+    <symbol id="i-back" viewBox="0 0 24 24">
+        <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24">
+        <path d="M2 6h11v10H2zM13 9h5l4 4v3h-9zM6 19a2 2 0 100-4 2 2 0 000 4zM17 19a2 2 0 100-4 2 2 0 000 4z"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-box" viewBox="0 0 24 24">
+        <path d="M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M8 12.5l3 3 5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-x" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24">
+        <path d="M12 3l10 18H2zM12 10v5M12 18h.01" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-pulse" viewBox="0 0 24 24">
+        <path d="M3 12h4l3-8 4 16 3-8h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-percent" viewBox="0 0 24 24">
+        <path d="M19 5L5 19M7 9a2 2 0 100-4 2 2 0 000 4zM17 19a2 2 0 100-4 2 2 0 000 4z" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24">
+        <path d="M12 21s7-6 7-12a7 7 0 00-14 0c0 6 7 12 7 12z" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round" />
+        <circle cx="12" cy="9" r="2.5" fill="none" stroke="currentColor" stroke-width="2" />
+    </symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24">
+        <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2" />
+        <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2" />
+    </symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24">
+        <path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-link" viewBox="0 0 24 24">
+        <path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3A4 4 0 0011 18.7l1-1"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-power" viewBox="0 0 24 24">
+        <path d="M12 3v9M6.5 6.5a8 8 0 1011 0" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-switch" viewBox="0 0 24 24">
+        <path d="M4 8h13l-3-3M20 16H7l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+    </symbol>
+</svg>
+
+{# ---------- Safe URL resolution ---------- #}
+{% url 'manager:drivers' as u_drivers %}
+{% url 'manager:driver_edit' driver.pk as u_edit %}
+{% url 'manager:driver_assignments' driver.pk as u_assignments_all %}
+{% url 'manager:driver_availability' driver.pk as u_availability %}
+{% url 'manager:driver_assign_shipment' driver.pk as u_assign_shipment %}
+{% url 'manager:driver_activate' driver.pk as u_activate %}
+{% url 'manager:driver_deactivate' driver.pk as u_deactivate %}
+{% url 'manager:assignments' as u_assignments %}
+
+<div class="manager-layout" id="managerLayout">
+
+    {# Shared navbar/sidebar component (Drivers stays highlighted) #}
+    {% include "components/navbar.html" with active_page="drivers" %}
+
+    <div class="manager-main">
+        {% include "components/alerts.html" %}
+
+        <main class="dashboard page-fade-up" id="driverDetailPage">
+
+            {# ================= PAGE HEADER ================= #}
+            <header class="page-header page-header--detail anim-card" style="--delay: 0">
+                <div class="page-header__text">
+                    <a class="back-link" href="{{ u_drivers|default:'#' }}">
+                        <svg class="icon icon--sm">
+                            <use href="#i-back" />
+                        </svg> Back to Drivers
+                    </a>
+                    <h1>{{ driver.full_name|default:driver.name|default:"Unknown Driver" }}</h1>
+                    <div class="page-header__badges">
+                        {% if driver.is_active %}
+                        <span class="badge badge--status badge--active"><i class="dot"></i>Active</span>
+                        {% else %}
+                        <span class="badge badge--status badge--inactive"><i class="dot"></i>Inactive</span>
+                        {% endif %}
+                        <span class="presence-label">
+                            <i class="presence presence--{{ driver.availability|default:'offline' }}"></i>
+                            {{ driver.get_availability_display|default:driver.availability|default:"Offline" }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="page-header__actions">
+                    <a class="btn btn--primary" href="{{ u_edit|default:'#' }}">
+                        <svg class="icon">
+                            <use href="#i-edit" />
+                        </svg> Edit Driver
+                    </a>
+                    <a class="btn btn--ghost" href="{{ u_assignments_all|default:'#' }}">
+                        <svg class="icon">
+                            <use href="#i-link" />
+                        </svg> View Assignments
+                    </a>
+                    <a class="btn btn--ghost" href="#managerActions">
+                        <svg class="icon">
+                            <use href="#i-switch" />
+                        </svg> Change Availability
+                    </a>
+                    {% if driver.is_active %}
+                    <form method="post" action="{{ u_deactivate|default:'#' }}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn--danger-soft" data-confirm="Deactivate this driver?">
+                            <svg class="icon">
+                                <use href="#i-power" />
+                            </svg> Deactivate
+                        </button>
+                    </form>
+                    {% else %}
+                    <form method="post" action="{{ u_activate|default:'#' }}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn--success-soft">
+                            <svg class="icon">
+                                <use href="#i-power" />
+                            </svg> Activate
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </header>
+
+            {# ================= PROFILE + VEHICLE + AVAILABILITY ================= #}
+            <div class="grid grid--profile">
+
+                {# ---------- Profile ---------- #}
+                <section class="panel profile-card anim-card" style="--delay: 1" aria-labelledby="profileTitle">
+                    <div class="profile-card__head">
+                        <span class="avatar avatar--xl avatar--role-driver" aria-hidden="true">
+                            {{ driver.full_name|default:driver.name|default:"D"|slice:":1"|upper }}
+                        </span>
+                        <div>
+                            <h2 id="profileTitle" class="panel__title">{{
+                                driver.full_name|default:driver.name|default:"Unknown Driver" }}</h2>
+                            <p class="text-muted">Driver</p>
+                        </div>
+                    </div>
+                    <dl class="detail-list">
+                        <div>
+                            <dt>Email</dt>
+                            <dd>{{ driver.email|default:"—" }}</dd>
+                        </div>
+                        <div>
+                            <dt>Phone</dt>
+                            <dd>{{ driver.phone|default:"—" }}</dd>
+                        </div>
+                        <div>
+                            <dt>License number</dt>
+                            <dd>{{ driver.license_number|default:"—" }}</dd>
+                        </div>
+                        <div>
+                            <dt>Account status</dt>
+                            <dd>
+                                {% if driver.is_active %}
+                                <span class="badge badge--status badge--active"><i class="dot"></i>Active</span>
+                                {% else %}
+                                <span class="badge badge--status badge--inactive"><i class="dot"></i>Inactive</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>Registered</dt>
+                            <dd>{{ driver.date_joined|date:"d M Y"|default:"—" }}</dd>
+                        </div>
+                    </dl>
+                </section>
+
+                {# ---------- Vehicle ---------- #}
+                <section class="panel vehicle-card anim-card" style="--delay: 2" aria-labelledby="vehicleTitle">
+                    <header class="panel__header">
+                        <div>
+                            <h2 id="vehicleTitle" class="panel__title">Vehicle</h2>
+                            <p>Assigned vehicle information</p>
+                        </div>
+                        <span class="stat-card__icon stat-card__icon--indigo"><svg class="icon">
+                                <use href="#i-truck" />
+                            </svg></span>
+                    </header>
+                    <div class="vehicle-card__hero">
+                        <strong>{{ driver.vehicle_type|default:"Vehicle type unknown" }}</strong>
+                        <span>{{ driver.vehicle_model|default:"—" }}</span>
+                        {% if driver.plate_number %}<span class="plate plate--lg">{{ driver.plate_number }}</span>{%
+                        endif %}
+                    </div>
+                    <dl class="detail-list detail-list--compact">
+                        <div>
+                            <dt>Capacity</dt>
+                            <dd>{{ driver.vehicle_capacity|default:"—" }}</dd>
+                        </div>
+                        <div>
+                            <dt>Vehicle status</dt>
+                            <dd><span class="badge badge--soft">{{ driver.vehicle_status|default:"—" }}</span></dd>
+                        </div>
+                    </dl>
+                </section>
+
+                {# ---------- Availability ---------- #}
+                <section class="panel availability-card anim-card" style="--delay: 3"
+                    aria-labelledby="availabilityTitle">
+                    <header class="panel__header">
+                        <div>
+                            <h2 id="availabilityTitle" class="panel__title">Availability</h2>
+                            <p>Live operational status</p>
+                        </div>
+                    </header>
+                    <div
+                        class="availability-card__state availability-card__state--{{ driver.availability|default:'offline' }}">
+                        <i class="presence presence--{{ driver.availability|default:'offline' }} presence--lg"></i>
+                        <strong>{{ driver.get_availability_display|default:driver.availability|default:"Offline"
+                            }}</strong>
+                    </div>
+                    <dl class="detail-list detail-list--compact">
+                        <div>
+                            <dt>Current status</dt>
+                            <dd>{{ driver.current_status|default:driver.get_availability_display|default:"—" }}</dd>
+                        </div>
+                        <div>
+                            <dt>Active deliveries</dt>
+                            <dd><strong>{{ active_deliveries|default:"0" }}</strong></dd>
+                        </div>
+                        <div>
+                            <dt>Current location</dt>
+                            <dd>
+                                {% if driver.latitude and driver.longitude %}
+                                <span class="location location--on"><svg class="icon icon--sm">
+                                        <use href="#i-pin" />
+                                    </svg> Location available</span>
+                                {% else %}
+                                <span class="location location--off"><svg class="icon icon--sm">
+                                        <use href="#i-pin" />
+                                    </svg> Location unavailable</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                    </dl>
+                </section>
+            </div>
+
+            {# ================= PERFORMANCE SUMMARY ================= #}
+            <section class="stats-grid stats-grid--six" aria-label="Performance summary">
+                <article class="stat-card anim-card" style="--delay: 2">
+                    <span class="stat-card__icon stat-card__icon--blue"><svg class="icon">
+                            <use href="#i-box" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Total Deliveries</span>
+                        <strong class="stat-card__value" data-counter>{{ total_deliveries|default:"0" }}</strong>
+                    </div>
+                </article>
+                <article class="stat-card anim-card" style="--delay: 3">
+                    <span class="stat-card__icon stat-card__icon--green"><svg class="icon">
+                            <use href="#i-check" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Completed</span>
+                        <strong class="stat-card__value" data-counter>{{ completed_deliveries|default:"0" }}</strong>
+                    </div>
+                </article>
+                <article class="stat-card anim-card" style="--delay: 4">
+                    <span class="stat-card__icon stat-card__icon--indigo"><svg class="icon">
+                            <use href="#i-pulse" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Active</span>
+                        <strong class="stat-card__value" data-counter>{{ active_deliveries|default:"0" }}</strong>
+                    </div>
+                </article>
+                <article class="stat-card anim-card" style="--delay: 5">
+                    <span class="stat-card__icon stat-card__icon--red"><svg class="icon">
+                            <use href="#i-x" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Failed</span>
+                        <strong class="stat-card__value" data-counter>{{ failed_deliveries|default:"0" }}</strong>
+                    </div>
+                </article>
+                <article class="stat-card stat-card--danger anim-card" style="--delay: 6">
+                    <span class="stat-card__icon stat-card__icon--amber"><svg class="icon">
+                            <use href="#i-alert" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Delayed</span>
+                        <strong class="stat-card__value" data-counter>{{ delayed_deliveries|default:"0" }}</strong>
+                    </div>
+                </article>
+                <article class="stat-card anim-card" style="--delay: 7">
+                    <span class="stat-card__icon stat-card__icon--teal"><svg class="icon">
+                            <use href="#i-percent" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Completion Rate</span>
+                        <strong class="stat-card__value">{{ completion_rate|default:"0" }}%</strong>
+                        <div class="workload" aria-hidden="true">
+                            <div class="workload__bar" style="--value: {{ completion_rate|default:'0' }}"></div>
+                        </div>
+                    </div>
+                </article>
+            </section>
+
+            {# ================= ACTIVE ASSIGNMENTS ================= #}
+            <section class="panel anim-card" style="--delay: 4" aria-labelledby="activeAssignTitle">
+                <header class="panel__header">
+                    <div>
+                        <h2 id="activeAssignTitle" class="panel__title">Active Assignments</h2>
+                        <p>Shipments currently assigned to this driver</p>
+                    </div>
+                </header>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Tracking Number</th>
+                                <th scope="col">Customer</th>
+                                <th scope="col">Destination</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Assigned</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in active_assignments %}
+                            <tr>
+                                <td><strong>{{ assignment.tracking_number|default:"—" }}</strong></td>
+                                <td>{{ assignment.customer|default:"—" }}</td>
+                                <td>{{ assignment.destination|default:"—" }}</td>
+                                <td><span
+                                        class="badge badge--status badge--{{ assignment.status|default:'pending' }}">{{
+                                        assignment.get_status_display|default:assignment.status }}</span></td>
+                                <td><time datetime="{{ assignment.assigned_at|date:'c' }}">{{
+                                        assignment.assigned_at|date:"d M Y, H:i" }}</time></td>
+                                <td>
+                                    <div class="row-actions">
+                                        <a class="btn btn--xs btn--ghost"
+                                            href="{{ assignment.shipment_url|default:'#' }}">
+                                            <svg class="icon icon--sm">
+                                                <use href="#i-eye" />
+                                            </svg> View Shipment
+                                        </a>
+                                        <a class="btn btn--xs btn--primary"
+                                            href="{{ assignment.detail_url|default:'#' }}">
+                                            <svg class="icon icon--sm">
+                                                <use href="#i-link" />
+                                            </svg> View Assignment
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr class="table-empty">
+                                <td colspan="6">No active assignments.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            {# ================= LOCATION + ACTIVITY ================= #}
+            <div class="grid grid--two">
+
+                <section class="panel anim-card" style="--delay: 5" aria-labelledby="locationTitle">
+                    <header class="panel__header">
+                        <div>
+                            <h2 id="locationTitle" class="panel__title">Current Location</h2>
+                            <p>Latest reported position</p>
+                        </div>
+                    </header>
+
+                    {% if driver.latitude and driver.longitude %}
+                    <dl class="detail-list detail-list--compact">
+                        <div>
+                            <dt>Latitude</dt>
+                            <dd>{{ driver.latitude }}</dd>
+                        </div>
+                        <div>
+                            <dt>Longitude</dt>
+                            <dd>{{ driver.longitude }}</dd>
+                        </div>
+                        <div>
+                            <dt>Last updated</dt>
+                            <dd>
+                                {% if driver.location_updated_at %}
+                                <time datetime="{{ driver.location_updated_at|date:'c' }}">{{
+                                    driver.location_updated_at|timesince }} ago</time>
+                                {% else %}—{% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>Location status</dt>
+                            <dd><span class="location location--on">{{ driver.location_status|default:"Location
+                                    available" }}</span></dd>
+                        </div>
+                    </dl>
+                    {% else %}
+                    <p class="strip-empty">Location unavailable. The driver has not reported a position yet.</p>
+                    {% endif %}
+
+                    {# Placeholder for a future map component #}
+                    <div class="map-placeholder" id="driverMap" data-map-slot
+                        data-lat="{{ driver.latitude|default:'' }}" data-lng="{{ driver.longitude|default:'' }}">
+                        <svg class="icon icon--xl">
+                            <use href="#i-pin" />
+                        </svg>
+                        <span>Map preview will appear here</span>
+                    </div>
+                </section>
+
+                <section class="panel anim-card" style="--delay: 6" aria-labelledby="activityTitle">
+                    <header class="panel__header">
+                        <div>
+                            <h2 id="activityTitle" class="panel__title">Recent Driver Activity</h2>
+                            <p>Assignments, pickups, deliveries and location updates</p>
+                        </div>
+                    </header>
+                    <ol class="timeline">
+                        {% for activity in driver_activities %}
+                        <li class="timeline__item timeline__item--{{ activity.type|default:'system' }}"
+                            style="--delay: {{ forloop.counter0 }}">
+                            <span class="timeline__marker" aria-hidden="true"></span>
+                            <div class="timeline__content">
+                                <p>{{ activity.message|default:activity.description|default:"Activity recorded" }}</p>
+                                <time datetime="{{ activity.created_at|date:'c' }}">{{ activity.created_at|timesince }}
+                                    ago</time>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="timeline__empty">No recent activity yet.</li>
+                        {% endfor %}
+                    </ol>
+                </section>
+            </div>
+
+            {# ================= DELIVERY HISTORY ================= #}
+            <section class="panel anim-card" style="--delay: 6" aria-labelledby="historyTitle">
+                <header class="panel__header">
+                    <div>
+                        <h2 id="historyTitle" class="panel__title">Delivery History</h2>
+                        <p>Completed and closed deliveries</p>
+                    </div>
+                </header>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Tracking Number</th>
+                                <th scope="col">Destination</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Completed</th>
+                                <th scope="col">Delivery Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for delivery in delivery_history %}
+                            <tr>
+                                <td><strong>{{ delivery.tracking_number|default:"—" }}</strong></td>
+                                <td>{{ delivery.destination|default:"—" }}</td>
+                                <td><span
+                                        class="badge badge--status badge--{{ delivery.status|default:'delivered' }}">{{
+                                        delivery.get_status_display|default:delivery.status }}</span></td>
+                                <td><time datetime="{{ delivery.completed_at|date:'c' }}">{{
+                                        delivery.completed_at|date:"d M Y, H:i" }}</time></td>
+                                <td>{{ delivery.delivery_time|default:"—" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr class="table-empty">
+                                <td colspan="5">No delivery history yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if history_page.has_other_pages %}
+                {% include "components/pagination.html" with page_obj=history_page %}
+                {% endif %}
+            </section>
+
+            {# ================= MANAGER ACTIONS ================= #}
+            <section class="panel panel--actions anim-card" style="--delay: 7" id="managerActions"
+                aria-labelledby="managerActionsTitle">
+                <header class="panel__header">
+                    <div>
+                        <h2 id="managerActionsTitle" class="panel__title">Manager Actions</h2>
+                        <p>Manage this driver's workload and account</p>
+                    </div>
+                </header>
+
+                <div class="action-grid">
+
+                    <form class="action-card" method="post" action="{{ u_assign_shipment|default:'#' }}">
+                        {% csrf_token %}
+                        <h3>Assign Shipment</h3>
+                        <p>Give this driver a new unassigned shipment.</p>
+                        <div class="field">
+                            <label for="assignShipment">Shipment</label>
+                            <select id="assignShipment" name="shipment">
+                                <option value="">Select a shipment</option>
+                                {% for shipment in unassigned_shipments %}
+                                <option value="{{ shipment.pk }}">{{ shipment.tracking_number }}{% if
+                                    shipment.destination %} — {{ shipment.destination }}{% endif %}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn--primary" {% if not unassigned_shipments %}disabled{% endif
+                            %}>
+                            <svg class="icon icon--sm">
+                                <use href="#i-link" />
+                            </svg> Assign Shipment
+                        </button>
+                    </form>
+
+                    <div class="action-card">
+                        <h3>Reassign Shipment</h3>
+                        <p>Move one of the active shipments to another driver.</p>
+                        <a class="btn btn--ghost" href="{{ u_assignments|default:'#' }}">
+                            <svg class="icon icon--sm">
+                                <use href="#i-switch" />
+                            </svg> Open Assignments
+                        </a>
+                    </div>
+
+                    <form class="action-card" method="post" action="{{ u_availability|default:'#' }}">
+                        {% csrf_token %}
+                        <h3>Change Availability</h3>
+                        <p>Update the driver's current availability.</p>
+                        <div class="field">
+                            <label for="availabilitySelect">Availability</label>
+                            <select id="availabilitySelect" name="availability">
+                                <option value="available" {% if driver.availability=="available" %}selected{% endif %}>
+                                    Available</option>
+                                <option value="busy" {% if driver.availability=="busy" %}selected{% endif %}>Busy
+                                </option>
+                                <option value="offline" {% if driver.availability=="offline" %}selected{% endif %}>
+                                    Offline</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn--primary">Update Availability</button>
+                    </form>
+
+                    <div class="action-card">
+                        <h3>Driver Information</h3>
+                        <p>Edit profile, license and vehicle details.</p>
+                        <a class="btn btn--ghost" href="{{ u_edit|default:'#' }}">
+                            <svg class="icon icon--sm">
+                                <use href="#i-edit" />
+                            </svg> Update Driver Information
+                        </a>
+                    </div>
+
+                    <div class="action-card action-card--danger">
+                        <h3>Account Status</h3>
+                        <p>{% if driver.is_active %}Deactivating prevents this driver from receiving new work.{% else
+                            %}Activate the account to allow new assignments.{% endif %}</p>
+                        {% if driver.is_active %}
+                        <form method="post" action="{{ u_deactivate|default:'#' }}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn--danger-soft" data-confirm="Deactivate this driver?">
+                                <svg class="icon icon--sm">
+                                    <use href="#i-power" />
+                                </svg> Deactivate Driver
+                            </button>
+                        </form>
+                        {% else %}
+                        <form method="post" action="{{ u_activate|default:'#' }}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn--success-soft">
+                                <svg class="icon icon--sm">
+                                    <use href="#i-power" />
+                                </svg> Activate Driver
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+{# Shared chatbot #}
+{% include "components/chatbot.html" %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}

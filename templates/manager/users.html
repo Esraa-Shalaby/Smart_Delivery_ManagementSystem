@@ -1,0 +1,382 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Users | Manager{% endblock %}
+
+{% block content %}
+{# ---------- Small icon sprite ---------- #}
+<svg xmlns="http://www.w3.org/2000/svg" hidden aria-hidden="true">
+    <symbol id="i-users" viewBox="0 0 24 24">
+        <circle cx="9" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M2 20c0-3.5 3-5 7-5s7 1.5 7 5M16 4.5a3.5 3.5 0 010 7M18 15c2.5.5 4 2 4 5" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-user" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M4 21c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24">
+        <path d="M2 6h11v10H2zM13 9h5l4 4v3h-9zM6 19a2 2 0 100-4 2 2 0 000 4zM17 19a2 2 0 100-4 2 2 0 000 4z"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24">
+        <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-pulse" viewBox="0 0 24 24">
+        <path d="M3 12h4l3-8 4 16 3-8h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24">
+        <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2" />
+        <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2" />
+    </symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24">
+        <path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol id="i-power" viewBox="0 0 24 24">
+        <path d="M12 3v9M6.5 6.5a8 8 0 1011 0" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" />
+    </symbol>
+    <symbol id="i-more" viewBox="0 0 24 24">
+        <circle cx="5" cy="12" r="1.8" fill="currentColor" />
+        <circle cx="12" cy="12" r="1.8" fill="currentColor" />
+        <circle cx="19" cy="12" r="1.8" fill="currentColor" />
+    </symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24">
+        <path d="M4 12a8 8 0 108-8H7M7 4L4 7l3 3" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+    </symbol>
+</svg>
+
+{# ---------- Safe URL resolution ---------- #}
+{% url 'manager:users' as u_users %}
+{% url 'manager:user_create' as u_user_create %}
+
+<div class="manager-layout" id="managerLayout">
+
+    {# Shared navbar/sidebar component. It marks "Users" as active via active_page. #}
+    {% include "components/navbar.html" with active_page="users" %}
+
+    <div class="manager-main">
+        {% include "components/alerts.html" %}
+
+        <main class="dashboard page-fade-up" id="usersPage">
+
+            {# ================= PAGE HEADER ================= #}
+            <header class="page-header anim-card" style="--delay: 0">
+                <div class="page-header__text">
+                    <span class="page-header__eyebrow">People</span>
+                    <h1>Users</h1>
+                    <p>Monitor and manage every customer, driver and manager in your delivery network.</p>
+                </div>
+                <div class="page-header__actions">
+                    <form class="topbar__search" role="search" action="{{ u_users|default:'#' }}" method="get">
+                        <svg class="icon">
+                            <use href="#i-search" />
+                        </svg>
+                        <input type="search" name="q" value="{{ request.GET.q }}" placeholder="Quick search users…"
+                            aria-label="Quick search users" autocomplete="off">
+                    </form>
+                    {% if u_user_create %}
+                    <a class="btn btn--primary" href="{{ u_user_create }}">
+                        <svg class="icon">
+                            <use href="#i-plus" />
+                        </svg> Create User
+                    </a>
+                    {% endif %}
+                </div>
+            </header>
+
+            {# ================= STATISTICS ================= #}
+            <section class="stats-grid stats-grid--five" aria-label="User statistics">
+                <article class="stat-card anim-card" style="--delay: 1">
+                    <span class="stat-card__icon stat-card__icon--blue"><svg class="icon">
+                            <use href="#i-users" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Total Users</span>
+                        <strong class="stat-card__value" data-counter>{{ total_users|default:"0" }}</strong>
+                        <span class="stat-card__desc">All registered accounts</span>
+                    </div>
+                </article>
+                <article class="stat-card anim-card" style="--delay: 2">
+                    <span class="stat-card__icon stat-card__icon--teal"><svg class="icon">
+                            <use href="#i-user" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Customers</span>
+                        <strong class="stat-card__value" data-counter>{{ customers_count|default:"0" }}</strong>
+                        <span class="stat-card__desc">Ordering shipments</span>
+                    </div>
+                </article>
+                <article class="stat-card anim-card" style="--delay: 3">
+                    <span class="stat-card__icon stat-card__icon--indigo"><svg class="icon">
+                            <use href="#i-truck" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Drivers</span>
+                        <strong class="stat-card__value" data-counter>{{ drivers_count|default:"0" }}</strong>
+                        <span class="stat-card__desc">Delivering shipments</span>
+                    </div>
+                </article>
+                <article class="stat-card anim-card" style="--delay: 4">
+                    <span class="stat-card__icon stat-card__icon--violet"><svg class="icon">
+                            <use href="#i-shield" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Managers</span>
+                        <strong class="stat-card__value" data-counter>{{ managers_count|default:"0" }}</strong>
+                        <span class="stat-card__desc">Full system access</span>
+                    </div>
+                </article>
+                <article class="stat-card anim-card" style="--delay: 5">
+                    <span class="stat-card__icon stat-card__icon--green"><svg class="icon">
+                            <use href="#i-pulse" />
+                        </svg></span>
+                    <div class="stat-card__body">
+                        <span class="stat-card__label">Active Users</span>
+                        <strong class="stat-card__value" data-counter>{{ active_users|default:"0" }}</strong>
+                        <span class="stat-card__desc">Currently enabled</span>
+                    </div>
+                </article>
+            </section>
+
+            {# ================= FILTERS ================= #}
+            <section class="panel anim-card" style="--delay: 3" aria-label="Filter users">
+                <form class="filter-bar" method="get" action="{{ u_users|default:'#' }}" id="usersFilterForm">
+                    <div class="field field--grow">
+                        <label for="filterQ">Search</label>
+                        <div class="field__control">
+                            <svg class="icon">
+                                <use href="#i-search" />
+                            </svg>
+                            <input id="filterQ" type="search" name="q" value="{{ request.GET.q }}"
+                                placeholder="Name or email" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="filterRole">Role</label>
+                        <select id="filterRole" name="role">
+                            <option value="">All roles</option>
+                            <option value="customer" {% if request.GET.role=="customer" %}selected{% endif %}>Customer
+                            </option>
+                            <option value="driver" {% if request.GET.role=="driver" %}selected{% endif %}>Driver
+                            </option>
+                            <option value="manager" {% if request.GET.role=="manager" %}selected{% endif %}>Manager
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="filterStatus">Status</label>
+                        <select id="filterStatus" name="status">
+                            <option value="">All statuses</option>
+                            <option value="active" {% if request.GET.status=="active" %}selected{% endif %}>Active
+                            </option>
+                            <option value="inactive" {% if request.GET.status=="inactive" %}selected{% endif %}>Inactive
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="filterFrom">Joined from</label>
+                        <input id="filterFrom" type="date" name="date_from" value="{{ request.GET.date_from }}">
+                    </div>
+
+                    <div class="field">
+                        <label for="filterTo">Joined to</label>
+                        <input id="filterTo" type="date" name="date_to" value="{{ request.GET.date_to }}">
+                    </div>
+
+                    <div class="filter-bar__actions">
+                        <button type="submit" class="btn btn--primary">Apply</button>
+                        <a class="btn btn--ghost" href="{{ u_users|default:'?' }}">
+                            <svg class="icon icon--sm">
+                                <use href="#i-reset" />
+                            </svg> Reset
+                        </a>
+                    </div>
+                </form>
+            </section>
+
+            {# ================= USERS TABLE ================= #}
+            <section class="panel anim-card" style="--delay: 4" aria-labelledby="usersTableTitle">
+                <header class="panel__header">
+                    <div>
+                        <h2 id="usersTableTitle" class="panel__title">All Users</h2>
+                        <p>
+                            {% if page_obj %}
+                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count
+                            }}
+                            {% else %}
+                            {{ total_users|default:"0" }} users in the system
+                            {% endif %}
+                        </p>
+                    </div>
+                </header>
+
+                {% if users %}
+                <div class="table-wrap">
+                    <table class="data-table data-table--users">
+                        <thead>
+                            <tr>
+                                <th scope="col">User</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Role</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Joined</th>
+                                <th scope="col">Last Activity</th>
+                                <th scope="col"><span class="visually-hidden">Actions</span>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            {% url 'manager:user_detail' user.pk as u_detail %}
+                            {% url 'manager:user_edit' user.pk as u_edit %}
+                            {% url 'manager:user_activate' user.pk as u_activate %}
+                            {% url 'manager:user_deactivate' user.pk as u_deactivate %}
+                            <tr>
+                                <td>
+                                    <div class="user-cell">
+                                        <span class="avatar avatar--role-{{ user.role|default:'customer'|lower }}"
+                                            aria-hidden="true">
+                                            {{ user.get_full_name|default:user.username|default:"U"|slice:":1"|upper }}
+                                        </span>
+                                        <div class="user-cell__meta">
+                                            <strong>{{ user.get_full_name|default:user.username|default:"Unnamed user"
+                                                }}</strong>
+                                            <small>{{ user.email|default:"—" }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ user.email|default:"—" }}</td>
+                                <td>
+                                    <span
+                                        class="badge badge--role badge--role-{{ user.role|default:'customer'|lower }}">
+                                        {{ user.get_role_display|default:user.role|default:"—" }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if user.is_active %}
+                                    <span class="badge badge--status badge--active"><i class="dot"></i>Active</span>
+                                    {% else %}
+                                    <span class="badge badge--status badge--inactive"><i class="dot"></i>Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td><time datetime="{{ user.date_joined|date:'c' }}">{{ user.date_joined|date:"d M Y"
+                                        }}</time></td>
+                                <td>
+                                    {% if user.last_login %}
+                                    <time datetime="{{ user.last_login|date:'c' }}">{{ user.last_login|timesince }}
+                                        ago</time>
+                                    {% else %}
+                                    <span class="text-muted">Never</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="row-actions">
+                                        <a class="btn btn--xs btn--ghost" href="{{ u_detail|default:'#' }}">
+                                            <svg class="icon icon--sm">
+                                                <use href="#i-eye" />
+                                            </svg> View
+                                        </a>
+                                        <a class="btn btn--xs btn--primary" href="{{ u_edit|default:'#' }}">
+                                            <svg class="icon icon--sm">
+                                                <use href="#i-edit" />
+                                            </svg> Edit
+                                        </a>
+
+                                        <details class="action-menu">
+                                            <summary class="icon-btn icon-btn--sm"
+                                                aria-label="More actions for {{ user.get_full_name|default:user.username }}">
+                                                <svg class="icon">
+                                                    <use href="#i-more" />
+                                                </svg>
+                                            </summary>
+                                            <div class="action-menu__list" role="menu">
+                                                {% if user.is_active %}
+                                                <form method="post" action="{{ u_deactivate|default:'#' }}">
+                                                    {% csrf_token %}
+                                                    <button type="submit"
+                                                        class="action-menu__item action-menu__item--danger"
+                                                        role="menuitem" {% if user.pk==request.user.pk %}disabled
+                                                        title="You cannot deactivate your own account" {% endif %}
+                                                        data-confirm="Deactivate this user?">
+                                                        <svg class="icon icon--sm">
+                                                            <use href="#i-power" />
+                                                        </svg> Deactivate
+                                                    </button>
+                                                </form>
+                                                {% else %}
+                                                <form method="post" action="{{ u_activate|default:'#' }}">
+                                                    {% csrf_token %}
+                                                    <button type="submit"
+                                                        class="action-menu__item action-menu__item--success"
+                                                        role="menuitem">
+                                                        <svg class="icon icon--sm">
+                                                            <use href="#i-power" />
+                                                        </svg> Activate
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                            </div>
+                                        </details>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                {# Empty state #}
+                <div class="empty-state">
+                    <span class="empty-state__icon"><svg class="icon icon--xl">
+                            <use href="#i-users" />
+                        </svg></span>
+                    <h3>No users found.</h3>
+                    <p>Try adjusting your search or filters, or add a new user to get started.</p>
+                    <div class="empty-state__actions">
+                        <a class="btn btn--ghost" href="{{ u_users|default:'?' }}">Reset filters</a>
+                        {% if u_user_create %}
+                        <a class="btn btn--primary" href="{{ u_user_create }}">
+                            <svg class="icon icon--sm">
+                                <use href="#i-plus" />
+                            </svg> Create User
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {# ---------- Pagination ---------- #}
+                {% if is_paginated or page_obj.has_other_pages %}
+                {% include "components/pagination.html" %}
+                {% endif %}
+            </section>
+
+        </main>
+    </div>
+</div>
+
+{# Shared chatbot #}
+{% include "components/chatbot.html" %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}
