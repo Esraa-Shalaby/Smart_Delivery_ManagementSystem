@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Create Account — Smart Delivery &amp; Logistics
+{% endblock %}
+
+{% block content %}
+<div class="auth-page auth-page-register" data-auth-root>
+
+    {# ============================= BACKGROUND LAYERS ============================= #}
+    <div class="auth-bg" aria-hidden="true">
+        <div class="auth-bg-grid"></div>
+        <div class="auth-bg-glow auth-bg-glow-a"></div>
+        <div class="auth-bg-glow auth-bg-glow-b"></div>
+        <div class="auth-bg-scan"></div>
+    </div>
+
+    {# ============================= REGISTER CARD ============================= #}
+    <main class="auth-shell" role="main">
+
+        <section class="auth-card auth-card-wide" data-auth-card aria-labelledby="auth-title">
+
+            {# ---------- BRAND ---------- #}
+            <header class="auth-brand">
+                <a href="/" class="auth-brand-link" aria-label="Smart Delivery home">
+                    <span class="auth-brand-mark" aria-hidden="true">
+                        <span class="auth-brand-dot"></span>
+                    </span>
+                    <span class="auth-brand-text">
+                        <span class="auth-brand-title">Smart Delivery</span>
+                        <span class="auth-brand-sub">&amp; Logistics</span>
+                    </span>
+                </a>
+            </header>
+
+            {# ---------- HEADING ---------- #}
+            <div class="auth-heading">
+                <span class="auth-eyebrow">Get started</span>
+                <h1 class="auth-title" id="auth-title">Create your account</h1>
+                <p class="auth-subtitle">
+                    Join the platform to manage shipments, deliveries, and logistics operations.
+                </p>
+            </div>
+
+            {# ---------- SHARED ALERTS ---------- #}
+            {% if messages %}
+            {% include "components/alerts.html" %}
+            {% endif %}
+
+            {# ---------- NON-FIELD ERRORS ---------- #}
+            {% if form.non_field_errors %}
+            <div class="auth-error-block" role="alert" aria-live="assertive">
+                <ul class="auth-error-list">
+                    {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {# ---------- REGISTER FORM ---------- #}
+            <form method="post" action="{% url 'accounts:register' %}" class="auth-form" data-auth-form novalidate>
+                {% csrf_token %}
+
+                {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+
+                {# ----- Name grid ----- #}
+                <div class="auth-grid-2">
+                    <div class="auth-field {% if form.first_name.errors %}has-error{% endif %}">
+                        <label for="{{ form.first_name.id_for_label|default:'id_first_name' }}" class="auth-label">
+                            First name
+                        </label>
+                        <div class="auth-input-wrap">
+                            <span class="auth-input-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </span>
+                            <input type="text" name="{{ form.first_name.html_name|default:'first_name' }}"
+                                id="{{ form.first_name.id_for_label|default:'id_first_name' }}" class="auth-input"
+                                value="{{ form.first_name.value|default:'' }}" placeholder="Jane"
+                                autocomplete="given-name" required {% if form.first_name.errors %}aria-invalid="true"
+                                aria-describedby="first-name-errors" {% endif %}>
+                        </div>
+                        {% if form.first_name.errors %}
+                        <ul class="auth-field-errors" id="first-name-errors">
+                            {% for error in form.first_name.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="auth-field {% if form.last_name.errors %}has-error{% endif %}">
+                        <label for="{{ form.last_name.id_for_label|default:'id_last_name' }}" class="auth-label">
+                            Last name
+                        </label>
+                        <div class="auth-input-wrap">
+                            <span class="auth-input-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </span>
+                            <input type="text" name="{{ form.last_name.html_name|default:'last_name' }}"
+                                id="{{ form.last_name.id_for_label|default:'id_last_name' }}" class="auth-input"
+                                value="{{ form.last_name.value|default:'' }}" placeholder="Doe"
+                                autocomplete="family-name" required {% if form.last_name.errors %}aria-invalid="true"
+                                aria-describedby="last-name-errors" {% endif %}>
+                        </div>
+                        {% if form.last_name.errors %}
+                        <ul class="auth-field-errors" id="last-name-errors">
+                            {% for error in form.last_name.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# ----- Email ----- #}
+                <div class="auth-field {% if form.email.errors %}has-error{% endif %}">
+                    <label for="{{ form.email.id_for_label|default:'id_email' }}" class="auth-label">
+                        Email
+                    </label>
+                    <div class="auth-input-wrap">
+                        <span class="auth-input-icon" aria-hidden="true">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                                <polyline points="3 7 12 13 21 7"></polyline>
+                            </svg>
+                        </span>
+                        <input type="email" name="{{ form.email.html_name|default:'email' }}"
+                            id="{{ form.email.id_for_label|default:'id_email' }}" class="auth-input"
+                            value="{{ form.email.value|default:'' }}" placeholder="you@example.com" autocomplete="email"
+                            autocapitalize="off" spellcheck="false" required {% if form.email.errors
+                            %}aria-invalid="true" aria-describedby="email-errors" {% endif %}>
+                    </div>
+                    {% if form.email.errors %}
+                    <ul class="auth-field-errors" id="email-errors">
+                        {% for error in form.email.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+
+                {# ----- Role selection (only if provided by the form) ----- #}
+                {% if form.role %}
+                <div class="auth-field {% if form.role.errors %}has-error{% endif %}">
+                    <label for="{{ form.role.id_for_label|default:'id_role' }}" class="auth-label">
+                        Account type
+                    </label>
+
+                    <div class="auth-input-wrap">
+                        <span class="auth-input-icon" aria-hidden="true">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </span>
+
+                        <select name="{{ form.role.html_name|default:'role' }}"
+                            id="{{ form.role.id_for_label|default:'id_role' }}" class="auth-input auth-select" required
+                            {% if form.role.errors %}aria-invalid="true" aria-describedby="role-errors" {% endif %}>
+                            {% for value, label in form.role.field.choices %}
+                            <option value="{{ value }}" {% if form.role.value==value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    {% if form.role.help_text %}
+                    <p class="auth-field-help">{{ form.role.help_text }}</p>
+                    {% endif %}
+
+                    {% if form.role.errors %}
+                    <ul class="auth-field-errors" id="role-errors">
+                        {% for error in form.role.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {# ----- Password ----- #}
+                <div class="auth-field {% if form.password1.errors %}has-error{% endif %}">
+                    <label for="{{ form.password1.id_for_label|default:'id_password1' }}" class="auth-label">
+                        Password
+                    </label>
+                    <div class="auth-input-wrap">
+                        <span class="auth-input-icon" aria-hidden="true">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="11" width="16" height="10" rx="2"></rect>
+                                <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+                            </svg>
+                        </span>
+
+                        <input type="password" name="{{ form.password1.html_name|default:'password1' }}"
+                            id="{{ form.password1.id_for_label|default:'id_password1' }}"
+                            class="auth-input auth-input-password" placeholder="••••••••" autocomplete="new-password"
+                            required data-password-input data-password-strength-source {% if form.password1.errors
+                            %}aria-invalid="true" aria-describedby="password1-errors" {% endif %}>
+
+                        <button type="button" class="auth-input-toggle" data-password-toggle aria-label="Show password"
+                            aria-pressed="false" tabindex="0">
+                            <svg class="auth-icon-eye" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
+                                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg class="auth-icon-eye-off" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
+                                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a20.8 20.8 0 0 1 4.22-5.19">
+                                </path>
+                                <path d="M9.9 4.24A9.83 9.83 0 0 1 12 4c7 0 11 7 11 7a20.9 20.9 0 0 1-3.31 4.19"></path>
+                                <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    {# Password strength indicator (client-side only, no backend logic) #}
+                    <div class="auth-strength" data-password-strength hidden aria-hidden="true">
+                        <div class="auth-strength-track">
+                            <div class="auth-strength-fill" data-password-strength-fill></div>
+                        </div>
+                        <span class="auth-strength-label" data-password-strength-label>
+                            Password strength
+                        </span>
+                    </div>
+
+                    {% if form.password1.help_text %}
+                    <p class="auth-field-help">{{ form.password1.help_text|safe }}</p>
+                    {% endif %}
+
+                    {% if form.password1.errors %}
+                    <ul class="auth-field-errors" id="password1-errors">
+                        {% for error in form.password1.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+
+                {# ----- Confirm Password ----- #}
+                <div class="auth-field {% if form.password2.errors %}has-error{% endif %}">
+                    <label for="{{ form.password2.id_for_label|default:'id_password2' }}" class="auth-label">
+                        Confirm password
+                    </label>
+                    <div class="auth-input-wrap">
+                        <span class="auth-input-icon" aria-hidden="true">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="11" width="16" height="10" rx="2"></rect>
+                                <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+                                <polyline points="9 16 11 18 15 14"></polyline>
+                            </svg>
+                        </span>
+
+                        <input type="password" name="{{ form.password2.html_name|default:'password2' }}"
+                            id="{{ form.password2.id_for_label|default:'id_password2' }}"
+                            class="auth-input auth-input-password" placeholder="••••••••" autocomplete="new-password"
+                            required data-password-input {% if form.password2.errors %}aria-invalid="true"
+                            aria-describedby="password2-errors" {% endif %}>
+
+                        <button type="button" class="auth-input-toggle" data-password-toggle aria-label="Show password"
+                            aria-pressed="false" tabindex="0">
+                            <svg class="auth-icon-eye" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
+                                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg class="auth-icon-eye-off" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
+                                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a20.8 20.8 0 0 1 4.22-5.19">
+                                </path>
+                                <path d="M9.9 4.24A9.83 9.83 0 0 1 12 4c7 0 11 7 11 7a20.9 20.9 0 0 1-3.31 4.19"></path>
+                                <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    {% if form.password2.errors %}
+                    <ul class="auth-field-errors" id="password2-errors">
+                        {% for error in form.password2.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+
+                {# ----- Terms (only if provided by the form) ----- #}
+                {% if form.terms %}
+                <div class="auth-field auth-field-inline {% if form.terms.errors %}has-error{% endif %}">
+                    <label class="auth-checkbox">
+                        <input type="checkbox" name="{{ form.terms.html_name|default:'terms' }}"
+                            id="{{ form.terms.id_for_label|default:'id_terms' }}" {% if form.terms.value %}checked{%
+                            endif %} required {% if form.terms.errors %}aria-invalid="true"
+                            aria-describedby="terms-errors" {% endif %}>
+                        <span class="auth-checkbox-box" aria-hidden="true"></span>
+                        <span class="auth-checkbox-label">
+                            I agree to the
+                            <a href="{% url 'legal:terms' %}" class="auth-inline-link">Terms of Service</a>
+                            and
+                            <a href="{% url 'legal:privacy' %}" class="auth-inline-link">Privacy Policy</a>.
+                        </span>
+                    </label>
+                    {% if form.terms.errors %}
+                    <ul class="auth-field-errors" id="terms-errors">
+                        {% for error in form.terms.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {# ----- Submit ----- #}
+                <button type="submit" class="auth-submit" data-auth-submit data-loading-label="Creating account…">
+                    <span class="auth-submit-label" data-submit-label>Create account</span>
+                    <span class="auth-submit-spinner" aria-hidden="true"></span>
+                </button>
+            </form>
+
+            {# ---------- FOOTER LINK ---------- #}
+            <footer class="auth-footer">
+                <p class="auth-footer-text">
+                    Already have an account?
+                    <a href="{% url 'accounts:login' %}" class="auth-inline-link auth-inline-link-strong">
+                        Login
+                    </a>
+                </p>
+            </footer>
+
+        </section>
+
+        {# ============================= SIDE META (DESKTOP) ============================= #}
+        <aside class="auth-aside" aria-hidden="true">
+            <div class="auth-aside-inner">
+                <div class="auth-aside-tag">Join the network</div>
+                <h2 class="auth-aside-title">
+                    Built for <span>customers, drivers, and logistics teams</span>.
+                </h2>
+                <ul class="auth-aside-list">
+                    <li>
+                        <span class="auth-aside-dot"></span>
+                        Create shipments and track them end-to-end
+                    </li>
+                    <li>
+                        <span class="auth-aside-dot"></span>
+                        Receive real-time delivery updates
+                    </li>
+                    <li>
+                        <span class="auth-aside-dot"></span>
+                        Manage your operations from one dashboard
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+    </main>
+</div>
+
+{# ============================= PAGE-SPECIFIC ASSETS ============================= #}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+<script src="{% static 'js/auth.js' %}" defer></script>
+{% endblock %}
