@@ -1,21 +1,18 @@
 {% load static %}
 
 {# ============================================================
-Shared AI Chatbot Component
-Visible for all authenticated roles:
-Customer / Driver / Manager
-Renders only UI. All logic lives in static/js/chatbot.js
+Chatbot Component — Floating AI Assistant
 ============================================================ #}
 
 {% if user.is_authenticated %}
-<div class="app-chatbot" data-chatbot data-chatbot-role="{{ user.role|default:''|lower }}">
+<div class="app-chatbot" data-chatbot data-chatbot-role="{{ user.role|default:''|lower }}"
+    data-chatbot-endpoint="{% url 'ai_assistant' %}">
 
     {# ============================= FLOATING TRIGGER ============================= #}
     <button type="button" class="app-chatbot-fab" data-chatbot-trigger aria-label="Open AI Assistant"
-        aria-haspopup="dialog" aria-expanded="false" aria-controls="app-chatbot-window" title="AI Assistant">
-
+        aria-haspopup="dialog" aria-expanded="false" aria-controls="app-chatbot-window">
         <span class="app-chatbot-fab-icon" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                 stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-7a8 8 0 0 1 8-8h2a8 8 0 0 1 8 4Z"></path>
                 <circle cx="9" cy="12" r="1"></circle>
@@ -23,11 +20,7 @@ Renders only UI. All logic lives in static/js/chatbot.js
                 <circle cx="17" cy="12" r="1"></circle>
             </svg>
         </span>
-
-        <span class="app-chatbot-fab-label" aria-hidden="true">Ask AI</span>
-
-        {# Optional unread / activity indicator (populated by JS when needed) #}
-        <span class="app-chatbot-fab-badge" data-chatbot-badge hidden aria-hidden="true"></span>
+        <span class="app-chatbot-fab-label">Ask AI</span>
     </button>
 
     {# ============================= CHAT WINDOW ============================= #}
@@ -42,26 +35,24 @@ Renders only UI. All logic lives in static/js/chatbot.js
                     <h2 class="app-chatbot-title" id="app-chatbot-title">
                         AI Assistant
                     </h2>
-                    <span class="app-chatbot-status" data-chatbot-status>
+                    <span class="app-chatbot-status">
                         <span class="app-chatbot-status-dot" aria-hidden="true"></span>
-                        <span class="app-chatbot-status-text">Online</span>
+                        <span>Online</span>
                     </span>
                 </div>
             </div>
 
             <div class="app-chatbot-head-actions">
                 <button type="button" class="app-chatbot-icon-btn" data-chatbot-action="clear"
-                    aria-label="Clear conversation" title="Clear conversation">
+                    aria-label="Clear conversation" title="Clear">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
                         <path d="M10 11v6"></path>
                         <path d="M14 11v6"></path>
-                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
                     </svg>
                 </button>
-
                 <button type="button" class="app-chatbot-icon-btn" data-chatbot-action="close"
                     aria-label="Close AI Assistant" title="Close">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -77,7 +68,6 @@ Renders only UI. All logic lives in static/js/chatbot.js
         <div class="app-chatbot-conversation" data-chatbot-conversation role="log" aria-live="polite"
             aria-atomic="false">
 
-            {# Initial greeting is role-aware #}
             <div class="app-chatbot-msg app-chatbot-msg-ai">
                 <div class="app-chatbot-msg-avatar" aria-hidden="true">✦</div>
                 <div class="app-chatbot-bubble">
@@ -88,10 +78,9 @@ Renders only UI. All logic lives in static/js/chatbot.js
                     <div class="app-chatbot-content">
                         {% with role=user.role|default:''|lower %}
                         {% if role == 'customer' %}
-                        <p>Hello! I can help you track shipments and view your orders. What would you like to know?</p>
+                        <p>Hello! I can help you track shipments and view your orders.</p>
                         {% elif role == 'driver' %}
-                        <p>Hello! I can help you review your deliveries and update delivery status. How can I assist?
-                        </p>
+                        <p>Hello! I can help you review your deliveries and update statuses.</p>
                         {% elif role == 'manager' %}
                         <p>Hello Manager. I can help you review operations, find drivers, and analyze deliveries.</p>
                         {% else %}
@@ -102,7 +91,6 @@ Renders only UI. All logic lives in static/js/chatbot.js
                 </div>
             </div>
 
-            {# Typing indicator (hidden by default) #}
             <div class="app-chatbot-typing" data-chatbot-typing hidden aria-hidden="true">
                 <div class="app-chatbot-msg-avatar" aria-hidden="true">✦</div>
                 <div class="app-chatbot-typing-bubble">
@@ -114,58 +102,34 @@ Renders only UI. All logic lives in static/js/chatbot.js
         </div>
 
         {# ---------- SUGGESTED PROMPTS ---------- #}
-        <div class="app-chatbot-suggestions" data-chatbot-suggestions aria-label="Suggested prompts">
-
+        <div class="app-chatbot-suggestions" aria-label="Suggested prompts">
             {% with role=user.role|default:''|lower %}
             {% if role == 'customer' %}
-            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="Track my shipment">
-                Track my shipment
-            </button>
-            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="Show my shipments">
-                Show my shipments
-            </button>
-            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="What is my latest shipment status?">
-                Latest shipment status
-            </button>
-
+            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="Track my shipment">Track my
+                shipment</button>
+            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="Show my shipments">Show my
+                shipments</button>
             {% elif role == 'driver' %}
-            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="Show my deliveries">
-                Show my deliveries
-            </button>
-            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="Update delivery status">
-                Update delivery status
-            </button>
-            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="What are my active assignments?">
-                Active assignments
-            </button>
-
+            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="Show my deliveries">Show my
+                deliveries</button>
+            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="Update delivery status">Update delivery
+                status</button>
             {% elif role == 'manager' %}
-            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="Show delayed deliveries">
-                Show delayed deliveries
-            </button>
-            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="Find available drivers">
-                Find available drivers
-            </button>
-            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="Today's shipment summary">
-                Today's shipment summary
-            </button>
-
+            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="Show delayed deliveries">Show delayed
+                deliveries</button>
+            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="Find available drivers">Find available
+                drivers</button>
             {% else %}
-            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="How can you help me?">
-                How can you help me?
-            </button>
+            <button type="button" class="app-chatbot-chip" data-chatbot-prompt="How can you help me?">How can you help
+                me?</button>
             {% endif %}
             {% endwith %}
         </div>
 
-        {# ---------- INPUT BAR ---------- #}
+        {# ---------- INPUT ---------- #}
         <form class="app-chatbot-input" data-chatbot-form autocomplete="off" novalidate>
             {% csrf_token %}
-
-            <label for="app-chatbot-input-field" class="visually-hidden">
-                Message
-            </label>
-
+            <label for="app-chatbot-input-field" class="visually-hidden">Message</label>
             <textarea id="app-chatbot-input-field" class="app-chatbot-textarea" name="message" rows="1" maxlength="2000"
                 placeholder="Type your message…" data-chatbot-input aria-label="Message"></textarea>
 
@@ -178,26 +142,9 @@ Renders only UI. All logic lives in static/js/chatbot.js
             </button>
         </form>
 
-        {# ---------- FOOTER NOTE ---------- #}
         <div class="app-chatbot-note" aria-hidden="true">
-            AI responses are generated by the backend. Actions are permission-checked.
+            AI responses come from the backend. Actions are permission-checked.
         </div>
-
     </section>
-
-    {# ---------- MESSAGE TEMPLATE (cloned by JS) ---------- #}
-    <template id="app-chatbot-message-template">
-        <div class="app-chatbot-msg">
-            <div class="app-chatbot-msg-avatar" aria-hidden="true"></div>
-            <div class="app-chatbot-bubble">
-                <div class="app-chatbot-bubble-head">
-                    <span class="app-chatbot-author"></span>
-                    <span class="app-chatbot-time"></span>
-                </div>
-                <div class="app-chatbot-content"></div>
-            </div>
-        </div>
-    </template>
-
 </div>
 {% endif %}
