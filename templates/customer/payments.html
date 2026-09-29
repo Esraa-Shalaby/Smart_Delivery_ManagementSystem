@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Payments — Smart Delivery &amp; Logistics
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page page-fade-up" data-payments-root>
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="dashboard-header">
+        <div class="dashboard-header-left">
+            <span class="dashboard-eyebrow">Customer</span>
+            <h1 class="dashboard-title">Payments</h1>
+            <p class="dashboard-subtitle">
+                Review your payment history and track the status of each transaction.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+            <a href="{% url 'customer:shipments' %}" class="btn btn-ghost">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </span>
+                Back to Shipments
+            </a>
+        </div>
+    </header>
+
+    {# ============================= SUMMARY CARDS ============================= #}
+    <section class="dashboard-stats" aria-label="Payment summary">
+
+        <article class="stat-card stat-stagger">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                        <line x1="2" y1="10" x2="22" y2="10"></line>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Total Payments</h2>
+            </header>
+            <p class="stat-card-value">{{ total_payments|default:"0" }}</p>
+            <p class="stat-card-meta">All time</p>
+        </article>
+
+        <article class="stat-card stat-stagger stat-card-success">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Paid</h2>
+            </header>
+            <p class="stat-card-value">{{ paid_count|default:"0" }}</p>
+            <p class="stat-card-meta">
+                {% if paid_amount %}
+                Total: {{ paid_amount }}
+                {% else %}
+                Completed transactions
+                {% endif %}
+            </p>
+        </article>
+
+        <article class="stat-card stat-stagger stat-card-warning">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <polyline points="12 7 12 12 15 15"></polyline>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Pending</h2>
+            </header>
+            <p class="stat-card-value">{{ pending_count|default:"0" }}</p>
+            <p class="stat-card-meta">
+                {% if pending_amount %}
+                Total: {{ pending_amount }}
+                {% else %}
+                Awaiting confirmation
+                {% endif %}
+            </p>
+        </article>
+
+        <article class="stat-card stat-stagger stat-card-danger">
+            <header class="stat-card-head">
+                <span class="stat-card-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                </span>
+                <h2 class="stat-card-label">Failed</h2>
+            </header>
+            <p class="stat-card-value">{{ failed_count|default:"0" }}</p>
+            <p class="stat-card-meta">Unsuccessful attempts</p>
+        </article>
+
+    </section>
+
+    {# ============================= FILTERS ============================= #}
+    <section class="dash-card card-enter" aria-labelledby="payments-filter-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="payments-filter-title">
+                Filter Payments
+            </h2>
+            {% if page_obj %}
+            <span class="dash-card-meta">
+                {{ page_obj.paginator.count|default:0 }} result{{ page_obj.paginator.count|default:0|pluralize }}
+            </span>
+            {% endif %}
+        </header>
+
+        <form method="get" class="shipments-filter" role="search" aria-label="Filter payments">
+
+            <div class="filter-field">
+                <label for="filter-q" class="filter-label">Search</label>
+                <div class="filter-input-wrap">
+                    <span class="filter-input-icon" aria-hidden="true">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="search" id="filter-q" name="q" class="filter-input"
+                        placeholder="Tracking number or reference…" value="{{ request.GET.q|default:'' }}"
+                        autocomplete="off">
+                </div>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-status" class="filter-label">Status</label>
+                <select id="filter-status" name="status" class="filter-input filter-select">
+                    <option value="">All statuses</option>
+                    <option value="PAID" {% if request.GET.status=="PAID" %}selected{% endif %}>Paid</option>
+                    <option value="PENDING" {% if request.GET.status=="PENDING" %}selected{% endif %}>Pending</option>
+                    <option value="FAILED" {% if request.GET.status=="FAILED" %}selected{% endif %}>Failed</option>
+                    <option value="REFUNDED" {% if request.GET.status=="REFUNDED" %}selected{% endif %}>Refunded
+                    </option>
+                    <option value="CANCELLED" {% if request.GET.status=="CANCELLED" %}selected{% endif %}>Cancelled
+                    </option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-method" class="filter-label">Method</label>
+                <select id="filter-method" name="method" class="filter-input filter-select">
+                    <option value="">All methods</option>
+                    <option value="CASH" {% if request.GET.method=="CASH" %}selected{% endif %}>Cash</option>
+                    <option value="CARD" {% if request.GET.method=="CARD" %}selected{% endif %}>Card</option>
+                    <option value="ONLINE" {% if request.GET.method=="ONLINE" %}selected{% endif %}>Online</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date-from" class="filter-label">From</label>
+                <input type="date" id="filter-date-from" name="date_from" class="filter-input"
+                    value="{{ request.GET.date_from|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date-to" class="filter-label">To</label>
+                <input type="date" id="filter-date-to" name="date_to" class="filter-input"
+                    value="{{ request.GET.date_to|default:'' }}">
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+                <a href="{% url 'customer:payments' %}" class="btn btn-ghost btn-sm">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    {# ============================= PAYMENTS TABLE ============================= #}
+    <section class="dash-card card-enter" aria-labelledby="payments-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="payments-title">
+                Payment History
+            </h2>
+            {% if page_obj %}
+            <span class="dash-card-meta">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            {% endif %}
+        </header>
+
+        {% if payments %}
+
+        {# ---------- TABLE (desktop / tablet) ---------- #}
+        <div class="dash-table-wrap payments-table-wrap">
+            <table class="dash-table payments-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Tracking</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Method</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Reference</th>
+                        <th scope="col">Date</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr class="dash-table-row payment-row">
+
+                        <td class="dash-cell-tracking">
+                            {% if payment.shipment %}
+                            <a href="{% url 'customer:shipment_detail' payment.shipment.id %}"
+                                class="mono dash-row-link"
+                                aria-label="View shipment {{ payment.shipment.tracking_number|default:'' }}">
+                                {{ payment.shipment.tracking_number|default:"—" }}
+                            </a>
+                            {% else %}
+                            <span class="mono">—</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="dash-cell-amount">
+                            <span class="cell-amount">
+                                {{ payment.amount|default:"—" }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-method">
+                            <span class="cell-method">
+                                {{ payment.get_method_display|default:payment.method|default:"—" }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-status">
+                            <span class="status-badge status-{{ payment.status|default:'pending'|lower }}">
+                                {{ payment.get_status_display|default:payment.status|default:"Pending" }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-reference">
+                            {% if payment.transaction_reference %}
+                            <span class="mono cell-reference">
+                                {{ payment.transaction_reference }}
+                            </span>
+                            {% else %}
+                            <span class="cell-muted">—</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="dash-cell-date">
+                            {{ payment.created_at|date:"M d, Y H:i"|default:"—" }}
+                        </td>
+
+                        <td class="dash-cell-actions">
+                            {% if payment.shipment %}
+                            <a href="{% url 'customer:shipment_detail' payment.shipment.id %}" class="dash-row-link"
+                                aria-label="View shipment for this payment">
+                                View
+                            </a>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {# ---------- CARDS (mobile) ---------- #}
+        <div class="payments-cards">
+            {% for payment in payments %}
+            <article class="payment-card">
+                <header class="payment-card-head">
+                    <div class="payment-card-amount">
+                        {{ payment.amount|default:"—" }}
+                    </div>
+                    <span class="status-badge status-{{ payment.status|default:'pending'|lower }}">
+                        {{ payment.get_status_display|default:payment.status|default:"Pending" }}
+                    </span>
+                </header>
+
+                <dl class="payment-card-body">
+                    {% if payment.shipment %}
+                    <div class="payment-card-row">
+                        <dt>Tracking</dt>
+                        <dd class="mono">
+                            {{ payment.shipment.tracking_number|default:"—" }}
+                        </dd>
+                    </div>
+                    {% endif %}
+
+                    <div class="payment-card-row">
+                        <dt>Method</dt>
+                        <dd>{{ payment.get_method_display|default:payment.method|default:"—" }}</dd>
+                    </div>
+
+                    <div class="payment-card-row">
+                        <dt>Reference</dt>
+                        <dd class="mono">
+                            {{ payment.transaction_reference|default:"—" }}
+                        </dd>
+                    </div>
+
+                    <div class="payment-card-row">
+                        <dt>Date</dt>
+                        <dd>{{ payment.created_at|date:"M d, Y H:i"|default:"—" }}</dd>
+                    </div>
+                </dl>
+
+                {% if payment.shipment %}
+                <footer class="payment-card-foot">
+                    <a href="{% url 'customer:shipment_detail' payment.shipment.id %}" class="btn btn-secondary btn-sm">
+                        View Shipment
+                    </a>
+                </footer>
+                {% endif %}
+            </article>
+            {% endfor %}
+        </div>
+
+        {% else %}
+
+        {# ---------- EMPTY STATE ---------- #}
+        <div class="dash-empty">
+            <div class="dash-empty-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                </svg>
+            </div>
+            <h3 class="dash-empty-title">
+                {% if request.GET.q or request.GET.status or request.GET.method or request.GET.date_from or
+                request.GET.date_to %}
+                No payments found
+                {% else %}
+                No payments yet
+                {% endif %}
+            </h3>
+            <p class="dash-empty-text">
+                {% if request.GET.q or request.GET.status or request.GET.method or request.GET.date_from or
+                request.GET.date_to %}
+                No payments match your current filters. Try adjusting or resetting them.
+                {% else %}
+                You don't have any payments yet. They will appear here once you create and pay for a shipment.
+                {% endif %}
+            </p>
+
+            {% if request.GET.q or request.GET.status or request.GET.method or request.GET.date_from or
+            request.GET.date_to %}
+            <a href="{% url 'customer:payments' %}" class="btn btn-secondary">
+                Reset Filters
+            </a>
+            {% else %}
+            <a href="{% url 'customer:new_shipment' %}" class="btn btn-primary">
+                Create Shipment
+            </a>
+            {% endif %}
+        </div>
+
+        {% endif %}
+    </section>
+
+    {# ============================= PAGINATION ============================= #}
+    {% if page_obj and page_obj.paginator.num_pages > 1 %}
+    {% include "components/pagination.html" with page_obj=page_obj %}
+    {% endif %}
+
+</div>
+
+{# ============================= PAGE-SPECIFIC ASSETS ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}

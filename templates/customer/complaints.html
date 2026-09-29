@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+My Complaints — Smart Delivery &amp; Logistics
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page page-fade-up" data-complaints-root>
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="dashboard-header">
+        <div class="dashboard-header-left">
+            <span class="dashboard-eyebrow">Customer · Support</span>
+            <h1 class="dashboard-title">My Complaints</h1>
+            <p class="dashboard-subtitle">
+                Submit and follow up on complaints related to your shipments.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+            <a href="{% url 'customer:new_complaint' %}" class="btn btn-primary">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </span>
+                Create Complaint
+            </a>
+        </div>
+    </header>
+
+    {# ============================= SHARED ALERTS ============================= #}
+    {% if messages %}
+    {% include "components/alerts.html" %}
+    {% endif %}
+
+    {# ============================= FILTERS ============================= #}
+    <section class="dash-card card-enter" aria-labelledby="complaints-filter-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="complaints-filter-title">
+                Filter Complaints
+            </h2>
+            {% if page_obj %}
+            <span class="dash-card-meta">
+                {{ page_obj.paginator.count|default:0 }} result{{ page_obj.paginator.count|default:0|pluralize }}
+            </span>
+            {% endif %}
+        </header>
+
+        <form method="get" class="shipments-filter" role="search" aria-label="Filter complaints">
+
+            <div class="filter-field">
+                <label for="filter-q" class="filter-label">Search</label>
+                <div class="filter-input-wrap">
+                    <span class="filter-input-icon" aria-hidden="true">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="search" id="filter-q" name="q" class="filter-input"
+                        placeholder="Subject, tracking number…" value="{{ request.GET.q|default:'' }}"
+                        autocomplete="off">
+                </div>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-status" class="filter-label">Status</label>
+                <select id="filter-status" name="status" class="filter-input filter-select">
+                    <option value="">All statuses</option>
+                    <option value="OPEN" {% if request.GET.status=="OPEN" %}selected{% endif %}>Open</option>
+                    <option value="IN_PROGRESS" {% if request.GET.status=="IN_PROGRESS" %}selected{% endif %}>In
+                        Progress</option>
+                    <option value="RESOLVED" {% if request.GET.status=="RESOLVED" %}selected{% endif %}>Resolved
+                    </option>
+                    <option value="CLOSED" {% if request.GET.status=="CLOSED" %}selected{% endif %}>Closed</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-priority" class="filter-label">Priority</label>
+                <select id="filter-priority" name="priority" class="filter-input filter-select">
+                    <option value="">All priorities</option>
+                    <option value="LOW" {% if request.GET.priority=="LOW" %}selected{% endif %}>Low</option>
+                    <option value="MEDIUM" {% if request.GET.priority=="MEDIUM" %}selected{% endif %}>Medium</option>
+                    <option value="HIGH" {% if request.GET.priority=="HIGH" %}selected{% endif %}>High</option>
+                    <option value="URGENT" {% if request.GET.priority=="URGENT" %}selected{% endif %}>Urgent</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date-from" class="filter-label">From</label>
+                <input type="date" id="filter-date-from" name="date_from" class="filter-input"
+                    value="{{ request.GET.date_from|default:'' }}">
+            </div>
+
+            <div class="filter-field">
+                <label for="filter-date-to" class="filter-label">To</label>
+                <input type="date" id="filter-date-to" name="date_to" class="filter-input"
+                    value="{{ request.GET.date_to|default:'' }}">
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+                <a href="{% url 'customer:complaints' %}" class="btn btn-ghost btn-sm">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    {# ============================= COMPLAINTS LIST ============================= #}
+    <section class="dash-card card-enter" aria-labelledby="complaints-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="complaints-title">
+                Complaints
+            </h2>
+            {% if page_obj %}
+            <span class="dash-card-meta">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            {% endif %}
+        </header>
+
+        {% if complaints %}
+
+        {# ---------- TABLE (desktop / tablet) ---------- #}
+        <div class="dash-table-wrap complaints-table-wrap">
+            <table class="dash-table complaints-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Subject</th>
+                        <th scope="col">Related Shipment</th>
+                        <th scope="col">Priority</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Created</th>
+                        <th scope="col">Last Updated</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for complaint in complaints %}
+                    <tr class="dash-table-row complaint-row">
+
+                        <td class="dash-cell-subject">
+                            <span class="cell-subject">
+                                {{ complaint.subject|default:"No subject" }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-shipment">
+                            {% if complaint.shipment %}
+                            <a href="{% url 'customer:shipment_detail' complaint.shipment.id %}"
+                                class="mono dash-row-link"
+                                aria-label="View related shipment {{ complaint.shipment.tracking_number|default:'' }}">
+                                {{ complaint.shipment.tracking_number|default:"—" }}
+                            </a>
+                            {% else %}
+                            <span class="cell-muted">—</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="dash-cell-priority">
+                            <span class="pill pill-priority-{{ complaint.priority|default:'MEDIUM'|lower }}">
+                                {{ complaint.get_priority_display|default:complaint.priority|default:"Medium" }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-status">
+                            <span class="status-badge status-{{ complaint.status|default:'open'|lower }}">
+                                {{ complaint.get_status_display|default:complaint.status|default:"Open" }}
+                            </span>
+                        </td>
+
+                        <td class="dash-cell-date">
+                            {{ complaint.created_at|date:"M d, Y"|default:"—" }}
+                        </td>
+
+                        <td class="dash-cell-date">
+                            {{ complaint.updated_at|date:"M d, Y"|default:"—" }}
+                        </td>
+
+                        <td class="dash-cell-actions">
+                            <a href="{% url 'customer:complaint_detail' complaint.id %}" class="dash-row-link"
+                                aria-label="View complaint details">
+                                View
+                            </a>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {# ---------- CARDS (mobile) ---------- #}
+        <div class="complaints-cards">
+            {% for complaint in complaints %}
+            <article class="complaint-card">
+                <header class="complaint-card-head">
+                    <h3 class="complaint-card-subject">
+                        {{ complaint.subject|default:"No subject" }}
+                    </h3>
+                    <div class="complaint-card-badges">
+                        <span class="pill pill-priority-{{ complaint.priority|default:'MEDIUM'|lower }}">
+                            {{ complaint.get_priority_display|default:complaint.priority|default:"Medium" }}
+                        </span>
+                        <span class="status-badge status-{{ complaint.status|default:'open'|lower }}">
+                            {{ complaint.get_status_display|default:complaint.status|default:"Open" }}
+                        </span>
+                    </div>
+                </header>
+
+                <dl class="complaint-card-body">
+                    {% if complaint.shipment %}
+                    <div class="complaint-card-row">
+                        <dt>Shipment</dt>
+                        <dd class="mono">
+                            {{ complaint.shipment.tracking_number|default:"—" }}
+                        </dd>
+                    </div>
+                    {% endif %}
+
+                    <div class="complaint-card-row">
+                        <dt>Created</dt>
+                        <dd>{{ complaint.created_at|date:"M d, Y"|default:"—" }}</dd>
+                    </div>
+
+                    <div class="complaint-card-row">
+                        <dt>Last Updated</dt>
+                        <dd>{{ complaint.updated_at|date:"M d, Y"|default:"—" }}</dd>
+                    </div>
+                </dl>
+
+                <footer class="complaint-card-foot">
+                    <a href="{% url 'customer:complaint_detail' complaint.id %}" class="btn btn-secondary btn-sm">
+                        View Details
+                    </a>
+                </footer>
+            </article>
+            {% endfor %}
+        </div>
+
+        {% else %}
+
+        {# ---------- EMPTY STATE ---------- #}
+        <div class="dash-empty">
+            <div class="dash-empty-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z">
+                    </path>
+                </svg>
+            </div>
+            <h3 class="dash-empty-title">
+                {% if request.GET.q or request.GET.status or request.GET.priority or request.GET.date_from or
+                request.GET.date_to %}
+                No complaints found
+                {% else %}
+                No complaints yet
+                {% endif %}
+            </h3>
+            <p class="dash-empty-text">
+                {% if request.GET.q or request.GET.status or request.GET.priority or request.GET.date_from or
+                request.GET.date_to %}
+                No complaints match your current filters. Try adjusting or resetting them.
+                {% else %}
+                You haven't submitted any complaints. If you have an issue with a shipment, you can create a complaint
+                here.
+                {% endif %}
+            </p>
+
+            {% if request.GET.q or request.GET.status or request.GET.priority or request.GET.date_from or
+            request.GET.date_to %}
+            <a href="{% url 'customer:complaints' %}" class="btn btn-secondary">
+                Reset Filters
+            </a>
+            {% else %}
+            <a href="{% url 'customer:new_complaint' %}" class="btn btn-primary">
+                Create Complaint
+            </a>
+            {% endif %}
+        </div>
+
+        {% endif %}
+    </section>
+
+    {# ============================= PAGINATION ============================= #}
+    {% if page_obj and page_obj.paginator.num_pages > 1 %}
+    {% include "components/pagination.html" with page_obj=page_obj %}
+    {% endif %}
+
+</div>
+
+{# ============================= PAGE-SPECIFIC ASSETS ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}

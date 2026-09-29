@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Create Shipment — Smart Delivery &amp; Logistics
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page page-fade-up" data-create-shipment-root>
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="dashboard-header">
+        <div class="dashboard-header-left">
+            <span class="dashboard-eyebrow">Customer</span>
+            <h1 class="dashboard-title">Create Shipment</h1>
+            <p class="dashboard-subtitle">
+                Enter the pickup, delivery, and package details. A driver will be
+                assigned by our operations team.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+            <a href="{% url 'customer:shipments' %}" class="btn btn-ghost">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </span>
+                Back to Shipments
+            </a>
+        </div>
+    </header>
+
+    {# ============================= SHARED ALERTS ============================= #}
+    {% if messages %}
+    {% include "components/alerts.html" %}
+    {% endif %}
+
+    {# ============================= NON-FIELD ERRORS ============================= #}
+    {% if form.non_field_errors %}
+    <div class="dash-error-block" role="alert" aria-live="assertive" aria-atomic="true">
+        <ul class="dash-error-list">
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {# ============================= FORM LAYOUT ============================= #}
+    <div class="create-grid">
+
+        {# ---------------- MAIN FORM ---------------- #}
+        <section class="dash-card card-enter" aria-labelledby="create-form-title">
+            <header class="dash-card-head">
+                <h2 class="dash-card-title" id="create-form-title">
+                    Shipment Details
+                </h2>
+                <span class="dash-card-meta">
+                    <span class="required-hint">
+                        <span class="required-dot" aria-hidden="true"></span>
+                        Required fields
+                    </span>
+                </span>
+            </header>
+
+            <form method="post" action="{% url 'customer:new_shipment' %}" class="create-form" data-shipment-form
+                novalidate>
+                {% csrf_token %}
+
+                {# ---------- ROUTE SECTION ---------- #}
+                <fieldset class="form-section">
+                    <legend class="form-section-title">
+                        Route
+                    </legend>
+
+                    <div class="form-grid-2">
+
+                        {# Pickup Address #}
+                        <div class="form-field form-field-full {% if form.pickup_address.errors %}has-error{% endif %}">
+                            <label for="{{ form.pickup_address.id_for_label|default:'id_pickup_address' }}"
+                                class="form-label">
+                                Pickup Address
+                                <span class="form-required" aria-hidden="true">*</span>
+                            </label>
+
+                            <div class="form-input-wrap">
+                                <span class="form-input-icon" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0Z"></path>
+                                        <circle cx="12" cy="10" r="3"></circle>
+                                    </svg>
+                                </span>
+                                <input type="text" name="{{ form.pickup_address.html_name|default:'pickup_address' }}"
+                                    id="{{ form.pickup_address.id_for_label|default:'id_pickup_address' }}"
+                                    class="form-input" value="{{ form.pickup_address.value|default:'' }}"
+                                    placeholder="Street, city, postal code" autocomplete="street-address" required {% if
+                                    form.pickup_address.errors %}aria-invalid="true"
+                                    aria-describedby="pickup-address-errors" {% endif %}>
+                            </div>
+
+                            {% if form.pickup_address.help_text %}
+                            <p class="form-help">{{ form.pickup_address.help_text }}</p>
+                            {% endif %}
+
+                            {% if form.pickup_address.errors %}
+                            <ul class="form-errors" id="pickup-address-errors">
+                                {% for error in form.pickup_address.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+
+                        {# Delivery Address #}
+                        <div
+                            class="form-field form-field-full {% if form.delivery_address.errors %}has-error{% endif %}">
+                            <label for="{{ form.delivery_address.id_for_label|default:'id_delivery_address' }}"
+                                class="form-label">
+                                Delivery Address
+                                <span class="form-required" aria-hidden="true">*</span>
+                            </label>
+
+                            <div class="form-input-wrap">
+                                <span class="form-input-icon" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0Z"></path>
+                                        <circle cx="12" cy="10" r="3"></circle>
+                                    </svg>
+                                </span>
+                                <input type="text"
+                                    name="{{ form.delivery_address.html_name|default:'delivery_address' }}"
+                                    id="{{ form.delivery_address.id_for_label|default:'id_delivery_address' }}"
+                                    class="form-input" value="{{ form.delivery_address.value|default:'' }}"
+                                    placeholder="Street, city, postal code" autocomplete="street-address" required {% if
+                                    form.delivery_address.errors %}aria-invalid="true"
+                                    aria-describedby="delivery-address-errors" {% endif %}>
+                            </div>
+
+                            {% if form.delivery_address.help_text %}
+                            <p class="form-help">{{ form.delivery_address.help_text }}</p>
+                            {% endif %}
+
+                            {% if form.delivery_address.errors %}
+                            <ul class="form-errors" id="delivery-address-errors">
+                                {% for error in form.delivery_address.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                {# ---------- PACKAGE SECTION ---------- #}
+                <fieldset class="form-section">
+                    <legend class="form-section-title">
+                        Package
+                    </legend>
+
+                    <div class="form-grid-2">
+
+                        {# Package Description #}
+                        <div class="form-field {% if form.package_description.errors %}has-error{% endif %}">
+                            <label for="{{ form.package_description.id_for_label|default:'id_package_description' }}"
+                                class="form-label">
+                                Package Description
+                                <span class="form-required" aria-hidden="true">*</span>
+                            </label>
+
+                            <div class="form-input-wrap">
+                                <span class="form-input-icon" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 16V8l-9-5-9 5v8l9 5 9-5Z"></path>
+                                        <path d="M3.3 7.3 12 12l8.7-4.7"></path>
+                                    </svg>
+                                </span>
+                                <input type="text"
+                                    name="{{ form.package_description.html_name|default:'package_description' }}"
+                                    id="{{ form.package_description.id_for_label|default:'id_package_description' }}"
+                                    class="form-input" value="{{ form.package_description.value|default:'' }}"
+                                    placeholder="e.g. Documents, electronics, fragile items" required {% if
+                                    form.package_description.errors %}aria-invalid="true"
+                                    aria-describedby="package-description-errors" {% endif %}>
+                            </div>
+
+                            {% if form.package_description.help_text %}
+                            <p class="form-help">{{ form.package_description.help_text }}</p>
+                            {% endif %}
+
+                            {% if form.package_description.errors %}
+                            <ul class="form-errors" id="package-description-errors">
+                                {% for error in form.package_description.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+
+                        {# Package Weight #}
+                        <div class="form-field {% if form.package_weight.errors %}has-error{% endif %}">
+                            <label for="{{ form.package_weight.id_for_label|default:'id_package_weight' }}"
+                                class="form-label">
+                                Package Weight (kg)
+                                <span class="form-required" aria-hidden="true">*</span>
+                            </label>
+
+                            <div class="form-input-wrap">
+                                <span class="form-input-icon" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M6 7h12l2 13H4Z"></path>
+                                        <path d="M9 7a3 3 0 0 1 6 0"></path>
+                                    </svg>
+                                </span>
+                                <input type="number" name="{{ form.package_weight.html_name|default:'package_weight' }}"
+                                    id="{{ form.package_weight.id_for_label|default:'id_package_weight' }}"
+                                    class="form-input" value="{{ form.package_weight.value|default:'' }}"
+                                    placeholder="e.g. 2.5" min="0" step="0.1" inputmode="decimal" required {% if
+                                    form.package_weight.errors %}aria-invalid="true"
+                                    aria-describedby="package-weight-errors" {% endif %}>
+                            </div>
+
+                            {% if form.package_weight.help_text %}
+                            <p class="form-help">{{ form.package_weight.help_text }}</p>
+                            {% endif %}
+
+                            {% if form.package_weight.errors %}
+                            <ul class="form-errors" id="package-weight-errors">
+                                {% for error in form.package_weight.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                {# ---------- ADDITIONAL FORM FIELDS (dynamic) ---------- #}
+                {% for field in form %}
+                {% if field.name != "pickup_address" and field.name != "delivery_address" and field.name !=
+                "package_description" and field.name != "package_weight" and field.name != "delivery_fee" and field.name
+                != "status" and field.name != "driver" %}
+                <div class="form-field form-field-full {% if field.errors %}has-error{% endif %}">
+                    <label for="{{ field.id_for_label }}" class="form-label">
+                        {{ field.label }}
+                        {% if field.field.required %}
+                        <span class="form-required" aria-hidden="true">*</span>
+                        {% endif %}
+                    </label>
+
+                    <div class="form-input-wrap">
+                        {{ field }}
+                    </div>
+
+                    {% if field.help_text %}
+                    <p class="form-help">{{ field.help_text }}</p>
+                    {% endif %}
+
+                    {% if field.errors %}
+                    <ul class="form-errors" id="{{ field.id_for_label }}-errors">
+                        {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endfor %}
+
+                {# ---------- FORM ACTIONS ---------- #}
+                <div class="form-actions">
+                    <a href="{% url 'customer:shipments' %}" class="btn btn-ghost">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary" data-shipment-submit
+                        data-loading-label="Creating shipment…">
+                        <span class="btn-label" data-submit-label>Create Shipment</span>
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        {# ---------------- SIDE INFO ---------------- #}
+        <aside class="create-side">
+
+            {# ========== INFO CARD ========== #}
+            <section class="dash-card card-enter" aria-labelledby="info-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="info-title">
+                        How it works
+                    </h2>
+                </header>
+
+                <ol class="info-steps" role="list">
+                    <li class="info-step">
+                        <span class="info-step-num" aria-hidden="true">1</span>
+                        <div class="info-step-body">
+                            <span class="info-step-title">Submit your shipment</span>
+                            <span class="info-step-text">
+                                Fill in the pickup and delivery details.
+                            </span>
+                        </div>
+                    </li>
+                    <li class="info-step">
+                        <span class="info-step-num" aria-hidden="true">2</span>
+                        <div class="info-step-body">
+                            <span class="info-step-title">Driver assignment</span>
+                            <span class="info-step-text">
+                                Our team assigns the most suitable driver.
+                            </span>
+                        </div>
+                    </li>
+                    <li class="info-step">
+                        <span class="info-step-num" aria-hidden="true">3</span>
+                        <div class="info-step-body">
+                            <span class="info-step-title">Track in real time</span>
+                            <span class="info-step-text">
+                                Follow your shipment status from pickup to delivery.
+                            </span>
+                        </div>
+                    </li>
+                </ol>
+            </section>
+
+            {# ========== POLICY CARD ========== #}
+            <section class="dash-card card-enter" aria-labelledby="policy-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="policy-title">
+                        Notes
+                    </h2>
+                </header>
+
+                <ul class="info-notes" role="list">
+                    <li>
+                        Delivery fee is calculated by the system based on route and weight.
+                    </li>
+                    <li>
+                        Driver assignment is handled by our operations team.
+                    </li>
+                    <li>
+                        You can cancel a shipment before pickup is confirmed.
+                    </li>
+                </ul>
+            </section>
+
+        </aside>
+    </div>
+
+</div>
+
+{# ============================= PAGE-SPECIFIC ASSETS ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/shipments.js' %}" defer></script>
+{% endblock %}

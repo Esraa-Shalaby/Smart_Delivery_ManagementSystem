@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Create Complaint — Smart Delivery &amp; Logistics
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page page-fade-up" data-create-complaint-root>
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="dashboard-header">
+        <div class="dashboard-header-left">
+            <span class="dashboard-eyebrow">Customer · Support</span>
+            <h1 class="dashboard-title">Create Complaint</h1>
+            <p class="dashboard-subtitle">
+                Describe the issue you faced with a shipment and our team will follow up.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+            <a href="{% url 'customer:complaints' %}" class="btn btn-ghost">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </span>
+                Back to Complaints
+            </a>
+        </div>
+    </header>
+
+    {# ============================= SHARED ALERTS ============================= #}
+    {% if messages %}
+    {% include "components/alerts.html" %}
+    {% endif %}
+
+    {# ============================= NON-FIELD ERRORS ============================= #}
+    {% if form.non_field_errors %}
+    <div class="dash-error-block" role="alert" aria-live="assertive" aria-atomic="true">
+        <ul class="dash-error-list">
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {# ============================= FORM LAYOUT ============================= #}
+    <div class="create-grid">
+
+        {# ---------------- MAIN FORM ---------------- #}
+        <section class="dash-card card-enter" aria-labelledby="create-complaint-title">
+            <header class="dash-card-head">
+                <h2 class="dash-card-title" id="create-complaint-title">
+                    Complaint Details
+                </h2>
+                <span class="dash-card-meta">
+                    <span class="required-hint">
+                        <span class="required-dot" aria-hidden="true"></span>
+                        Required fields
+                    </span>
+                </span>
+            </header>
+
+            <form method="post" action="{% url 'customer:new_complaint' %}" class="create-form" data-complaint-form
+                novalidate>
+                {% csrf_token %}
+
+                {# ---------- RELATED SHIPMENT SECTION (only if the form provides it) ---------- #}
+                {% if form.shipment %}
+                <fieldset class="form-section">
+                    <legend class="form-section-title">
+                        Related Shipment
+                    </legend>
+
+                    <div class="form-field form-field-full {% if form.shipment.errors %}has-error{% endif %}">
+                        <label for="{{ form.shipment.id_for_label }}" class="form-label">
+                            Shipment
+                            {% if form.shipment.field.required %}
+                            <span class="form-required" aria-hidden="true">*</span>
+                            {% endif %}
+                        </label>
+
+                        <div class="form-input-wrap">
+                            <span class="form-input-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 16V8l-9-5-9 5v8l9 5 9-5Z"></path>
+                                    <path d="M3.3 7.3 12 12l8.7-4.7"></path>
+                                </svg>
+                            </span>
+
+                            <select name="{{ form.shipment.html_name }}" id="{{ form.shipment.id_for_label }}"
+                                class="form-input form-select" {% if form.shipment.errors %}aria-invalid="true"
+                                aria-describedby="shipment-errors" {% endif %}>
+                                {% for value, label in form.shipment.field.choices %}
+                                <option value="{{ value }}" {% if
+                                    form.shipment.value|stringformat:"s"==value|stringformat:"s" %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        {% if form.shipment.help_text %}
+                        <p class="form-help">{{ form.shipment.help_text }}</p>
+                        {% endif %}
+
+                        {% if form.shipment.errors %}
+                        <ul class="form-errors" id="shipment-errors">
+                            {% for error in form.shipment.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </fieldset>
+                {% endif %}
+
+                {# ---------- COMPLAINT SECTION ---------- #}
+                <fieldset class="form-section">
+                    <legend class="form-section-title">
+                        Complaint
+                    </legend>
+
+                    {# Subject #}
+                    <div class="form-field form-field-full {% if form.subject.errors %}has-error{% endif %}">
+                        <label for="{{ form.subject.id_for_label|default:'id_subject' }}" class="form-label">
+                            Subject
+                            <span class="form-required" aria-hidden="true">*</span>
+                        </label>
+
+                        <div class="form-input-wrap">
+                            <span class="form-input-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 6h16"></path>
+                                    <path d="M4 12h16"></path>
+                                    <path d="M4 18h10"></path>
+                                </svg>
+                            </span>
+
+                            <input type="text" name="{{ form.subject.html_name|default:'subject' }}"
+                                id="{{ form.subject.id_for_label|default:'id_subject' }}" class="form-input"
+                                value="{{ form.subject.value|default:'' }}" placeholder="Brief summary of the issue"
+                                maxlength="150" required {% if form.subject.errors %}aria-invalid="true"
+                                aria-describedby="subject-errors" {% endif %}>
+                        </div>
+
+                        {% if form.subject.help_text %}
+                        <p class="form-help">{{ form.subject.help_text }}</p>
+                        {% endif %}
+
+                        {% if form.subject.errors %}
+                        <ul class="form-errors" id="subject-errors">
+                            {% for error in form.subject.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+
+                    {# Description #}
+                    <div class="form-field form-field-full {% if form.description.errors %}has-error{% endif %}">
+                        <label for="{{ form.description.id_for_label|default:'id_description' }}" class="form-label">
+                            Description
+                            <span class="form-required" aria-hidden="true">*</span>
+                        </label>
+
+                        <div class="form-input-wrap form-input-wrap-textarea">
+                            <span class="form-input-icon form-input-icon-textarea" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"></path>
+                                </svg>
+                            </span>
+
+                            <textarea name="{{ form.description.html_name|default:'description' }}"
+                                id="{{ form.description.id_for_label|default:'id_description' }}"
+                                class="form-input form-textarea" rows="6" maxlength="2000"
+                                placeholder="Explain what happened in detail…" required {% if form.description.errors
+                                %}aria-invalid="true" aria-describedby="description-errors" {% endif
+                                %}>{{ form.description.value|default:'' }}</textarea>
+                        </div>
+
+                        {% if form.description.help_text %}
+                        <p class="form-help">{{ form.description.help_text }}</p>
+                        {% endif %}
+
+                        {% if form.description.errors %}
+                        <ul class="form-errors" id="description-errors">
+                            {% for error in form.description.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+
+                    {# Priority #}
+                    <div class="form-field form-field-full {% if form.priority.errors %}has-error{% endif %}">
+                        <label for="{{ form.priority.id_for_label|default:'id_priority' }}" class="form-label">
+                            Priority
+                            {% if form.priority.field.required %}
+                            <span class="form-required" aria-hidden="true">*</span>
+                            {% endif %}
+                        </label>
+
+                        <div class="form-input-wrap">
+                            <span class="form-input-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2v20"></path>
+                                    <path d="M2 12h20"></path>
+                                </svg>
+                            </span>
+
+                            <select name="{{ form.priority.html_name|default:'priority' }}"
+                                id="{{ form.priority.id_for_label|default:'id_priority' }}"
+                                class="form-input form-select" {% if form.priority.errors %}aria-invalid="true"
+                                aria-describedby="priority-errors" {% endif %}>
+                                {% for value, label in form.priority.field.choices %}
+                                <option value="{{ value }}" {% if
+                                    form.priority.value|stringformat:"s"==value|stringformat:"s" %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        {% if form.priority.help_text %}
+                        <p class="form-help">{{ form.priority.help_text }}</p>
+                        {% endif %}
+
+                        {% if form.priority.errors %}
+                        <ul class="form-errors" id="priority-errors">
+                            {% for error in form.priority.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </fieldset>
+
+                {# ---------- ADDITIONAL FORM FIELDS (dynamic, excluding known/internal) ---------- #}
+                {% for field in form %}
+                {% if field.name != "shipment" and field.name != "subject" and field.name != "description" and
+                field.name != "priority" and field.name != "status" and field.name != "assigned_to" and field.name !=
+                "resolved_by" and field.name != "resolution_notes" and field.name != "response" %}
+                <div class="form-field form-field-full {% if field.errors %}has-error{% endif %}">
+                    <label for="{{ field.id_for_label }}" class="form-label">
+                        {{ field.label }}
+                        {% if field.field.required %}
+                        <span class="form-required" aria-hidden="true">*</span>
+                        {% endif %}
+                    </label>
+
+                    <div class="form-input-wrap">
+                        {{ field }}
+                    </div>
+
+                    {% if field.help_text %}
+                    <p class="form-help">{{ field.help_text }}</p>
+                    {% endif %}
+
+                    {% if field.errors %}
+                    <ul class="form-errors" id="{{ field.id_for_label }}-errors">
+                        {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endfor %}
+
+                {# ---------- FORM ACTIONS ---------- #}
+                <div class="form-actions">
+                    <a href="{% url 'customer:complaints' %}" class="btn btn-ghost">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary" data-complaint-submit
+                        data-loading-label="Submitting…">
+                        <span class="btn-label" data-submit-label>Submit Complaint</span>
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        {# ---------------- SIDE INFO ---------------- #}
+        <aside class="create-side">
+
+            {# ========== INFO CARD ========== #}
+            <section class="dash-card card-enter" aria-labelledby="complaint-info-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="complaint-info-title">
+                        What happens next
+                    </h2>
+                </header>
+
+                <ol class="info-steps" role="list">
+                    <li class="info-step">
+                        <span class="info-step-num" aria-hidden="true">1</span>
+                        <div class="info-step-body">
+                            <span class="info-step-title">We review your complaint</span>
+                            <span class="info-step-text">
+                                Our support team checks the details you provided.
+                            </span>
+                        </div>
+                    </li>
+                    <li class="info-step">
+                        <span class="info-step-num" aria-hidden="true">2</span>
+                        <div class="info-step-body">
+                            <span class="info-step-title">We investigate</span>
+                            <span class="info-step-text">
+                                If the complaint is related to a shipment, we contact the assigned team.
+                            </span>
+                        </div>
+                    </li>
+                    <li class="info-step">
+                        <span class="info-step-num" aria-hidden="true">3</span>
+                        <div class="info-step-body">
+                            <span class="info-step-title">You receive a response</span>
+                            <span class="info-step-text">
+                                You'll be notified once there is an update or resolution.
+                            </span>
+                        </div>
+                    </li>
+                </ol>
+            </section>
+
+            {# ========== TIPS CARD ========== #}
+            <section class="dash-card card-enter" aria-labelledby="complaint-tips-title">
+                <header class="dash-card-head">
+                    <h2 class="dash-card-title" id="complaint-tips-title">
+                        Tips for a faster resolution
+                    </h2>
+                </header>
+
+                <ul class="info-notes" role="list">
+                    <li>Include the shipment's tracking number if possible.</li>
+                    <li>Describe what happened clearly and factually.</li>
+                    <li>Avoid sharing sensitive personal or payment information.</li>
+                    <li>Use a clear subject so the team can prioritize quickly.</li>
+                </ul>
+            </section>
+
+        </aside>
+    </div>
+
+</div>
+
+{# ============================= PAGE-SPECIFIC ASSETS ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}

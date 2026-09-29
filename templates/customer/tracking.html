@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Track Shipment — Smart Delivery &amp; Logistics
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page page-fade-up" data-tracking-root>
+
+    {# ============================= PAGE HEADER ============================= #}
+    <header class="dashboard-header">
+        <div class="dashboard-header-left">
+            <span class="dashboard-eyebrow">Customer · Tracking</span>
+            <h1 class="dashboard-title">
+                Track Shipment
+            </h1>
+            <p class="dashboard-subtitle">
+                Follow your shipment status from pickup to delivery.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+            <a href="{% url 'customer:shipments' %}" class="btn btn-ghost">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </span>
+                Back to My Shipments
+            </a>
+        </div>
+    </header>
+
+    {# ============================= SHARED ALERTS ============================= #}
+    {% if messages %}
+    {% include "components/alerts.html" %}
+    {% endif %}
+
+    {# ============================= SEARCH BY TRACKING NUMBER (optional) ============================= #}
+    <section class="dash-card card-enter" aria-labelledby="track-search-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="track-search-title">
+                Look up a shipment
+            </h2>
+        </header>
+
+        <form method="get" action="{% url 'customer:track' %}" class="track-search" role="search"
+            aria-label="Look up a shipment by tracking number">
+            <div class="filter-field">
+                <label for="track-q" class="filter-label">Tracking Number</label>
+                <div class="filter-input-wrap">
+                    <span class="filter-input-icon" aria-hidden="true">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="search" id="track-q" name="q" class="filter-input" placeholder="e.g. TRK-12345"
+                        value="{{ request.GET.q|default:'' }}" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    Track
+                </button>
+            </div>
+        </form>
+    </section>
+
+    {# ============================= SHIPMENT DETAIL ============================= #}
+    {% if shipment %}
+
+    {# ---------- OVERVIEW CARD ---------- #}
+    <section class="dash-card card-enter tracking-overview" aria-labelledby="track-overview-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="track-overview-title">
+                Shipment Overview
+            </h2>
+
+            <span class="status-badge status-{{ shipment.status|default:'unknown'|lower }}" data-status-badge>
+                {{ shipment.get_status_display|default:shipment.status|default:"Unknown" }}
+            </span>
+        </header>
+
+        <div class="tracking-overview-grid">
+
+            <div class="tracking-overview-item">
+                <span class="tracking-overview-label">Tracking Number</span>
+                <span class="tracking-overview-value mono">
+                    {{ shipment.tracking_number|default:"—" }}
+                </span>
+            </div>
+
+            <div class="tracking-overview-item">
+                <span class="tracking-overview-label">Created</span>
+                <span class="tracking-overview-value">
+                    {{ shipment.created_at|date:"M d, Y H:i"|default:"—" }}
+                </span>
+            </div>
+
+            <div class="tracking-overview-item">
+                <span class="tracking-overview-label">Estimated Delivery</span>
+                <span class="tracking-overview-value">
+                    {{ shipment.estimated_delivery|date:"M d, Y"|default:"Pending" }}
+                </span>
+            </div>
+
+            {% if shipment.delivered_at %}
+            <div class="tracking-overview-item">
+                <span class="tracking-overview-label">Delivered At</span>
+                <span class="tracking-overview-value">
+                    {{ shipment.delivered_at|date:"M d, Y H:i" }}
+                </span>
+            </div>
+            {% endif %}
+
+            <div class="tracking-overview-item tracking-overview-item-full">
+                <span class="tracking-overview-label">Pickup Location</span>
+                <span class="tracking-overview-value">
+                    {{ shipment.pickup_address|default:"—" }}
+                </span>
+            </div>
+
+            <div class="tracking-overview-item tracking-overview-item-full">
+                <span class="tracking-overview-label">Delivery Location</span>
+                <span class="tracking-overview-value">
+                    {{ shipment.delivery_address|default:"—" }}
+                </span>
+            </div>
+
+        </div>
+    </section>
+
+    {# ---------- VISUAL PROGRESS TRACKER ---------- #}
+    <section class="dash-card card-enter" aria-labelledby="track-progress-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="track-progress-title">
+                Delivery Progress
+            </h2>
+        </header>
+
+        {% with s=shipment.status|default:'created'|lower %}
+
+        {% if s == 'cancelled' or s == 'failed' %}
+        <div class="tracking-terminal tracking-terminal-{{ s }}" role="alert">
+            <span class="tracking-terminal-icon" aria-hidden="true">
+                {% if s == 'cancelled' %}✕{% else %}!{% endif %}
+            </span>
+            <div>
+                <strong class="tracking-terminal-title">
+                    Shipment {{ shipment.get_status_display|default:s|title }}
+                </strong>
+                <p class="tracking-terminal-text">
+                    This shipment will not continue through the normal
+                    delivery flow. Contact support if you need help.
+                </p>
+            </div>
+        </div>
+        {% else %}
+        <ol class="tracking-progress" role="list" data-tracker data-current="{{ s }}">
+
+            <li
+                class="tracking-progress-step
+                                   {% if s == 'created' %}is-current
+                                   {% elif s == 'assigned' or s == 'picked_up' or s == 'in_transit' or s == 'out_for_delivery' or s == 'delivered' %}is-done{% endif %}">
+                <span class="tracking-progress-dot" aria-hidden="true"></span>
+                <span class="tracking-progress-label">Created</span>
+            </li>
+
+            <li
+                class="tracking-progress-step
+                                   {% if s == 'assigned' %}is-current
+                                   {% elif s == 'picked_up' or s == 'in_transit' or s == 'out_for_delivery' or s == 'delivered' %}is-done{% endif %}">
+                <span class="tracking-progress-dot" aria-hidden="true"></span>
+                <span class="tracking-progress-label">Assigned</span>
+            </li>
+
+            <li
+                class="tracking-progress-step
+                                   {% if s == 'picked_up' %}is-current
+                                   {% elif s == 'in_transit' or s == 'out_for_delivery' or s == 'delivered' %}is-done{% endif %}">
+                <span class="tracking-progress-dot" aria-hidden="true"></span>
+                <span class="tracking-progress-label">Picked Up</span>
+            </li>
+
+            <li class="tracking-progress-step
+                                   {% if s == 'in_transit' %}is-current
+                                   {% elif s == 'out_for_delivery' or s == 'delivered' %}is-done{% endif %}">
+                <span class="tracking-progress-dot" aria-hidden="true"></span>
+                <span class="tracking-progress-label">In Transit</span>
+            </li>
+
+            <li class="tracking-progress-step
+                                   {% if s == 'out_for_delivery' %}is-current
+                                   {% elif s == 'delivered' %}is-done{% endif %}">
+                <span class="tracking-progress-dot" aria-hidden="true"></span>
+                <span class="tracking-progress-label">Out for Delivery</span>
+            </li>
+
+            <li class="tracking-progress-step
+                                   {% if s == 'delivered' %}is-current is-done{% endif %}">
+                <span class="tracking-progress-dot" aria-hidden="true"></span>
+                <span class="tracking-progress-label">Delivered</span>
+            </li>
+
+        </ol>
+        {% endif %}
+
+        {% endwith %}
+    </section>
+
+    {# ---------- STATUS HISTORY TIMELINE ---------- #}
+    <section class="dash-card card-enter" aria-labelledby="track-history-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="track-history-title">
+                Status History
+            </h2>
+        </header>
+
+        {% if status_history %}
+        <ol class="tracking-timeline" role="list">
+            {% for event in status_history %}
+            <li class="tracking-timeline-item {% if forloop.first %}is-latest{% endif %}">
+
+                <span class="tracking-timeline-marker" aria-hidden="true"></span>
+
+                <div class="tracking-timeline-body">
+
+                    <div class="tracking-timeline-status">
+                        {% if event.old_status %}
+                        <span class="status-badge status-{{ event.old_status|lower }}">
+                            {{ event.old_status_display|default:event.old_status }}
+                        </span>
+                        <span class="tracking-timeline-arrow" aria-hidden="true">→</span>
+                        {% endif %}
+                        <span class="status-badge status-{{ event.new_status|default:'unknown'|lower }}">
+                            {{ event.new_status_display|default:event.new_status|default:"—" }}
+                        </span>
+                    </div>
+
+                    <div class="tracking-timeline-meta">
+                        <time class="tracking-timeline-time" datetime="{{ event.changed_at|date:'c' }}">
+                            {{ event.changed_at|date:"M d, Y H:i"|default:"—" }}
+                        </time>
+                    </div>
+
+                    {% if event.note %}
+                    <p class="tracking-timeline-note">
+                        {{ event.note }}
+                    </p>
+                    {% endif %}
+
+                </div>
+            </li>
+            {% endfor %}
+        </ol>
+        {% else %}
+        <div class="dash-empty dash-empty-inline">
+            <p class="dash-empty-text">
+                No status history available yet.
+            </p>
+        </div>
+        {% endif %}
+    </section>
+
+    {# ---------- QUICK ACTIONS ---------- #}
+    <section class="dash-card card-enter" aria-labelledby="track-actions-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="track-actions-title">
+                Actions
+            </h2>
+        </header>
+
+        <div class="tracking-actions">
+
+            <a href="{% url 'customer:shipment_detail' shipment.id %}" class="btn btn-secondary">
+                Full Shipment Details
+            </a>
+
+            <a href="{% url 'customer:complaints' %}" class="btn btn-ghost">
+                Report an Issue
+            </a>
+
+            <a href="{% url 'ai_assistant' %}" class="btn btn-accent">
+                <span class="app-ai-mark" aria-hidden="true">✦</span>
+                Ask AI Assistant
+            </a>
+
+        </div>
+    </section>
+
+    {% else %}
+
+    {# ---------- EMPTY / NOT FOUND STATE ---------- #}
+    <section class="dash-card card-enter" aria-labelledby="track-empty-title">
+        <header class="dash-card-head">
+            <h2 class="dash-card-title" id="track-empty-title">
+                Tracking
+            </h2>
+        </header>
+
+        <div class="dash-empty">
+            <div class="dash-empty-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0Z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+            </div>
+            <h3 class="dash-empty-title">
+                {% if request.GET.q %}
+                No shipment found
+                {% else %}
+                Enter a tracking number
+                {% endif %}
+            </h3>
+            <p class="dash-empty-text">
+                {% if request.GET.q %}
+                We couldn't find a shipment with that tracking number
+                belonging to your account. Check the number and try again.
+                {% else %}
+                Enter your tracking number above to view the shipment status
+                and full timeline.
+                {% endif %}
+            </p>
+            <a href="{% url 'customer:shipments' %}" class="btn btn-secondary">
+                Go to My Shipments
+            </a>
+        </div>
+    </section>
+
+    {% endif %}
+
+</div>
+
+{# ============================= PAGE-SPECIFIC ASSETS ============================= #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="{% static 'js/tracking.js' %}" defer></script>
+{% endblock %}
