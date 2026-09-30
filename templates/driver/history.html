@@ -120,10 +120,10 @@ Delivery History — Smart Delivery &amp; Logistics
                 <label for="filter-status" class="filter-label">Final Status</label>
                 <select id="filter-status" name="status" class="filter-input filter-select">
                     <option value="">All statuses</option>
-                    <option value="DELIVERED" {% if request.GET.status=="DELIVERED" %}selected{% endif %}>Delivered
+                    <option value="DELIVERED" {% if request.GET.status == "DELIVERED" %}selected{% endif %}>Delivered
                     </option>
-                    <option value="FAILED" {% if request.GET.status=="FAILED" %}selected{% endif %}>Failed</option>
-                    <option value="CANCELLED" {% if request.GET.status=="CANCELLED" %}selected{% endif %}>Cancelled
+                    <option value="FAILED" {% if request.GET.status == "FAILED" %}selected{% endif %}>Failed</option>
+                    <option value="CANCELLED" {% if request.GET.status == "CANCELLED" %}selected{% endif %}>Cancelled
                     </option>
                 </select>
             </div>

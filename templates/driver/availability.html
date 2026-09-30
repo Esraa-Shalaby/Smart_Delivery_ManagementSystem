@@ -120,8 +120,7 @@ Availability — Smart Delivery &amp; Logistics
                             for="{{ form.is_available.id_for_label|default:'id_is_available' }}">
                             <input type="checkbox" name="{{ form.is_available.html_name|default:'is_available' }}"
                                 id="{{ form.is_available.id_for_label|default:'id_is_available' }}"
-                                class="availability-toggle-input" data-availability-toggle {% if driver.is_available
-                                %}checked{% endif %}>
+                                class="availability-toggle-input" data-availability-toggle {% if driver.is_available %}checked{% endif %}>
                             <span class="availability-toggle-track" aria-hidden="true">
                                 <span class="availability-toggle-thumb"></span>
                             </span>

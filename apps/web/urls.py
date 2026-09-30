@@ -1,0 +1,150 @@
+from django.urls import include, path
+from django.views.generic import RedirectView, TemplateView
+
+from . import views as v
+from .views import ByRolePage, action_stub, page
+
+C, D, M = "CUSTOMER", "DRIVER", "MANAGER"
+
+
+def build(role, rows):
+    return [
+        path(route, page(tpl, role) if tpl else action_stub, name=name)
+        for route, name, tpl in rows
+    ]
+
+
+def crud(plural, one, list_t, detail_t=None):
+    detail_t = detail_t or list_t
+    return [
+        (f"{plural}/", plural, list_t),
+        (f"{plural}/new/", f"{one}_create", list_t),
+        (f"{plural}/<int:pk>/", f"{one}_detail", detail_t),
+        (f"{plural}/<int:pk>/edit/", f"{one}_edit", list_t),
+        (f"{plural}/<int:pk>/activate/", f"{one}_activate", None),
+        (f"{plural}/<int:pk>/deactivate/", f"{one}_deactivate", None),
+    ]
+
+
+profile_view = ByRolePage.as_view(templates={
+    C: "customer/profile.html",
+    D: "driver/profile.html",
+    M: "manager/profile.html",
+})
+notif_view = ByRolePage.as_view(templates={
+    C: "customer/notification.html",
+    D: "driver/notifications.html",
+    M: "manager/notifications.html",
+})
+
+# ---------------- accounts ----------------
+accounts_urls = ([
+    path("login/", v.LoginView.as_view(), name="login"),
+    path("logout/", v.logout_view, name="logout"),
+    path("register/", v.RegisterView.as_view(), name="register"),
+    path("password-reset/", v.PasswordResetPage.as_view(), name="password_reset"),
+    path("password-change/", action_stub, name="password_change"),
+    path("profile/", profile_view, name="profile"),
+], "accounts")
+
+# ---------------- customer ----------------
+customer_urls = (build(C, [
+    ("dashboard/", "dashboard", "customer/dashboard.html"),
+    ("shipments/", "shipments", "customer/shipments.html"),
+    ("shipments/new/", "new_shipment", "customer/create_shipment.html"),
+    ("shipments/<int:pk>/", "shipment_detail", "customer/shipments.html"),
+    ("tracking/", "track", "customer/tracking.html"),
+    ("complaints/", "complaints", "customer/complaints.html"),
+    ("complaints/new/", "new_complaint", "customer/create_complaint.html"),
+    ("complaints/<int:pk>/", "complaint_detail", "customer/complaints.html"),
+    ("payments/", "payments", "customer/payments.html"),
+]), "customer")
+
+# ---------------- driver ----------------
+driver_urls = (build(D, [
+    ("dashboard/", "dashboard", "driver/dashboard.html"),
+    ("deliveries/", "deliveries", "driver/deliveries.html"),
+    ("deliveries/<int:pk>/", "delivery_detail", "driver/delivery_deatails.html"),
+    ("deliveries/<int:pk>/accept/", "accept_delivery", None),
+    ("deliveries/<int:pk>/status/", "update_delivery_status", None),
+    ("availability/", "availability", "driver/availability.html"),
+    ("location/", "location", "driver/location.html"),
+    ("history/", "history", "driver/history.html"),
+]) + [path("profile/", profile_view, name="profile")], "driver")
+
+# ---------------- manager ----------------
+manager_rows = (
+    crud("customers", "customer", "manager/customers.html")
+    + crud("drivers", "driver", "manager/drivers.html", "manager/drivers_details.html")
+    + crud("users", "user", "manager/users.html")
+    + crud("warehouses", "warehouse", "manager/warehouses.html")
+    + [
+        ("dashboard/", "dashboard", "manager/dashboard.html"),
+        ("shipments/", "shipments", "manager/shipments.html"),
+        ("shipments/list/", "shipment_list", "manager/shipments.html"),
+        ("shipments/new/", "shipment_create", "manager/shipments.html"),
+        ("shipments/bulk/", "shipment_bulk_action", None),
+        ("shipments/<int:pk>/", "shipment_detail", "manager/shipments_details.html"),
+        ("shipments/<int:pk>/assign/", "shipment_assign", None),
+        ("shipments/<int:pk>/reassign/", "shipment_reassign", None),
+        ("shipments/<int:pk>/status/", "shipment_update_status", None),
+        ("shipments/<int:pk>/investigate/", "shipment_investigate", None),
+        ("delayed/", "delayed_deliveries", "manager/delayed.html"),
+        ("customers/<int:pk>/shipments/", "customer_shipments", "manager/shipments.html"),
+        ("drivers/<int:pk>/assignments/", "driver_assignments", "manager/drivers.html"),
+        ("drivers/<int:pk>/location/", "driver_location", "manager/drivers_details.html"),
+        ("drivers/<int:pk>/availability/", "driver_availability", None),
+        ("drivers/<int:pk>/assign/", "driver_assign_shipment", None),
+        ("assignments/", "assignments", "manager/drivers.html"),
+        ("complaints/", "complaints", "manager/complaints.html"),
+        ("analytics/", "analytics", "manager/analytics.html"),
+        ("audit-logs/", "audit_logs", "manager/audit_logs.html"),
+        ("ai-actions/", "ai_actions", "manager/ai_actions.html"),
+        ("ai-assistant/", "ai_assistant", "manager/ai_assistant.html"),
+        ("notifications/", "notifications", "manager/notifications.html"),
+        ("notifications/read-all/", "notification_mark_all_read", None),
+        ("notifications/<int:pk>/read/", "notification_mark_read", None),
+        ("notifications/<int:pk>/unread/", "notification_mark_unread", None),
+        ("notifications/<int:pk>/delete/", "notification_delete", None),
+        ("profile/", "profile", "manager/profile.html"),
+        ("settings/", "settings", "manager/setting.html"),
+        ("settings/password/", "password_change", None),
+        ("settings/sessions/revoke/", "sessions_revoke", None),
+        ("settings/two-factor/", "two_factor", None),
+    ]
+)
+manager_urls = (build(M, manager_rows) + [
+    path("payments/", RedirectView.as_view(pattern_name="manager:dashboard"), name="payments"),
+], "manager")
+
+# ---------------- notifications ----------------
+notifications_urls = ([
+    path("", notif_view, name="list"),
+    path("read-all/", action_stub, name="mark_all_read"),
+    path("<int:pk>/read/", action_stub, name="mark_read"),
+], "notifications")
+
+# ---------------- placeholders لروابط الفوتر ----------------
+legal_urls = ([
+    path("terms/", RedirectView.as_view(url="/"), name="terms"),
+    path("privacy/", RedirectView.as_view(url="/"), name="privacy"),
+], "legal")
+support_urls = ([
+    path("contact/", RedirectView.as_view(url="/"), name="contact"),
+    path("faq/", RedirectView.as_view(url="/"), name="faq"),
+], "support")
+
+urlpatterns = [
+    path("", TemplateView.as_view(template_name="landingpage/home.html"), name="home"),
+    path("login/", v.LoginView.as_view(), name="login"),
+    path("signup/", v.RegisterView.as_view(), name="signup"),
+    path("tracking/", page("customer/tracking.html", C), name="tracking"),
+    path("ai-assistant/", page("manager/ai_assistant.html"), name="ai_assistant"),
+    path("accounts/", include(accounts_urls)),
+    path("customer/", include(customer_urls)),
+    path("driver/", include(driver_urls)),
+    path("manager/", include(manager_urls)),
+    path("notifications/", include(notifications_urls)),
+    path("legal/", include(legal_urls)),
+    path("support/", include(support_urls)),
+]

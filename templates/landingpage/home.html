@@ -1,34 +1,31 @@
-{% extends "base.html" %}
+{% extends "base_public.html" %}
 {% load static %}
 
-
-
-{% block title %}SmartDelivery — Smart, AI-Powered Delivery & Logistics{% endblock %}
+{% block title %}SmartDelivery — AI-Powered Logistics Platform{% endblock %}
 
 {% block extra_css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link
-    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Public+Sans:wght@400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-<link rel="stylesheet" href="{% static 'CSS/landingpage.css' %}">
+<link rel="stylesheet" href="{% static 'css/landingpage.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="sd-body">
 
-    <!-- ============ NAVBAR ============ -->
+    <!-- ═══════════ NAVBAR ═══════════ -->
     <nav class="sd-nav" data-sd-nav>
         <div class="sd-shell">
             <a href="#home" class="sd-brand">
                 <span class="sd-brand-mark">
-                    <img src="{% static 'imgs/Gemini_Generated_Image_16l4pr16l4pr16l4.jpeg' %}" alt="SmartDelivery logo">
+                    <img src="{% static 'imgs/logo1.jpeg' %}" alt="SmartDelivery">
                 </span>
-                SmartDelivery
+                Delivera
             </a>
 
             <ul class="sd-nav-links">
-                <li><a href="#home">Home</a></li>
                 <li><a href="#services">Services</a></li>
                 <li><a href="#how-it-works">How It Works</a></li>
                 <li><a href="#ai-assistant">AI Assistant</a></li>
@@ -36,8 +33,14 @@
             </ul>
 
             <div class="sd-nav-actions">
+                {% if user.is_authenticated %}
+                <a href="{% url 'accounts:logout' %}" class="sd-btn sd-btn-ghost">Logout</a>
+                <a href="{% if user.role == 'MANAGER' %}{% url 'manager:dashboard' %}{% elif user.role == 'DRIVER' %}{% url 'driver:dashboard' %}{% else %}{% url 'customer:dashboard' %}{% endif %}"
+                    class="sd-btn sd-btn-primary">Dashboard</a>
+                {% else %}
                 <a href="{% url 'login' %}" class="sd-btn sd-btn-ghost">Login</a>
                 <a href="{% url 'signup' %}" class="sd-btn sd-btn-primary">Get Started</a>
+                {% endif %}
             </div>
 
             <button class="sd-burger" data-sd-burger aria-label="Toggle navigation" aria-expanded="false">
@@ -46,190 +49,293 @@
         </div>
 
         <div class="sd-mobile-panel">
-            <a href="#home" data-sd-mobile-link>Home</a>
             <a href="#services" data-sd-mobile-link>Services</a>
             <a href="#how-it-works" data-sd-mobile-link>How It Works</a>
             <a href="#ai-assistant" data-sd-mobile-link>AI Assistant</a>
             <a href="#tracking" data-sd-mobile-link>Track Shipment</a>
             <div class="sd-mobile-actions">
+                {% if user.is_authenticated %}
+                <a href="{% url 'accounts:logout' %}" class="sd-btn sd-btn-ghost sd-btn-block">Logout</a>
+                <a href="{% url 'customer:dashboard' %}" class="sd-btn sd-btn-primary sd-btn-block">Dashboard</a>
+                {% else %}
                 <a href="{% url 'login' %}" class="sd-btn sd-btn-ghost sd-btn-block">Login</a>
                 <a href="{% url 'signup' %}" class="sd-btn sd-btn-primary sd-btn-block">Get Started</a>
+                {% endif %}
             </div>
         </div>
     </nav>
 
-    <!-- ============ HERO ============ -->
+    <!-- ═══════════ HERO ═══════════ -->
     <section id="home" class="sd-hero">
-        <div class="sd-hero-glow"></div>
-        <div class="sd-hero-glow-2"></div>
-        <div class="sd-shell sd-hero-grid">
+        <div class="sd-hero-bg" aria-hidden="true">
+            <div class="sd-hero-arc"></div>
+            <div class="sd-hero-glow sd-hero-glow-a"></div>
+            <div class="sd-hero-glow sd-hero-glow-b"></div>
+        </div>
 
-            <div class="sd-hero-copy sd-reveal" data-sd-reveal>
-                <span class="sd-label">Logistics, coordinated by AI</span>
-                <h1>Every shipment, <span class="sd-accent">routed and tracked</span> with intelligence.</h1>
-                <p>SmartDelivery brings shipment management, driver coordination, and live tracking into one platform —
-                    with an AI assistant that helps customers, drivers, and managers move faster.</p>
+        <div class="sd-shell">
 
-                <div class="sd-hero-cta">
-                    <a href="{% url 'signup' %}" class="sd-btn sd-btn-primary">
-                        Get Started
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M5 12h14M13 6l6 6-6 6" />
-                        </svg>
-                    </a>
-                    <a href="#tracking" class="sd-btn sd-btn-ghost">Track Shipment</a>
-                </div>
+            <div class="sd-hero-head sd-reveal" data-sd-reveal>
+                <span class="sd-hero-pill">
+                    <span class="sd-hero-pill-dot"></span>
+                    Logistics, coordinated by AI
+                </span>
 
-                <div class="sd-hero-meta">
-                    <div><strong>50K+</strong><span>Deliveries completed</span></div>
-                    <div><strong>1,200+</strong><span>Active drivers</span></div>
-                    <div><strong>98%</strong><span>On-time rate</span></div>
-                </div>
+                <h1 class="sd-hero-title">
+                    Shipments tracked<br>
+                    in <span class="sd-gradient-text">real time</span>,<br>
+                    worldwide.
+                </h1>
+
+                <p class="sd-hero-sub">
+                    SmartDelivery unifies shipment management, driver coordination, and live tracking
+                    in one platform — with an AI assistant that helps customers, drivers, and managers
+                    move faster.
+                </p>
+
+                
             </div>
 
+            <!-- Hero Visual: Dashboard mockup -->
             <div class="sd-hero-visual sd-reveal" data-sd-reveal style="animation-delay: 120ms;">
-                <div class="sd-route-card">
-                    <svg class="sd-route-svg" viewBox="0 0 420 460" preserveAspectRatio="xMidYMid meet"
-                        aria-hidden="true">
-                        <defs>
-                            <linearGradient id="routeGradient" x1="0%" y1="100%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="#4a86dd" />
-                                <stop offset="100%" stop-color="#2fd7ae" />
-                            </linearGradient>
-                        </defs>
-                        <path class="sd-route-path"
-                            d="M50 380 C 110 380, 90 300, 150 280 C 220 258, 210 190, 270 160 C 320 135, 300 90, 350 70" />
-                        <circle class="sd-node" cx="50" cy="380" r="7"></circle>
-                        <circle class="sd-node" cx="150" cy="280" r="7"></circle>
-                        <circle class="sd-node" cx="270" cy="160" r="7"></circle>
-                        <circle class="sd-node sd-node-active" cx="350" cy="70" r="8"></circle>
-                    </svg>
 
-                    <svg class="sd-hero-pin" viewBox="0 0 60 76" fill="none" aria-hidden="true">
-                        <defs>
-                            <linearGradient id="pinGradient" x1="0" y1="0" x2="0" y2="76"
-                                gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#2fd7ae" />
-                                <stop offset="1" stop-color="#17b892" />
-                            </linearGradient>
-                        </defs>
-                        <path d="M30 0C13.4 0 0 13.4 0 30c0 21 30 46 30 46s30-25 30-46C60 13.4 46.6 0 30 0z"
-                            fill="url(#pinGradient)" />
-                        <circle cx="30" cy="29" r="12" fill="#0a0f18" />
-                    </svg>
+                <!-- Main dashboard card -->
+                <div class="sd-hero-dashboard">
 
-                    <div class="sd-float-card">
-                        <div class="sd-fc-top">
-                            <span>Shipment</span>
-                            <span class="sd-fc-status">In transit</span>
+                    <div class="sd-hd-head">
+                        <div class="sd-hd-brand">
+                            <span class="sd-hd-dot"></span>
+                            <span>SmartDelivery</span>
                         </div>
-                        <div class="sd-fc-id">#SD-48213</div>
-                        <div class="sd-fc-bar"><span></span></div>
-                        <div class="sd-fc-eta">Arriving in 24 min</div>
+                        <div class="sd-hd-tabs">
+                            <button class="sd-hd-tab is-active">Overview</button>
+                            <button class="sd-hd-tab">Shipments</button>
+                            <button class="sd-hd-tab">Drivers</button>
+                        </div>
                     </div>
+
+                    <div class="sd-hd-grid">
+
+                        <!-- Left: Active shipment -->
+                        <div class="sd-hd-card sd-hd-card-main">
+                            <div class="sd-hd-card-head">
+                                <span class="sd-hd-label">Active shipment</span>
+                                <span class="sd-hd-badge sd-hd-badge--live">● Live</span>
+                            </div>
+                            <div class="sd-hd-tracking">#SD-48213</div>
+                            <div class="sd-hd-route">
+                                <div class="sd-hd-route-points">
+                                    <span class="sd-hd-route-point is-done"></span>
+                                    <span class="sd-hd-route-line"></span>
+                                    <span class="sd-hd-route-point is-done"></span>
+                                    <span class="sd-hd-route-line"></span>
+                                    <span class="sd-hd-route-point is-active"></span>
+                                    <span class="sd-hd-route-line"></span>
+                                    <span class="sd-hd-route-point"></span>
+                                </div>
+                                <div class="sd-hd-route-labels">
+                                    <span>Cairo</span>
+                                    <span>Giza</span>
+                                    <span>In transit</span>
+                                    <span>Delivered</span>
+                                </div>
+                            </div>
+                            <div class="sd-hd-meta">
+                                <div>
+                                    <span class="sd-hd-meta-label">ETA</span>
+                                    <span class="sd-hd-meta-value">24 min</span>
+                                </div>
+                                <div>
+                                    <span class="sd-hd-meta-label">Driver</span>
+                                    <span class="sd-hd-meta-value">Ahmed K.</span>
+                                </div>
+                                <div>
+                                    <span class="sd-hd-meta-label">Progress</span>
+                                    <span class="sd-hd-meta-value">68%</span>
+                                </div>
+                            </div>
+                            <div class="sd-hd-progress"><span style="width: 68%"></span></div>
+                        </div>
+
+                        <!-- Right column: stats -->
+                        <div class="sd-hd-side">
+
+                            <div class="sd-hd-card sd-hd-stat">
+                                <span class="sd-hd-stat-label">Active deliveries</span>
+                                <span class="sd-hd-stat-value">1,247</span>
+                                <span class="sd-hd-stat-delta sd-hd-stat-delta--up">+12.5%</span>
+                            </div>
+
+                            <div class="sd-hd-card sd-hd-stat">
+                                <span class="sd-hd-stat-label">On-time rate</span>
+                                <span class="sd-hd-stat-value">98.2%</span>
+                                <span class="sd-hd-stat-delta sd-hd-stat-delta--up">+2.1%</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Floating cards -->
+                    <div class="sd-hero-float sd-hero-float-1">
+                        <div class="sd-hf-icon">🚚</div>
+                        <div>
+                            <div class="sd-hf-title">Driver assigned</div>
+                            <div class="sd-hf-sub">Ahmed K. · Van 12</div>
+                        </div>
+                    </div>
+
+                    <div class="sd-hero-float sd-hero-float-2">
+                        <div class="sd-hf-icon sd-hf-icon--accent">✓</div>
+                        <div>
+                            <div class="sd-hf-title">Delivered</div>
+                            <div class="sd-hf-sub">2.4s ago</div>
+                        </div>
+                    </div>
+
                 </div>
+
             </div>
 
         </div>
     </section>
 
-    <!-- ============ PLATFORM STATS ============ -->
+    <!-- ═══════════ STATS ═══════════ -->
     <section class="sd-stats">
         <div class="sd-shell">
-            <div class="sd-stats-grid" data-sd-reveal-group>
-                <div class="sd-stat sd-reveal" data-sd-reveal><strong>50K+</strong><span>Deliveries completed</span>
+            <div class="sd-stats-grid sd-reveal-group">
+                <div class="sd-stat sd-reveal" data-sd-reveal>
+                    <span class="sd-stat-num">50K+</span>
+                    <span class="sd-stat-label">Deliveries completed</span>
+                    <span class="sd-stat-desc">Since launch</span>
                 </div>
-                <div class="sd-stat sd-reveal" data-sd-reveal><strong>1,200+</strong><span>Registered drivers</span>
+                <div class="sd-stat sd-reveal" data-sd-reveal>
+                    <span class="sd-stat-num">1,200+</span>
+                    <span class="sd-stat-label">Active drivers</span>
+                    <span class="sd-stat-desc">Ready to deliver</span>
                 </div>
-                <div class="sd-stat sd-reveal" data-sd-reveal><strong>98%</strong><span>Successful deliveries</span>
+                <div class="sd-stat sd-reveal" data-sd-reveal>
+                    <span class="sd-stat-num">98.2%</span>
+                    <span class="sd-stat-label">On-time rate</span>
+                    <span class="sd-stat-desc">Industry leading</span>
                 </div>
-                <div class="sd-stat sd-reveal" data-sd-reveal><strong>24/7</strong><span>Live tracking coverage</span>
+                <div class="sd-stat sd-reveal" data-sd-reveal>
+                    <span class="sd-stat-num">24/7</span>
+                    <span class="sd-stat-label">Live tracking</span>
+                    <span class="sd-stat-desc">Always online</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ============ SERVICES ============ -->
+    <!-- ═══════════ SERVICES (Features) ═══════════ -->
     <section id="services" class="sd-services">
         <div class="sd-shell">
-            <div class="sd-section-head sd-reveal" data-sd-reveal>
-                <span class="sd-label">What the platform does</span>
-                <h2>One system for the whole delivery cycle.</h2>
+
+            <header class="sd-section-head sd-section-head--split sd-reveal" data-sd-reveal>
+                <div>
+                    <span class="sd-label">What the platform does</span>
+                    <h2>Everything logistics teams<br>need, <span class="sd-gradient-text">in one place</span>.</h2>
+                </div>
                 <p>From the moment a shipment is created to the moment it's signed for, every step runs through the same
                     platform.</p>
-            </div>
+            </header>
 
-            <div class="sd-services-grid" data-sd-reveal-group>
-                <div class="sd-service sd-reveal" data-sd-reveal>
-                    <span class="sd-service-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
+            <div class="sd-services-grid">
+
+                <article class="sd-service sd-reveal" data-sd-reveal>
+                    <span class="sd-service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 8l-9-5-9 5 9 5 9-5z" />
                             <path d="M3 8v8l9 5 9-5V8" />
                             <path d="M12 13v8" />
-                        </svg></span>
-                    <h3>Smart Shipment Management</h3>
+                        </svg>
+                    </span>
+                    <h3>Shipment Management</h3>
                     <p>Create, edit, and organize shipments with structured records that stay consistent across the
-                        whole operation.</p>
-                </div>
-                <div class="sd-service sd-reveal" data-sd-reveal>
-                    <span class="sd-service-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
+                        operation.</p>
+                </article>
+
+                <article class="sd-service sd-reveal" data-sd-reveal>
+                    <span class="sd-service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z" />
                             <circle cx="12" cy="10" r="2.6" />
-                        </svg></span>
+                        </svg>
+                    </span>
                     <h3>Real-Time Tracking</h3>
-                    <p>Every shipment reports its live position and status, visible to customers, drivers, and managers
-                        alike.</p>
-                </div>
-                <div class="sd-service sd-reveal" data-sd-reveal>
-                    <span class="sd-service-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
+                    <p>Every shipment reports its live position and status, visible to customers, drivers, and managers.
+                    </p>
+                </article>
+
+                <article class="sd-service sd-reveal" data-sd-reveal>
+                    <span class="sd-service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="8" r="4" />
                             <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
-                        </svg></span>
-                    <h3>Driver Management</h3>
+                        </svg>
+                    </span>
+                    <h3>Driver Coordination</h3>
                     <p>Onboard drivers, monitor availability, and keep every profile and vehicle record in one place.
                     </p>
-                </div>
-                <div class="sd-service sd-reveal" data-sd-reveal>
-                    <span class="sd-service-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
+                </article>
+
+                <article class="sd-service sd-reveal" data-sd-reveal>
+                    <span class="sd-service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" stroke-linejoin="round">
                             <path d="M4 12h4l3-7 4 14 3-7h4" />
-                        </svg></span>
-                    <h3>Delivery Assignment</h3>
-                    <p>Match shipments to the right driver automatically, based on location, load, and availability.</p>
-                </div>
-                <div class="sd-service sd-reveal" data-sd-reveal>
-                    <span class="sd-service-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
+                        </svg>
+                    </span>
+                    <h3>Smart Assignment</h3>
+                    <p>Match shipments to the right driver based on location, load, and current availability.</p>
+                </article>
+
+                <article class="sd-service sd-reveal" data-sd-reveal>
+                    <span class="sd-service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" stroke-linejoin="round">
                             <path d="M4 19V9M12 19V5M20 19v-7" />
-                        </svg></span>
+                        </svg>
+                    </span>
                     <h3>Analytics &amp; Reports</h3>
-                    <p>Track delivery performance, delays, and driver output through clear, exportable reporting.</p>
-                </div>
-                <div class="sd-service sd-reveal" data-sd-reveal>
-                    <span class="sd-service-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
+                    <p>Track performance, delays, and driver output through clear, exportable reporting.</p>
+                </article>
+
+                <article class="sd-service sd-reveal" data-sd-reveal>
+                    <span class="sd-service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" stroke-linejoin="round">
                             <rect x="4" y="4" width="16" height="16" rx="3" />
                             <path d="M9 9h.01M15 9h.01M8 15c1.2 1 2.6 1.5 4 1.5s2.8-.5 4-1.5" />
-                        </svg></span>
-                    <h3>AI Logistics Assistant</h3>
+                        </svg>
+                    </span>
+                    <h3>AI Assistant</h3>
                     <p>A conversational assistant that answers questions and helps operate the platform, role by role.
                     </p>
-                </div>
+                </article>
+
             </div>
+
         </div>
     </section>
 
-    <!-- ============ HOW IT WORKS ============ -->
+    <!-- ═══════════ HOW IT WORKS ═══════════ -->
     <section id="how-it-works" class="sd-process">
         <div class="sd-shell">
-            <div class="sd-section-head sd-reveal" data-sd-reveal>
-                <span class="sd-label">The delivery lifecycle</span>
-                <h2>From shipment to signature, in four steps.</h2>
-            </div>
 
-            <div class="sd-process-rail" data-sd-reveal-group>
+            <header class="sd-section-head sd-section-head--split sd-reveal" data-sd-reveal>
+                <div>
+                    <span class="sd-label">The delivery lifecycle</span>
+                    <h2>From shipment<br>to <span class="sd-gradient-text">signature</span>.</h2>
+                </div>
+                <p>Four steps. One platform. Zero guesswork.</p>
+            </header>
+
+            <div class="sd-process-rail sd-reveal-group">
                 <div class="sd-step sd-reveal" data-sd-reveal>
                     <div class="sd-step-index">01</div>
                     <h3>Create Shipment</h3>
@@ -242,188 +348,228 @@
                 </div>
                 <div class="sd-step sd-reveal" data-sd-reveal>
                     <div class="sd-step-index">03</div>
-                    <h3>Track Delivery</h3>
+                    <h3>Track Live</h3>
                     <p>Status and location update live as the shipment moves toward its destination.</p>
                 </div>
                 <div class="sd-step sd-reveal" data-sd-reveal>
                     <div class="sd-step-index">04</div>
-                    <h3>Successful Delivery</h3>
+                    <h3>Delivered</h3>
                     <p>The shipment is marked delivered and logged for reporting and history.</p>
                 </div>
             </div>
+
         </div>
     </section>
 
-    <!-- ============ SMART TRACKING ============ -->
-    <section id="tracking" class="sd-tracking">
-        <div class="sd-shell">
-            <div class="sd-tracking-card sd-reveal" data-sd-reveal>
-                <div class="sd-tracking-form">
-                    <span class="sd-label">Smart tracking</span>
-                    <h3>Find your shipment.</h3>
-                    <p>Enter a tracking number to see its current status and location. Tracking lookup will connect to
-                        live data soon.</p>
+    <!-- ═══════════ SHOWCASE: Tracking (Text → Visual) ═══════════ -->
+    <section id="tracking" class="sd-showcase sd-showcase--right">
+        <div class="sd-shell sd-showcase-grid">
 
-                    <form class="sd-track-input-row" data-sd-track-form>
-                        <label class="sr-only" for="tracking_number">Tracking number</label>
-                        <input type="text" id="tracking_number" name="tracking_number" placeholder="e.g. SD-48213"
-                            autocomplete="off">
-                        <button type="submit" class="sd-btn sd-btn-primary">Track Shipment</button>
-                    </form>
-                    <p class="sd-track-hint">This is a UI preview — tracking lookups aren't connected yet.</p>
-                </div>
+            <div class="sd-showcase-copy sd-reveal" data-sd-reveal>
+                <span class="sd-label">Smart tracking</span>
+                <h2>Find any shipment.<br><span class="sd-gradient-text">Anywhere, instantly.</span></h2>
+                <p>Enter a tracking number and see the shipment's full journey — pickup, transit, and delivery — updated
+                    in real time.</p>
 
-                <div class="sd-tracking-visual">
-                    <div class="sd-track-line">
-                        <div class="sd-track-point is-done">
-                            <strong>Shipment created</strong>
-                            <span>Warehouse — Cairo</span>
+                <ul class="sd-check-list">
+                    <li>Live position and ETA</li>
+                    <li>Driver and vehicle details</li>
+                    <li>Full status history timeline</li>
+                </ul>
+
+                <a href="#track-form" class="sd-btn sd-btn-primary">
+                    Track a shipment
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                </a>
+            </div>
+
+            <div class="sd-showcase-visual sd-reveal" data-sd-reveal style="animation-delay: 120ms;">
+                <div class="sd-track-mockup">
+                    <div class="sd-tm-head">
+                        <span class="sd-tm-title">Tracking #SD-48213</span>
+                        <span class="sd-tm-badge">In transit</span>
+                    </div>
+                    <div class="sd-tm-line">
+                        <div class="sd-tm-point is-done">
+                            <span class="sd-tm-dot"></span>
+                            <div>
+                                <strong>Shipment created</strong>
+                                <span>Warehouse — Cairo</span>
+                            </div>
                         </div>
-                        <div class="sd-track-point is-done">
-                            <strong>Driver assigned</strong>
-                            <span>Ahmed K. — Van 12</span>
+                        <div class="sd-tm-point is-done">
+                            <span class="sd-tm-dot"></span>
+                            <div>
+                                <strong>Driver assigned</strong>
+                                <span>Ahmed K. — Van 12</span>
+                            </div>
                         </div>
-                        <div class="sd-track-point is-current">
-                            <strong>Out for delivery</strong>
-                            <span>2.3 km from destination</span>
+                        <div class="sd-tm-point is-active">
+                            <span class="sd-tm-dot"></span>
+                            <div>
+                                <strong>Out for delivery</strong>
+                                <span>2.3 km from destination</span>
+                            </div>
                         </div>
-                        <div class="sd-track-point">
-                            <strong>Delivered</strong>
-                            <span>Pending</span>
+                        <div class="sd-tm-point">
+                            <span class="sd-tm-dot"></span>
+                            <div>
+                                <strong>Delivered</strong>
+                                <span>Pending</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </section>
 
-    <!-- ============ AI LOGISTICS ASSISTANT ============ -->
-    <section id="ai-assistant" class="sd-ai">
-        <div class="sd-shell sd-ai-grid">
-            <div class="sd-ai-copy sd-reveal" data-sd-reveal>
+    <!-- ═══════════ SHOWCASE: AI Assistant (Visual → Text) ═══════════ -->
+    <section id="ai-assistant" class="sd-showcase sd-showcase--left">
+        <div class="sd-shell sd-showcase-grid">
+
+            <div class="sd-showcase-visual sd-reveal" data-sd-reveal>
+                <div class="sd-chat-mockup">
+                    <div class="sd-cm-head">
+                        <span class="sd-cm-dot"></span>
+                        <span>SmartDelivery Assistant</span>
+                    </div>
+                    <div class="sd-cm-body">
+                        <div class="sd-msg sd-msg-user">Which shipments are delayed today?</div>
+                        <div class="sd-msg sd-msg-ai">3 shipments are running behind schedule — SD-48190, SD-48201, and
+                            SD-48219.</div>
+                        <div class="sd-msg sd-msg-user">Who can take SD-48219?</div>
+                        <div class="sd-msg sd-msg-ai">Driver Mona S. is available and 4 km from the pickup point. Want
+                            me to assign it?</div>
+                    </div>
+                    <div class="sd-cm-foot">
+                        <span>Ask about a shipment, driver, or route…</span>
+                        <button aria-label="Send">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sd-showcase-copy sd-reveal" data-sd-reveal style="animation-delay: 120ms;">
                 <span class="sd-label">AI logistics assistant</span>
-                <h2>Ask, and the platform answers.</h2>
+                <h2>Ask, and<br>the platform <span class="sd-gradient-text">answers</span>.</h2>
                 <p>The assistant understands who's asking and responds accordingly — customers, drivers, and managers
                     each get answers relevant to their role.</p>
 
-                <div class="sd-ai-roles">
-                    <div class="sd-ai-role">
+                <div class="sd-role-pills">
+                    <span class="sd-role-pill">
                         <strong>Customer</strong>
-                        <p>"Where's my shipment?" · "Show my recent deliveries"</p>
-                    </div>
-                    <div class="sd-ai-role">
+                        "Where's my shipment?"
+                    </span>
+                    <span class="sd-role-pill">
                         <strong>Driver</strong>
-                        <p>"What are my assigned deliveries today?" · "Details for shipment SD-48213"</p>
-                    </div>
-                    <div class="sd-ai-role">
+                        "What are my assignments today?"
+                    </span>
+                    <span class="sd-role-pill">
                         <strong>Manager</strong>
-                        <p>"Which shipments are delayed?" · "Which drivers are available now?"</p>
-                    </div>
+                        "Which shipments are delayed?"
+                    </span>
                 </div>
 
-                <a href="#" class="sd-btn sd-btn-primary">Try AI Assistant</a>
+                <a href="{% url 'signup' %}" class="sd-btn sd-btn-accent">
+                    Try AI Assistant
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                </a>
             </div>
 
-            <div class="sd-chat-card sd-reveal" data-sd-reveal style="animation-delay: 120ms;">
-                <div class="sd-chat-head">
-                    <span class="sd-chat-dot"></span>
-                    <span>SmartDelivery Assistant</span>
-                </div>
-                <div class="sd-chat-body">
-                    <div class="sd-msg sd-msg-user">Which shipments are delayed today?</div>
-                    <div class="sd-msg sd-msg-ai">3 shipments are running behind schedule — SD-48190, SD-48201, and
-                        SD-48219, all held up near the east distribution hub.</div>
-                    <div class="sd-msg sd-msg-user">Who can take SD-48219?</div>
-                    <div class="sd-msg sd-msg-ai">Driver Mona S. is available and 4 km from the pickup point. Want me to
-                        assign it?</div>
-                </div>
-                <div class="sd-chat-foot">
-                    <input type="text" placeholder="Ask about a shipment, driver, or route..." disabled>
-                    <button type="button" aria-label="Send" disabled>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#041712" stroke-width="2">
-                            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
         </div>
     </section>
 
-    <!-- ============ WHY SMARTDELIVERY ============ -->
+    <!-- ═══════════ WHY + COMMUNITY ═══════════ -->
     <section class="sd-why">
         <div class="sd-shell">
+
+            <header class="sd-section-head sd-reveal" data-sd-reveal>
+                <span class="sd-label">Why SmartDelivery</span>
+                <h2>Built for how<br>logistics teams <span class="sd-gradient-text">actually operate</span>.</h2>
+                <p>One platform, three roles, and a shared source of truth for every shipment in motion.</p>
+            </header>
+
             <div class="sd-why-layout sd-reveal" data-sd-reveal>
-                <div class="sd-why-panel">
-                    <span class="sd-label">Why SmartDelivery</span>
-                    <h2>Built for how logistics teams actually operate.</h2>
-                    <p>One platform, three roles, and a shared source of truth for every shipment in motion.</p>
+                <div class="sd-why-item">
+                    <strong>Centralized management</strong>
+                    <p>Shipments, drivers, and deliveries live in one connected system.</p>
                 </div>
-                <div class="sd-why-list">
-                    <div class="sd-why-item">
-                        <strong>Centralized management</strong>
-                        <p>Shipments, drivers, and deliveries live in one connected system.</p>
-                    </div>
-                    <div class="sd-why-item">
-                        <strong>Real-time visibility</strong>
-                        <p>Status and location updates flow to everyone who needs them, instantly.</p>
-                    </div>
-                    <div class="sd-why-item">
-                        <strong>Role-based access</strong>
-                        <p>Customers, drivers, and managers each see exactly what's relevant to them.</p>
-                    </div>
-                    <div class="sd-why-item">
-                        <strong>AI-assisted operations</strong>
-                        <p>The assistant helps surface answers and handle routine questions instantly.</p>
-                    </div>
-                    <div class="sd-why-item">
-                        <strong>Delivery analytics</strong>
-                        <p>Reporting turns delivery history into decisions worth acting on.</p>
-                    </div>
-                    <div class="sd-why-item">
-                        <strong>Secure architecture</strong>
-                        <p>Access control and data handling are built in from the ground up.</p>
-                    </div>
+                <div class="sd-why-item">
+                    <strong>Real-time visibility</strong>
+                    <p>Status and location updates flow to everyone who needs them.</p>
+                </div>
+                <div class="sd-why-item">
+                    <strong>Role-based access</strong>
+                    <p>Customers, drivers, and managers each see what's relevant to them.</p>
+                </div>
+                <div class="sd-why-item">
+                    <strong>AI-assisted ops</strong>
+                    <p>The assistant surfaces answers and handles routine questions.</p>
+                </div>
+                <div class="sd-why-item">
+                    <strong>Delivery analytics</strong>
+                    <p>Reporting turns history into decisions worth acting on.</p>
+                </div>
+                <div class="sd-why-item">
+                    <strong>Secure architecture</strong>
+                    <p>Access control and data handling are built in from the ground up.</p>
                 </div>
             </div>
+
+            <!-- Community marquee -->
+            <div class="sd-community sd-reveal" data-sd-reveal>
+                <span class="sd-community-badge">★ 4.9</span>
+                <span>Trusted by logistics teams across the region.</span>
+                <span class="sd-community-sep">·</span>
+                <span>98% on-time delivery rate</span>
+                <span class="sd-community-sep">·</span>
+                <span>1,200+ active drivers</span>
+            </div>
+
         </div>
     </section>
 
-    <!-- ============ FINAL CTA ============ -->
-    <section class="sd-final">
-        <div class="sd-shell">
-            <div class="sd-final-card sd-reveal" data-sd-reveal>
-                <h2>Move Deliveries Smarter.</h2>
-                <p>Bring shipments, drivers, and tracking into one platform — and let the AI assistant handle the
-                    routine questions.</p>
-                <div class="sd-final-cta">
-                    <a href="{% url 'signup' %}" class="sd-btn sd-btn-primary">Get Started</a>
-                    <a href="#tracking" class="sd-btn sd-btn-ghost">Track Shipment</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============ FOOTER ============ -->
+  
+    <!-- ═══════════ FOOTER ═══════════ -->
     <footer class="sd-footer">
         <div class="sd-shell">
+
             <div class="sd-footer-top">
                 <div class="sd-footer-brand">
                     <a href="#home" class="sd-brand">
                         <span class="sd-brand-mark">
-                            <img src="{% static 'landing/img/logo.jpeg' %}" alt="SmartDelivery logo">
+                            <img src="{% static 'imgs/logo1.jpeg' %}" alt="SmartDelivery">
                         </span>
-                        SmartDelivery
+                        Delivera
                     </a>
                     <p>Smart, AI-powered delivery and logistics management for teams that move fast.</p>
+
+                    <form class="sd-footer-news" onsubmit="return false;">
+                        <input type="email" placeholder="Get product updates" aria-label="Email">
+                        <button type="submit" aria-label="Subscribe">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M13 6l6 6-6 6" />
+                            </svg>
+                        </button>
+                    </form>
                 </div>
 
                 <div class="sd-footer-col">
                     <h4>Navigate</h4>
                     <ul>
-                        <li><a href="#home">Home</a></li>
                         <li><a href="#services">Services</a></li>
                         <li><a href="#how-it-works">How It Works</a></li>
                         <li><a href="#ai-assistant">AI Assistant</a></li>
+                        <li><a href="#tracking">Track Shipment</a></li>
                     </ul>
                 </div>
 
@@ -433,7 +579,7 @@
                         <li><a href="#services">Shipment Management</a></li>
                         <li><a href="#services">Real-Time Tracking</a></li>
                         <li><a href="#services">Driver Management</a></li>
-                        <li><a href="#services">Analytics &amp; Reports</a></li>
+                        <li><a href="#services">Analytics</a></li>
                     </ul>
                 </div>
 
@@ -449,8 +595,13 @@
 
             <div class="sd-footer-bottom">
                 <span>&copy; {% now "Y" %} SmartDelivery. All rights reserved.</span>
-                <span>Built for smarter logistics.</span>
+                <span>By  <a style="color: red; "href="https://my-portfolio-seven-tau-kj8yrqeksk.vercel.app/">Eng.Esraa Shalaby</a></span>
+                <div class="sd-footer-legal">
+                     
+                    <a href="#">Terms of Use</a>
+                </div>
             </div>
+
         </div>
     </footer>
 
@@ -458,5 +609,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'JS/landingpage.js' %}" defer></script>
+<script src="{% static 'js/landingpage.js' %}" defer></script>
 {% endblock %}

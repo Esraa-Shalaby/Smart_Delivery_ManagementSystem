@@ -141,8 +141,7 @@
                                     <label for="gs_system_name">System name</label>
                                     <input id="gs_system_name" type="text" name="system_name" maxlength="120"
                                         value="{{ general_form.system_name.value|default_if_none:'' }}">
-                                    {% for error in general_form.system_name.errors %}<p class="field__error">{{ error
-                                        }}</p>{% endfor %}
+                                    {% for error in general_form.system_name.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
                                 </div>
 
                                 <div
@@ -159,20 +158,17 @@
                                     <label for="gs_currency">Default currency</label>
                                     <select id="gs_currency" name="default_currency">
                                         {% for value, label in currency_choices %}
-                                        <option value="{{ value }}" {% if general_form.default_currency.value==value
-                                            %}selected{% endif %}>{{ label }}</option>
+                                        <option value="{{ value }}" {% if general_form.default_currency.value == value %}selected{% endif %}>{{ label }}</option>
                                         {% endfor %}
                                     </select>
-                                    {% for error in general_form.default_currency.errors %}<p class="field__error">{{
-                                        error }}</p>{% endfor %}
+                                    {% for error in general_form.default_currency.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
                                 </div>
 
                                 <div class="field {% if general_form.time_zone.errors %}field--error{% endif %}">
                                     <label for="gs_timezone">Time zone</label>
                                     <select id="gs_timezone" name="time_zone">
                                         {% for value, label in timezone_choices %}
-                                        <option value="{{ value }}" {% if general_form.time_zone.value==value
-                                            %}selected{% endif %}>{{ label }}</option>
+                                        <option value="{{ value }}" {% if general_form.time_zone.value == value %}selected{% endif %}>{{ label }}</option>
                                         {% endfor %}
                                     </select>
                                     {% for error in general_form.time_zone.errors %}<p class="field__error">{{ error }}
@@ -183,12 +179,10 @@
                                     <label for="gs_date_format">Date format</label>
                                     <select id="gs_date_format" name="date_format">
                                         {% for value, label in date_format_choices %}
-                                        <option value="{{ value }}" {% if general_form.date_format.value==value
-                                            %}selected{% endif %}>{{ label }}</option>
+                                        <option value="{{ value }}" {% if general_form.date_format.value == value %}selected{% endif %}>{{ label }}</option>
                                         {% endfor %}
                                     </select>
-                                    {% for error in general_form.date_format.errors %}<p class="field__error">{{ error
-                                        }}</p>{% endfor %}
+                                    {% for error in general_form.date_format.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
                                 </div>
                             </div>
 
@@ -230,8 +224,7 @@
                             </div>
                             <div>
                                 <dt>Role</dt>
-                                <dd><span class="badge badge--role badge--role-manager">{{
-                                        account.get_role_display|default:"Manager" }}</span></dd>
+                                <dd><span class="badge badge--role badge--role-manager">{{ account.get_role_display|default:"Manager" }}</span></dd>
                             </div>
                             <div>
                                 <dt>Account status</dt>
@@ -275,8 +268,7 @@
                                 <svg class="icon icon--sm">
                                     <use href="#i-alert" />
                                 </svg>
-                                <div>{% for error in notifications_form.non_field_errors %}<p>{{ error }}</p>{% endfor
-                                    %}</div>
+                                <div>{% for error in notifications_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>
                             </div>
                             {% endif %}
 
@@ -285,8 +277,7 @@
                                     <div class="toggle-row__text"><strong>Shipment updates</strong><small>Status changes
                                             and new shipments</small></div>
                                     <label class="switch" for="nt_shipment"><input id="nt_shipment" type="checkbox"
-                                            name="shipment_updates" {% if notifications_form.shipment_updates.value
-                                            %}checked{% endif %}><span class="switch__track"
+                                            name="shipment_updates" {% if notifications_form.shipment_updates.value %}checked{% endif %}><span class="switch__track"
                                             aria-hidden="true"></span><span class="visually-hidden">Shipment
                                             updates</span></label>
                                 </li>
@@ -295,8 +286,7 @@
                                             alerts</strong><small>Shipments that pass their expected delivery
                                             time</small></div>
                                     <label class="switch" for="nt_delayed"><input id="nt_delayed" type="checkbox"
-                                            name="delayed_alerts" {% if notifications_form.delayed_alerts.value
-                                            %}checked{% endif %}><span class="switch__track"
+                                            name="delayed_alerts" {% if notifications_form.delayed_alerts.value %}checked{% endif %}><span class="switch__track"
                                             aria-hidden="true"></span><span class="visually-hidden">Delayed delivery
                                             alerts</span></label>
                                 </li>
@@ -305,8 +295,7 @@
                                             alerts</strong><small>Assignments, acceptances and reassignments</small>
                                     </div>
                                     <label class="switch" for="nt_driver"><input id="nt_driver" type="checkbox"
-                                            name="driver_assignment_alerts" {% if
-                                            notifications_form.driver_assignment_alerts.value %}checked{% endif %}><span
+                                            name="driver_assignment_alerts" {% if notifications_form.driver_assignment_alerts.value %}checked{% endif %}><span
                                             class="switch__track" aria-hidden="true"></span><span
                                             class="visually-hidden">Driver assignment alerts</span></label>
                                 </li>
@@ -315,8 +304,7 @@
                                             notifications</strong><small>Completed, failed and refunded payments</small>
                                     </div>
                                     <label class="switch" for="nt_payment"><input id="nt_payment" type="checkbox"
-                                            name="payment_notifications" {% if
-                                            notifications_form.payment_notifications.value %}checked{% endif %}><span
+                                            name="payment_notifications" {% if notifications_form.payment_notifications.value %}checked{% endif %}><span
                                             class="switch__track" aria-hidden="true"></span><span
                                             class="visually-hidden">Payment notifications</span></label>
                                 </li>
@@ -324,8 +312,7 @@
                                     <div class="toggle-row__text"><strong>Complaint notifications</strong><small>New and
                                             updated customer complaints</small></div>
                                     <label class="switch" for="nt_complaint"><input id="nt_complaint" type="checkbox"
-                                            name="complaint_notifications" {% if
-                                            notifications_form.complaint_notifications.value %}checked{% endif %}><span
+                                            name="complaint_notifications" {% if notifications_form.complaint_notifications.value %}checked{% endif %}><span
                                             class="switch__track" aria-hidden="true"></span><span
                                             class="visually-hidden">Complaint notifications</span></label>
                                 </li>
@@ -334,8 +321,7 @@
                                             notifications</strong><small>Maintenance and system-level messages</small>
                                     </div>
                                     <label class="switch" for="nt_system"><input id="nt_system" type="checkbox"
-                                            name="system_notifications" {% if
-                                            notifications_form.system_notifications.value %}checked{% endif %}><span
+                                            name="system_notifications" {% if notifications_form.system_notifications.value %}checked{% endif %}><span
                                             class="switch__track" aria-hidden="true"></span><span
                                             class="visually-hidden">System notifications</span></label>
                                 </li>
@@ -373,8 +359,7 @@
                                 <h3>Change password</h3>
                                 <p>
                                     Last updated:
-                                    {% if security.password_changed_at %}{{ security.password_changed_at|date:"d M Y"
-                                    }}{% else %}Not available{% endif %}
+                                    {% if security.password_changed_at %}{{ security.password_changed_at|date:"d M Y" }}{% else %}Not available{% endif %}
                                 </p>
                             </div>
                             {% if u_password %}
@@ -413,8 +398,7 @@
                                     <div class="session-item__meta">
                                         <strong>{{ session.device|default:"Unknown device" }}{% if session.is_current %}
                                             <span class="badge badge--soft">This device</span>{% endif %}</strong>
-                                        <small>{{ session.ip_address|default:"—" }}{% if session.last_activity %} · {{
-                                            session.last_activity|timesince }} ago{% endif %}</small>
+                                        <small>{{ session.ip_address|default:"—" }}{% if session.last_activity %} · {{ session.last_activity|timesince }} ago{% endif %}</small>
                                     </div>
                                 </li>
                                 {% empty %}
@@ -432,8 +416,7 @@
                             <dl class="detail-list detail-list--compact">
                                 <div>
                                     <dt>Last login</dt>
-                                    <dd>{% if account.last_login %}{{ account.last_login|date:"d M Y, H:i" }}{% else
-                                        %}Not available{% endif %}</dd>
+                                    <dd>{% if account.last_login %}{{ account.last_login|date:"d M Y, H:i" }}{% else %}Not available{% endif %}</dd>
                                 </div>
                                 <div>
                                     <dt>Last login IP</dt>
@@ -504,13 +487,10 @@
                                     <label for="pr_rows">Rows per page</label>
                                     <select id="pr_rows" name="rows_per_page">
                                         {% for value, label in rows_per_page_choices %}
-                                        <option value="{{ value }}" {% if
-                                            preferences_form.rows_per_page.value|stringformat:"s"==value|stringformat:"s"
-                                            %}selected{% endif %}>{{ label }}</option>
+                                        <option value="{{ value }}" {% if preferences_form.rows_per_page.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
                                         {% endfor %}
                                     </select>
-                                    {% for error in preferences_form.rows_per_page.errors %}<p class="field__error">{{
-                                        error }}</p>{% endfor %}
+                                    {% for error in preferences_form.rows_per_page.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
                                 </div>
                             </div>
 
@@ -519,8 +499,7 @@
                                     <div class="toggle-row__text"><strong>Compact tables</strong><small>Show denser rows
                                             in data tables</small></div>
                                     <label class="switch" for="pr_compact"><input id="pr_compact" type="checkbox"
-                                            name="compact_tables" {% if preferences_form.compact_tables.value
-                                            %}checked{% endif %}><span class="switch__track"
+                                            name="compact_tables" {% if preferences_form.compact_tables.value %}checked{% endif %}><span class="switch__track"
                                             aria-hidden="true"></span><span class="visually-hidden">Compact
                                             tables</span></label>
                                 </li>
@@ -528,8 +507,7 @@
                                     <div class="toggle-row__text"><strong>Auto-refresh dashboard</strong><small>Refresh
                                             live statistics periodically</small></div>
                                     <label class="switch" for="pr_refresh"><input id="pr_refresh" type="checkbox"
-                                            name="dashboard_auto_refresh" {% if
-                                            preferences_form.dashboard_auto_refresh.value %}checked{% endif %}><span
+                                            name="dashboard_auto_refresh" {% if preferences_form.dashboard_auto_refresh.value %}checked{% endif %}><span
                                             class="switch__track" aria-hidden="true"></span><span
                                             class="visually-hidden">Auto-refresh dashboard</span></label>
                                 </li>
@@ -564,7 +542,6 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
 {% block extra_js %}

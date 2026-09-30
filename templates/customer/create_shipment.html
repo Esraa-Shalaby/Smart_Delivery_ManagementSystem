@@ -97,8 +97,7 @@ Create Shipment — Smart Delivery &amp; Logistics
                                 <input type="text" name="{{ form.pickup_address.html_name|default:'pickup_address' }}"
                                     id="{{ form.pickup_address.id_for_label|default:'id_pickup_address' }}"
                                     class="form-input" value="{{ form.pickup_address.value|default:'' }}"
-                                    placeholder="Street, city, postal code" autocomplete="street-address" required {% if
-                                    form.pickup_address.errors %}aria-invalid="true"
+                                    placeholder="Street, city, postal code" autocomplete="street-address" required {% if form.pickup_address.errors %}aria-invalid="true"
                                     aria-describedby="pickup-address-errors" {% endif %}>
                             </div>
 
@@ -136,8 +135,7 @@ Create Shipment — Smart Delivery &amp; Logistics
                                     name="{{ form.delivery_address.html_name|default:'delivery_address' }}"
                                     id="{{ form.delivery_address.id_for_label|default:'id_delivery_address' }}"
                                     class="form-input" value="{{ form.delivery_address.value|default:'' }}"
-                                    placeholder="Street, city, postal code" autocomplete="street-address" required {% if
-                                    form.delivery_address.errors %}aria-invalid="true"
+                                    placeholder="Street, city, postal code" autocomplete="street-address" required {% if form.delivery_address.errors %}aria-invalid="true"
                                     aria-describedby="delivery-address-errors" {% endif %}>
                             </div>
 
@@ -185,8 +183,7 @@ Create Shipment — Smart Delivery &amp; Logistics
                                     name="{{ form.package_description.html_name|default:'package_description' }}"
                                     id="{{ form.package_description.id_for_label|default:'id_package_description' }}"
                                     class="form-input" value="{{ form.package_description.value|default:'' }}"
-                                    placeholder="e.g. Documents, electronics, fragile items" required {% if
-                                    form.package_description.errors %}aria-invalid="true"
+                                    placeholder="e.g. Documents, electronics, fragile items" required {% if form.package_description.errors %}aria-invalid="true"
                                     aria-describedby="package-description-errors" {% endif %}>
                             </div>
 
@@ -222,8 +219,7 @@ Create Shipment — Smart Delivery &amp; Logistics
                                 <input type="number" name="{{ form.package_weight.html_name|default:'package_weight' }}"
                                     id="{{ form.package_weight.id_for_label|default:'id_package_weight' }}"
                                     class="form-input" value="{{ form.package_weight.value|default:'' }}"
-                                    placeholder="e.g. 2.5" min="0" step="0.1" inputmode="decimal" required {% if
-                                    form.package_weight.errors %}aria-invalid="true"
+                                    placeholder="e.g. 2.5" min="0" step="0.1" inputmode="decimal" required {% if form.package_weight.errors %}aria-invalid="true"
                                     aria-describedby="package-weight-errors" {% endif %}>
                             </div>
 
@@ -245,9 +241,7 @@ Create Shipment — Smart Delivery &amp; Logistics
 
                 {# ---------- ADDITIONAL FORM FIELDS (dynamic) ---------- #}
                 {% for field in form %}
-                {% if field.name != "pickup_address" and field.name != "delivery_address" and field.name !=
-                "package_description" and field.name != "package_weight" and field.name != "delivery_fee" and field.name
-                != "status" and field.name != "driver" %}
+                {% if field.name != "pickup_address" and field.name != "delivery_address" and field.name != "package_description" and field.name != "package_weight" and field.name != "delivery_fee" and field.name != "status" and field.name != "driver" %}
                 <div class="form-field form-field-full {% if field.errors %}has-error{% endif %}">
                     <label for="{{ field.id_for_label }}" class="form-label">
                         {{ field.label }}

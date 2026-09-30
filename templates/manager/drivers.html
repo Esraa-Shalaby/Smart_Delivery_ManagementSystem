@@ -74,11 +74,9 @@
 <div class="manager-layout" id="managerLayout">
 
     {# Shared navbar/sidebar component #}
-    {% include "components/navbar.html" with active_page="drivers" %}
-
+ 
     <div class="manager-main">
-        {% include "components/alerts.html" %}
-
+ 
         <main class="dashboard page-fade-up" id="driversPage">
 
             {# ================= PAGE HEADER ================= #}
@@ -188,8 +186,7 @@
                         <div class="driver-mini__meta">
                             <strong>{{ driver.full_name|default:"Unnamed driver" }}</strong>
                             <small>
-                                {{ driver.vehicle_type|default:"—" }}{% if driver.plate_number %} · {{
-                                driver.plate_number }}{% endif %}
+                                {{ driver.vehicle_type|default:"—" }}{% if driver.plate_number %} · {{ driver.plate_number }}{% endif %}
                             </small>
                             <div class="workload" title="Current workload">
                                 <div class="workload__bar" style="--value: {{ driver.workload_percent|default:'0' }}">
@@ -232,11 +229,11 @@
                         <label for="filterAvailability">Availability</label>
                         <select id="filterAvailability" name="availability">
                             <option value="">All</option>
-                            <option value="available" {% if request.GET.availability=="available" %}selected{% endif %}>
+                            <option value="available" {% if request.GET.availability == "available" %}selected{% endif %}>
                                 Available</option>
-                            <option value="busy" {% if request.GET.availability=="busy" %}selected{% endif %}>Busy
+                            <option value="busy" {% if request.GET.availability == "busy" %}selected{% endif %}>Busy
                             </option>
-                            <option value="offline" {% if request.GET.availability=="offline" %}selected{% endif %}>
+                            <option value="offline" {% if request.GET.availability == "offline" %}selected{% endif %}>
                                 Offline</option>
                         </select>
                     </div>
@@ -246,8 +243,7 @@
                         <select id="filterVehicle" name="vehicle_type">
                             <option value="">All vehicles</option>
                             {% for value, label in vehicle_types %}
-                            <option value="{{ value }}" {% if request.GET.vehicle_type==value %}selected{% endif %}>{{
-                                label }}</option>
+                            <option value="{{ value }}" {% if request.GET.vehicle_type == value %}selected{% endif %}>{{ label }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -256,9 +252,9 @@
                         <label for="filterStatus">Status</label>
                         <select id="filterStatus" name="status">
                             <option value="">All statuses</option>
-                            <option value="active" {% if request.GET.status=="active" %}selected{% endif %}>Active
+                            <option value="active" {% if request.GET.status == "active" %}selected{% endif %}>Active
                             </option>
-                            <option value="inactive" {% if request.GET.status=="inactive" %}selected{% endif %}>Inactive
+                            <option value="inactive" {% if request.GET.status == "inactive" %}selected{% endif %}>Inactive
                             </option>
                         </select>
                     </div>
@@ -281,8 +277,7 @@
                         <h2 id="driversTableTitle" class="panel__title">All Drivers</h2>
                         <p>
                             {% if page_obj %}
-                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count
-                            }}
+                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
                             {% else %}
                             {{ total_drivers|default:"0" }} drivers in the system
                             {% endif %}
@@ -331,22 +326,19 @@
                                         <strong>{{ driver.vehicle_type|default:"—" }}</strong>
                                         <small>
                                             {{ driver.vehicle_model|default:"—" }}
-                                            {% if driver.plate_number %}<span class="plate">{{ driver.plate_number
-                                                }}</span>{% endif %}
+                                            {% if driver.plate_number %}<span class="plate">{{ driver.plate_number }}</span>{% endif %}
                                         </small>
                                     </div>
                                 </td>
                                 <td>
                                     <span class="presence-label">
                                         <i class="presence presence--{{ driver.availability|default:'offline' }}"></i>
-                                        {{ driver.get_availability_display|default:driver.availability|default:"Offline"
-                                        }}
+                                        {{ driver.get_availability_display|default:driver.availability|default:"Offline" }}
                                     </span>
                                 </td>
                                 <td>
                                     {% if driver.active_deliveries %}
-                                    <span class="badge badge--count badge--count-live">{{ driver.active_deliveries
-                                        }}</span>
+                                    <span class="badge badge--count badge--count-live">{{ driver.active_deliveries }}</span>
                                     {% else %}
                                     <span class="badge badge--count">0</span>
                                     {% endif %}
@@ -470,7 +462,6 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
 {% block extra_js %}

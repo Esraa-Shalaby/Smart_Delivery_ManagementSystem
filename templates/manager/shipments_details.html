@@ -103,8 +103,7 @@ Shipment {{ shipment.tracking_number|default:"N/A" }} — Manager
 
                         <div class="mgr-detail-item">
                             <dt>Package Weight</dt>
-                            <dd>{{ shipment.package_weight|default:"N/A" }}{% if shipment.package_weight %} kg{% endif
-                                %}</dd>
+                            <dd>{{ shipment.package_weight|default:"N/A" }}{% if shipment.package_weight %} kg{% endif %}</dd>
                         </div>
 
                         <div class="mgr-detail-item">
@@ -205,9 +204,7 @@ Shipment {{ shipment.tracking_number|default:"N/A" }} — Manager
 
                                 <div class="timeline-meta">
                                     <span class="timeline-actor">
-                                        by {{
-                                        history.changed_by.get_full_name|default:history.changed_by.username|default:"System"
-                                        }}
+                                        by {{ history.changed_by.get_full_name|default:history.changed_by.username|default:"System" }}
                                     </span>
                                     <span class="timeline-sep">•</span>
                                     <span class="timeline-date">
@@ -252,18 +249,12 @@ Shipment {{ shipment.tracking_number|default:"N/A" }} — Manager
                                     <td>
                                         <div class="driver-inline">
                                             <span class="avatar avatar-sm">
-                                                {{
-                                                assignment.driver.get_full_name|default:assignment.driver.username|default:"?"|slice:":1"|upper
-                                                }}
+                                                {{ assignment.driver.get_full_name|default:assignment.driver.username|default:"?"|slice:":1"|upper }}
                                             </span>
-                                            <span>{{
-                                                assignment.driver.get_full_name|default:assignment.driver.username|default:"N/A"
-                                                }}</span>
+                                            <span>{{ assignment.driver.get_full_name|default:assignment.driver.username|default:"N/A" }}</span>
                                         </div>
                                     </td>
-                                    <td>{{
-                                        assignment.assigned_by.get_full_name|default:assignment.assigned_by.username|default:"System"
-                                        }}</td>
+                                    <td>{{ assignment.assigned_by.get_full_name|default:assignment.assigned_by.username|default:"System" }}</td>
                                     <td>{{ assignment.assigned_at|date:"M d, Y H:i"|default:"—" }}</td>
                                     <td>{{ assignment.accepted_at|date:"M d, Y H:i"|default:"—" }}</td>
                                     <td>{{ assignment.completed_at|date:"M d, Y H:i"|default:"—" }}</td>
@@ -447,9 +438,7 @@ Shipment {{ shipment.tracking_number|default:"N/A" }} — Manager
                 <div class="mgr-card-body">
                     <div class="customer-profile">
                         <div class="avatar avatar-md">
-                            {{
-                            shipment.customer.get_full_name|default:shipment.customer.username|default:"?"|slice:":1"|upper
-                            }}
+                            {{ shipment.customer.get_full_name|default:shipment.customer.username|default:"?"|slice:":1"|upper }}
                         </div>
                         <div class="customer-info">
                             <h3 class="customer-name">

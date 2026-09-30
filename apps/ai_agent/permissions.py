@@ -11,6 +11,7 @@ TOOL_ROLES = {
     "reassign_driver": {User.Role.MANAGER},
     "update_shipment_status": {User.Role.DRIVER, User.Role.MANAGER},
     "get_customer_shipments": {User.Role.CUSTOMER, User.Role.MANAGER},
+    "get_my_deliveries": {User.Role.DRIVER},
 }
 
 

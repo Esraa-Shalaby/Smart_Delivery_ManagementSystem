@@ -77,8 +77,7 @@
 <div class="manager-layout" id="managerLayout">
 
     {# Shared navbar/sidebar component #}
-    {% include "components/navbar.html" with active_page="notifications" %}
-
+ 
     <div class="manager-main">
         {% include "components/alerts.html" %}
 
@@ -95,8 +94,7 @@
                     {% if u_mark_all %}
                     <form method="post" action="{{ u_mark_all }}">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn--primary" {% if not unread_notifications %}disabled{% endif
-                            %}>
+                        <button type="submit" class="btn btn--primary" {% if not unread_notifications %}disabled{% endif %}>
                             <svg class="icon">
                                 <use href="#i-read" />
                             </svg> Mark All as Read
@@ -172,7 +170,7 @@
                         <select id="filterType" name="type">
                             <option value="">All types</option>
                             {% for value, label in notification_types %}
-                            <option value="{{ value }}" {% if request.GET.type==value %}selected{% endif %}>{{ label }}
+                            <option value="{{ value }}" {% if request.GET.type == value %}selected{% endif %}>{{ label }}
                             </option>
                             {% endfor %}
                         </select>
@@ -182,9 +180,9 @@
                         <label for="filterRead">Status</label>
                         <select id="filterRead" name="read">
                             <option value="">Read &amp; unread</option>
-                            <option value="unread" {% if request.GET.read=="unread" %}selected{% endif %}>Unread
+                            <option value="unread" {% if request.GET.read == "unread" %}selected{% endif %}>Unread
                             </option>
-                            <option value="read" {% if request.GET.read=="read" %}selected{% endif %}>Read</option>
+                            <option value="read" {% if request.GET.read == "read" %}selected{% endif %}>Read</option>
                         </select>
                     </div>
 
@@ -211,8 +209,7 @@
                         <h2 id="notificationsListTitle" class="panel__title">All Notifications</h2>
                         <p>
                             {% if page_obj %}
-                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count
-                            }}
+                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
                             {% else %}
                             {{ total_notifications|default:"0" }} notifications
                             {% endif %}
@@ -237,14 +234,11 @@
 
                         <div class="notification__body">
                             <div class="notification__head">
-                                {% if not notification.is_read %}<i class="unread-dot" aria-hidden="true"></i>{% endif
-                                %}
+                                {% if not notification.is_read %}<i class="unread-dot" aria-hidden="true"></i>{% endif %}
                                 <h3 class="notification__title">{{ notification.title|default:"Notification" }}</h3>
                                 <span
                                     class="badge badge--type badge--type-{{ notification.notification_type|default:'system' }}">
-                                    {{
-                                    notification.get_notification_type_display|default:notification.notification_type|default:"System"
-                                    }}
+                                    {{ notification.get_notification_type_display|default:notification.notification_type|default:"System" }}
                                 </span>
                                 {% if notification.is_read %}
                                 <span class="badge badge--soft">Read</span>
@@ -260,8 +254,7 @@
                                 <span>
                                     <time datetime="{{ notification.created_at|date:'c' }}"
                                         title="{{ notification.created_at|date:'d M Y, H:i' }}">
-                                        {{ notification.created_at|date:"d M Y, H:i" }} · {{
-                                        notification.created_at|timesince }} ago
+                                        {{ notification.created_at|date:"d M Y, H:i" }} · {{ notification.created_at|timesince }} ago
                                     </time>
                                 </span>
                             </div>
@@ -364,7 +357,6 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
 {% block extra_js %}

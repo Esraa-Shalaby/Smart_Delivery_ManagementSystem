@@ -179,6 +179,25 @@ def _get_customer_shipments(*, params, user):
     }
 
 
+def _get_my_deliveries(*, params, user):
+    shipments = list(
+        Shipment.objects.filter(
+            assignments__driver=user, assignments__is_active=True
+        ).distinct()[:20]
+    )
+    return {
+        "count": len(shipments),
+        "shipments": [
+            {
+                "tracking_number": s.tracking_number,
+                "status": s.status,
+                "created_at": s.created_at.isoformat(),
+            }
+            for s in shipments
+        ],
+    }
+
+
 TOOL_REGISTRY = {
     "get_delivery_status": _get_delivery_status,
     "get_delayed_deliveries": _get_delayed_deliveries,
@@ -188,6 +207,7 @@ TOOL_REGISTRY = {
     "reassign_driver": _reassign_driver,
     "update_shipment_status": _update_shipment_status,
     "get_customer_shipments": _get_customer_shipments,
+    "get_my_deliveries": _get_my_deliveries,
 }
 
 
@@ -208,6 +228,8 @@ def _format_reply(tool_name, data):
         return f"Shipment {data['tracking_number']} status updated to {data['status']}."
     if tool_name == "get_customer_shipments":
         return f"You have {data['count']} shipment(s)."
+    if tool_name == "get_my_deliveries":
+        return f"You have {data['count']} active delivery(ies)."
     return "Done."
 
 

@@ -1,12 +1,10 @@
 {% load static %}
 
-{# ============================================================
-Chatbot Component — Floating AI Assistant
-============================================================ #}
+ 
 
 {% if user.is_authenticated %}
 <div class="app-chatbot" data-chatbot data-chatbot-role="{{ user.role|default:''|lower }}"
-    data-chatbot-endpoint="{% url 'ai_assistant' %}">
+     data-chatbot-endpoint="{% url 'ai_agent:chat' %}">
 
     {# ============================= FLOATING TRIGGER ============================= #}
     <button type="button" class="app-chatbot-fab" data-chatbot-trigger aria-label="Open AI Assistant"

@@ -182,9 +182,7 @@ Driver Dashboard — Smart Delivery &amp; Logistics
                             </span>
                         </div>
                         <span class="status-badge status-{{ active_delivery.shipment.status|default:'unknown'|lower }}">
-                            {{
-                            active_delivery.shipment.get_status_display|default:active_delivery.shipment.status|default:"Unknown"
-                            }}
+                            {{ active_delivery.shipment.get_status_display|default:active_delivery.shipment.status|default:"Unknown" }}
                         </span>
                     </div>
 
@@ -258,9 +256,7 @@ Driver Dashboard — Smart Delivery &amp; Logistics
                                 </span>
                                 <span
                                     class="status-badge status-{{ delivery.shipment.status|default:'unknown'|lower }}">
-                                    {{
-                                    delivery.shipment.get_status_display|default:delivery.shipment.status|default:"Unknown"
-                                    }}
+                                    {{ delivery.shipment.get_status_display|default:delivery.shipment.status|default:"Unknown" }}
                                 </span>
                             </div>
                             <p class="today-address">
@@ -323,9 +319,7 @@ Driver Dashboard — Smart Delivery &amp; Logistics
                                 <td class="dash-cell-status">
                                     <span
                                         class="status-badge status-{{ entry.shipment.status|default:'unknown'|lower }}">
-                                        {{
-                                        entry.shipment.get_status_display|default:entry.shipment.status|default:"Unknown"
-                                        }}
+                                        {{ entry.shipment.get_status_display|default:entry.shipment.status|default:"Unknown" }}
                                     </span>
                                 </td>
                                 <td class="dash-cell-date">

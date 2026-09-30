@@ -66,11 +66,9 @@
 <div class="manager-layout" id="managerLayout">
 
     {# Shared navbar/sidebar component (same one used by dashboard.html and users.html) #}
-    {% include "components/navbar.html" with active_page="customers" %}
-
+ 
     <div class="manager-main">
-        {% include "components/alerts.html" %}
-
+ 
         <main class="dashboard page-fade-up" id="customersPage">
 
             {# ================= PAGE HEADER ================= #}
@@ -140,8 +138,7 @@
                         </svg></span>
                     <div class="stat-card__body">
                         <span class="stat-card__label">With Active Shipments</span>
-                        <strong class="stat-card__value" data-counter>{{ customers_with_active_shipments|default:"0"
-                            }}</strong>
+                        <strong class="stat-card__value" data-counter>{{ customers_with_active_shipments|default:"0" }}</strong>
                         <span class="stat-card__desc">Shipments in progress</span>
                     </div>
                 </article>
@@ -182,9 +179,9 @@
                         <label for="filterStatus">Status</label>
                         <select id="filterStatus" name="status">
                             <option value="">All statuses</option>
-                            <option value="active" {% if request.GET.status=="active" %}selected{% endif %}>Active
+                            <option value="active" {% if request.GET.status == "active" %}selected{% endif %}>Active
                             </option>
-                            <option value="inactive" {% if request.GET.status=="inactive" %}selected{% endif %}>Inactive
+                            <option value="inactive" {% if request.GET.status == "inactive" %}selected{% endif %}>Inactive
                             </option>
                         </select>
                     </div>
@@ -217,8 +214,7 @@
                         <h2 id="customersTableTitle" class="panel__title">All Customers</h2>
                         <p>
                             {% if page_obj %}
-                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count
-                            }}
+                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
                             {% else %}
                             {{ total_customers|default:"0" }} customers in the system
                             {% endif %}
@@ -268,8 +264,7 @@
                                                     </div>
                                                     <div>
                                                         <dt>Account</dt>
-                                                        <dd>{% if customer.is_active %}Active{% else %}Inactive{% endif
-                                                            %}</dd>
+                                                        <dd>{% if customer.is_active %}Active{% else %}Inactive{% endif %}</dd>
                                                     </div>
                                                     <div>
                                                         <dt>Total</dt>
@@ -297,8 +292,7 @@
                                 <td><strong>{{ customer.total_shipments|default:"0" }}</strong></td>
                                 <td>
                                     {% if customer.active_shipments %}
-                                    <span class="badge badge--count badge--count-live">{{ customer.active_shipments
-                                        }}</span>
+                                    <span class="badge badge--count badge--count-live">{{ customer.active_shipments }}</span>
                                     {% else %}
                                     <span class="badge badge--count">0</span>
                                     {% endif %}
@@ -310,8 +304,7 @@
                                     <span class="badge badge--status badge--inactive"><i class="dot"></i>Inactive</span>
                                     {% endif %}
                                 </td>
-                                <td><time datetime="{{ customer.date_joined|date:'c' }}">{{ customer.date_joined|date:"d
-                                        M Y" }}</time></td>
+                                <td><time datetime="{{ customer.date_joined|date:'c' }}">{{ customer.date_joined|date:"d M Y" }}</time></td>
                                 <td>
                                     <div class="row-actions">
                                         <a class="btn btn--xs btn--ghost" href="{{ u_detail|default:'#' }}">
@@ -406,7 +399,6 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
 {% block extra_js %}

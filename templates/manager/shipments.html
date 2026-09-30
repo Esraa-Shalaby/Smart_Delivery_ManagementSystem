@@ -72,8 +72,7 @@
 <div class="manager-layout" id="managerLayout">
 
     {# Shared navbar/sidebar component #}
-    {% include "components/navbar.html" with active_page="shipments" %}
-
+ 
     <div class="manager-main">
         {% include "components/alerts.html" %}
 
@@ -149,8 +148,7 @@
                         </svg></span>
                     <div class="stat-card__body">
                         <span class="stat-card__label">Out for Delivery</span>
-                        <strong class="stat-card__value" data-counter>{{ out_for_delivery_shipments|default:"0"
-                            }}</strong>
+                        <strong class="stat-card__value" data-counter>{{ out_for_delivery_shipments|default:"0" }}</strong>
                     </div>
                 </article>
                 <article class="stat-card anim-card" style="--delay: 6">
@@ -201,8 +199,7 @@
                         <select id="filterCustomer" name="customer">
                             <option value="">All customers</option>
                             {% for customer in customers_filter %}
-                            <option value="{{ customer.pk }}" {% if request.GET.customer==customer.pk|stringformat:"s"
-                                %}selected{% endif %}>{{ customer.full_name|default:customer.name }}</option>
+                            <option value="{{ customer.pk }}" {% if request.GET.customer == customer.pk|stringformat:"s" %}selected{% endif %}>{{ customer.full_name|default:customer.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -211,11 +208,10 @@
                         <label for="filterDriver">Driver</label>
                         <select id="filterDriver" name="driver">
                             <option value="">All drivers</option>
-                            <option value="unassigned" {% if request.GET.driver=="unassigned" %}selected{% endif %}>
+                            <option value="unassigned" {% if request.GET.driver == "unassigned" %}selected{% endif %}>
                                 Unassigned</option>
                             {% for driver in drivers_filter %}
-                            <option value="{{ driver.pk }}" {% if request.GET.driver==driver.pk|stringformat:"s"
-                                %}selected{% endif %}>{{ driver.full_name|default:driver.name }}</option>
+                            <option value="{{ driver.pk }}" {% if request.GET.driver == driver.pk|stringformat:"s" %}selected{% endif %}>{{ driver.full_name|default:driver.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -225,10 +221,9 @@
                         <select id="filterStatus" name="status">
                             <option value="">All statuses</option>
                             {% for value, label in status_choices %}
-                            <option value="{{ value }}" {% if request.GET.status==value %}selected{% endif %}>{{ label
-                                }}</option>
+                            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
                             {% endfor %}
-                            <option value="delayed" {% if request.GET.status=="delayed" %}selected{% endif %}>Delayed
+                            <option value="delayed" {% if request.GET.status == "delayed" %}selected{% endif %}>Delayed
                             </option>
                         </select>
                     </div>
@@ -261,8 +256,7 @@
                         <h2 id="shipmentsTableTitle" class="panel__title">All Shipments</h2>
                         <p>
                             {% if page_obj %}
-                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count
-                            }}
+                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
                             {% else %}
                             {{ total_shipments|default:"0" }} shipments in the system
                             {% endif %}
@@ -343,18 +337,15 @@
                                     {% endif %}
 
                                     <td>
-                                        <a class="tracking-link" href="{{ u_detail|default:'#' }}">{{
-                                            shipment.tracking_number|default:"—" }}</a>
+                                        <a class="tracking-link" href="{{ u_detail|default:'#' }}">{{ shipment.tracking_number|default:"—" }}</a>
                                     </td>
                                     <td>{{ shipment.customer|default:"—" }}</td>
 
                                     <td class="cell-truncate">
-                                        <span class="truncate" title="{{ shipment.pickup_address }}">{{
-                                            shipment.pickup_address|default:"—"|truncatechars:36 }}</span>
+                                        <span class="truncate" title="{{ shipment.pickup_address }}">{{ shipment.pickup_address|default:"—"|truncatechars:36 }}</span>
                                     </td>
                                     <td class="cell-truncate">
-                                        <span class="truncate" title="{{ shipment.delivery_address }}">{{
-                                            shipment.delivery_address|default:"—"|truncatechars:36 }}</span>
+                                        <span class="truncate" title="{{ shipment.delivery_address }}">{{ shipment.delivery_address|default:"—"|truncatechars:36 }}</span>
                                     </td>
 
                                     <td>
@@ -364,9 +355,7 @@
                                             <span class="presence-label">
                                                 <i
                                                     class="presence presence--{{ shipment.driver_availability|default:'offline' }}"></i>
-                                                {{
-                                                shipment.driver_availability_display|default:shipment.driver_availability|default:"Offline"
-                                                }}
+                                                {{ shipment.driver_availability_display|default:shipment.driver_availability|default:"Offline" }}
                                             </span>
                                         </div>
                                         {% else %}
@@ -377,8 +366,7 @@
                                     <td>
                                         <div class="status-cell">
                                             <span
-                                                class="badge badge--status badge--{{ shipment.status|default:'pending' }}">{{
-                                                shipment.get_status_display|default:shipment.status }}</span>
+                                                class="badge badge--status badge--{{ shipment.status|default:'pending' }}">{{ shipment.get_status_display|default:shipment.status }}</span>
                                             {% if shipment.is_delayed %}
                                             <span class="badge badge--delayed"
                                                 title="Delayed{% if shipment.delay_duration %}: {{ shipment.delay_duration }}{% endif %}">
@@ -390,10 +378,8 @@
                                         </div>
                                     </td>
 
-                                    <td>{{ shipment.delivery_fee|floatformat:2|default:"—" }}{% if currency %} {{
-                                        currency }}{% endif %}</td>
-                                    <td><time datetime="{{ shipment.created_at|date:'c' }}">{{
-                                            shipment.created_at|date:"d M Y, H:i" }}</time></td>
+                                    <td>{{ shipment.delivery_fee|floatformat:2|default:"—" }}{% if currency %} {{ currency }}{% endif %}</td>
+                                    <td><time datetime="{{ shipment.created_at|date:'c' }}">{{ shipment.created_at|date:"d M Y, H:i" }}</time></td>
 
                                     <td>
                                         <div class="row-actions">
@@ -483,7 +469,6 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
 {% block extra_js %}

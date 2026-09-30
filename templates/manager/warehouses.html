@@ -168,7 +168,7 @@
                         <select id="filterCity" name="city">
                             <option value="">All cities</option>
                             {% for city in cities %}
-                            <option value="{{ city }}" {% if request.GET.city==city %}selected{% endif %}>{{ city }}
+                            <option value="{{ city }}" {% if request.GET.city == city %}selected{% endif %}>{{ city }}
                             </option>
                             {% endfor %}
                         </select>
@@ -178,9 +178,9 @@
                         <label for="filterStatus">Status</label>
                         <select id="filterStatus" name="status">
                             <option value="">All statuses</option>
-                            <option value="active" {% if request.GET.status=="active" %}selected{% endif %}>Active
+                            <option value="active" {% if request.GET.status == "active" %}selected{% endif %}>Active
                             </option>
-                            <option value="inactive" {% if request.GET.status=="inactive" %}selected{% endif %}>Inactive
+                            <option value="inactive" {% if request.GET.status == "inactive" %}selected{% endif %}>Inactive
                             </option>
                         </select>
                     </div>
@@ -203,8 +203,7 @@
                         <h2 id="warehousesTableTitle" class="panel__title">All Warehouses</h2>
                         <p>
                             {% if page_obj %}
-                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count
-                            }}
+                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
                             {% else %}
                             {{ total_warehouses|default:"0" }} warehouses in the network
                             {% endif %}
@@ -269,8 +268,7 @@
                                     <span class="badge badge--status badge--inactive"><i class="dot"></i>Inactive</span>
                                     {% endif %}
                                 </td>
-                                <td><time datetime="{{ warehouse.created_at|date:'c' }}">{{ warehouse.created_at|date:"d
-                                        M Y" }}</time></td>
+                                <td><time datetime="{{ warehouse.created_at|date:'c' }}">{{ warehouse.created_at|date:"d M Y" }}</time></td>
                                 <td>
                                     <div class="row-actions">
                                         <a class="btn btn--xs btn--ghost" href="{{ u_detail|default:'#' }}">
@@ -438,7 +436,6 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
 {% block extra_js %}

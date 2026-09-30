@@ -85,17 +85,17 @@ Audit Logs
                 <label for="filter-action">Action</label>
                 <select id="filter-action" name="action" class="input">
                     <option value="">All</option>
-                    <option value="CREATE" {% if request.GET.action=="CREATE" %}selected{% endif %}>Create</option>
-                    <option value="UPDATE" {% if request.GET.action=="UPDATE" %}selected{% endif %}>Update</option>
-                    <option value="DELETE" {% if request.GET.action=="DELETE" %}selected{% endif %}>Delete</option>
-                    <option value="ASSIGN" {% if request.GET.action=="ASSIGN" %}selected{% endif %}>Assign</option>
-                    <option value="REASSIGN" {% if request.GET.action=="REASSIGN" %}selected{% endif %}>Reassign
+                    <option value="CREATE" {% if request.GET.action == "CREATE" %}selected{% endif %}>Create</option>
+                    <option value="UPDATE" {% if request.GET.action == "UPDATE" %}selected{% endif %}>Update</option>
+                    <option value="DELETE" {% if request.GET.action == "DELETE" %}selected{% endif %}>Delete</option>
+                    <option value="ASSIGN" {% if request.GET.action == "ASSIGN" %}selected{% endif %}>Assign</option>
+                    <option value="REASSIGN" {% if request.GET.action == "REASSIGN" %}selected{% endif %}>Reassign
                     </option>
-                    <option value="STATUS_CHANGE" {% if request.GET.action=="STATUS_CHANGE" %}selected{% endif %}>Status
+                    <option value="STATUS_CHANGE" {% if request.GET.action == "STATUS_CHANGE" %}selected{% endif %}>Status
                         Change</option>
-                    <option value="LOGIN" {% if request.GET.action=="LOGIN" %}selected{% endif %}>Login</option>
-                    <option value="LOGOUT" {% if request.GET.action=="LOGOUT" %}selected{% endif %}>Logout</option>
-                    <option value="AI_ACTION" {% if request.GET.action=="AI_ACTION" %}selected{% endif %}>AI Action
+                    <option value="LOGIN" {% if request.GET.action == "LOGIN" %}selected{% endif %}>Login</option>
+                    <option value="LOGOUT" {% if request.GET.action == "LOGOUT" %}selected{% endif %}>Logout</option>
+                    <option value="AI_ACTION" {% if request.GET.action == "AI_ACTION" %}selected{% endif %}>AI Action
                     </option>
                 </select>
             </div>
@@ -110,8 +110,8 @@ Audit Logs
                 <label for="filter-result">Result</label>
                 <select id="filter-result" name="result" class="input">
                     <option value="">All</option>
-                    <option value="SUCCESS" {% if request.GET.result=="SUCCESS" %}selected{% endif %}>Success</option>
-                    <option value="FAILED" {% if request.GET.result=="FAILED" %}selected{% endif %}>Failed</option>
+                    <option value="SUCCESS" {% if request.GET.result == "SUCCESS" %}selected{% endif %}>Success</option>
+                    <option value="FAILED" {% if request.GET.result == "FAILED" %}selected{% endif %}>Failed</option>
                 </select>
             </div>
 
@@ -170,8 +170,7 @@ Audit Logs
                             <td class="cell-user">
                                 <div class="cell-user-wrap">
                                     <span class="avatar avatar-sm">
-                                        {{ log.user.get_full_name|default:log.user.username|default:"?"|slice:":1"|upper
-                                        }}
+                                        {{ log.user.get_full_name|default:log.user.username|default:"?"|slice:":1"|upper }}
                                     </span>
                                     <div class="cell-user-info">
                                         <span class="cell-user-name">
@@ -280,7 +279,6 @@ Audit Logs
 </div>
 
 {# ============================= PAGE-SPECIFIC STYLES ============================= #}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 
 {# ============================= PAGE-SPECIFIC SCRIPT ============================= #}
 <script src="{% static 'js/dashboard.js' %}" defer></script>

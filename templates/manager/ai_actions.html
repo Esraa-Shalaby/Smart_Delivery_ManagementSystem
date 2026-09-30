@@ -86,22 +86,16 @@ AI Actions
                 <label for="filter-tool">Action / Tool</label>
                 <select id="filter-tool" name="tool" class="input">
                     <option value="">All</option>
-                    <option value="get_delivery_status" {% if request.GET.tool=="get_delivery_status" %}selected{% endif
-                        %}>get_delivery_status</option>
-                    <option value="get_delayed_deliveries" {% if request.GET.tool=="get_delayed_deliveries" %}selected{%
-                        endif %}>get_delayed_deliveries</option>
-                    <option value="get_available_drivers" {% if request.GET.tool=="get_available_drivers" %}selected{%
-                        endif %}>get_available_drivers</option>
-                    <option value="get_driver_details" {% if request.GET.tool=="get_driver_details" %}selected{% endif
-                        %}>get_driver_details</option>
-                    <option value="assign_driver" {% if request.GET.tool=="assign_driver" %}selected{% endif %}>
+                    <option value="get_delivery_status" {% if request.GET.tool == "get_delivery_status" %}selected{% endif %}>get_delivery_status</option>
+                    <option value="get_delayed_deliveries" {% if request.GET.tool == "get_delayed_deliveries" %}selected{% endif %}>get_delayed_deliveries</option>
+                    <option value="get_available_drivers" {% if request.GET.tool == "get_available_drivers" %}selected{% endif %}>get_available_drivers</option>
+                    <option value="get_driver_details" {% if request.GET.tool == "get_driver_details" %}selected{% endif %}>get_driver_details</option>
+                    <option value="assign_driver" {% if request.GET.tool == "assign_driver" %}selected{% endif %}>
                         assign_driver</option>
-                    <option value="reassign_driver" {% if request.GET.tool=="reassign_driver" %}selected{% endif %}>
+                    <option value="reassign_driver" {% if request.GET.tool == "reassign_driver" %}selected{% endif %}>
                         reassign_driver</option>
-                    <option value="update_shipment_status" {% if request.GET.tool=="update_shipment_status" %}selected{%
-                        endif %}>update_shipment_status</option>
-                    <option value="get_customer_shipments" {% if request.GET.tool=="get_customer_shipments" %}selected{%
-                        endif %}>get_customer_shipments</option>
+                    <option value="update_shipment_status" {% if request.GET.tool == "update_shipment_status" %}selected{% endif %}>update_shipment_status</option>
+                    <option value="get_customer_shipments" {% if request.GET.tool == "get_customer_shipments" %}selected{% endif %}>get_customer_shipments</option>
                 </select>
             </div>
 
@@ -115,8 +109,8 @@ AI Actions
                 <label for="filter-result">Result</label>
                 <select id="filter-result" name="result" class="input">
                     <option value="">All</option>
-                    <option value="SUCCESS" {% if request.GET.result=="SUCCESS" %}selected{% endif %}>Success</option>
-                    <option value="FAILED" {% if request.GET.result=="FAILED" %}selected{% endif %}>Failed</option>
+                    <option value="SUCCESS" {% if request.GET.result == "SUCCESS" %}selected{% endif %}>Success</option>
+                    <option value="FAILED" {% if request.GET.result == "FAILED" %}selected{% endif %}>Failed</option>
                 </select>
             </div>
 
@@ -175,14 +169,11 @@ AI Actions
                             <td class="cell-user">
                                 <div class="cell-user-wrap">
                                     <span class="avatar avatar-sm">
-                                        {{
-                                        action.user.get_full_name|default:action.user.username|default:"?"|slice:":1"|upper
-                                        }}
+                                        {{ action.user.get_full_name|default:action.user.username|default:"?"|slice:":1"|upper }}
                                     </span>
                                     <div class="cell-user-info">
                                         <span class="cell-user-name">
-                                            {{ action.user.get_full_name|default:action.user.username|default:"System"
-                                            }}
+                                            {{ action.user.get_full_name|default:action.user.username|default:"System" }}
                                         </span>
                                         <span class="cell-user-role">
                                             {{ action.user.role|default:"Manager" }}
@@ -278,7 +269,6 @@ AI Actions
 </div>
 
 {# ============================= PAGE-SPECIFIC STYLES ============================= #}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 
 {# ============================= PAGE-SPECIFIC SCRIPT ============================= #}
 <script src="{% static 'js/dashboard.js' %}" defer></script>

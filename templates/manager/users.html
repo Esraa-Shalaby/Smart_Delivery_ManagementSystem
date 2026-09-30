@@ -168,11 +168,11 @@
                         <label for="filterRole">Role</label>
                         <select id="filterRole" name="role">
                             <option value="">All roles</option>
-                            <option value="customer" {% if request.GET.role=="customer" %}selected{% endif %}>Customer
+                            <option value="customer" {% if request.GET.role == "customer" %}selected{% endif %}>Customer
                             </option>
-                            <option value="driver" {% if request.GET.role=="driver" %}selected{% endif %}>Driver
+                            <option value="driver" {% if request.GET.role == "driver" %}selected{% endif %}>Driver
                             </option>
-                            <option value="manager" {% if request.GET.role=="manager" %}selected{% endif %}>Manager
+                            <option value="manager" {% if request.GET.role == "manager" %}selected{% endif %}>Manager
                             </option>
                         </select>
                     </div>
@@ -181,9 +181,9 @@
                         <label for="filterStatus">Status</label>
                         <select id="filterStatus" name="status">
                             <option value="">All statuses</option>
-                            <option value="active" {% if request.GET.status=="active" %}selected{% endif %}>Active
+                            <option value="active" {% if request.GET.status == "active" %}selected{% endif %}>Active
                             </option>
-                            <option value="inactive" {% if request.GET.status=="inactive" %}selected{% endif %}>Inactive
+                            <option value="inactive" {% if request.GET.status == "inactive" %}selected{% endif %}>Inactive
                             </option>
                         </select>
                     </div>
@@ -216,8 +216,7 @@
                         <h2 id="usersTableTitle" class="panel__title">All Users</h2>
                         <p>
                             {% if page_obj %}
-                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count
-                            }}
+                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
                             {% else %}
                             {{ total_users|default:"0" }} users in the system
                             {% endif %}
@@ -253,8 +252,7 @@
                                             {{ user.get_full_name|default:user.username|default:"U"|slice:":1"|upper }}
                                         </span>
                                         <div class="user-cell__meta">
-                                            <strong>{{ user.get_full_name|default:user.username|default:"Unnamed user"
-                                                }}</strong>
+                                            <strong>{{ user.get_full_name|default:user.username|default:"Unnamed user" }}</strong>
                                             <small>{{ user.email|default:"—" }}</small>
                                         </div>
                                     </div>
@@ -273,8 +271,7 @@
                                     <span class="badge badge--status badge--inactive"><i class="dot"></i>Inactive</span>
                                     {% endif %}
                                 </td>
-                                <td><time datetime="{{ user.date_joined|date:'c' }}">{{ user.date_joined|date:"d M Y"
-                                        }}</time></td>
+                                <td><time datetime="{{ user.date_joined|date:'c' }}">{{ user.date_joined|date:"d M Y" }}</time></td>
                                 <td>
                                     {% if user.last_login %}
                                     <time datetime="{{ user.last_login|date:'c' }}">{{ user.last_login|timesince }}
@@ -309,7 +306,7 @@
                                                     {% csrf_token %}
                                                     <button type="submit"
                                                         class="action-menu__item action-menu__item--danger"
-                                                        role="menuitem" {% if user.pk==request.user.pk %}disabled
+                                                        role="menuitem" {% if user.pk == request.user.pk %}disabled
                                                         title="You cannot deactivate your own account" {% endif %}
                                                         data-confirm="Deactivate this user?">
                                                         <svg class="icon icon--sm">
@@ -374,7 +371,6 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
 {% block extra_js %}

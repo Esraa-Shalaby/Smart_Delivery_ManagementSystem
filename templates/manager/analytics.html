@@ -57,20 +57,20 @@ Analytics
                 <label for="filter-status">Shipment Status</label>
                 <select id="filter-status" name="status" class="input">
                     <option value="">All</option>
-                    <option value="CREATED" {% if request.GET.status=="CREATED" %}selected{% endif %}>Created</option>
-                    <option value="ASSIGNED" {% if request.GET.status=="ASSIGNED" %}selected{% endif %}>Assigned
+                    <option value="CREATED" {% if request.GET.status == "CREATED" %}selected{% endif %}>Created</option>
+                    <option value="ASSIGNED" {% if request.GET.status == "ASSIGNED" %}selected{% endif %}>Assigned
                     </option>
-                    <option value="PICKED_UP" {% if request.GET.status=="PICKED_UP" %}selected{% endif %}>Picked Up
+                    <option value="PICKED_UP" {% if request.GET.status == "PICKED_UP" %}selected{% endif %}>Picked Up
                     </option>
-                    <option value="IN_TRANSIT" {% if request.GET.status=="IN_TRANSIT" %}selected{% endif %}>In Transit
+                    <option value="IN_TRANSIT" {% if request.GET.status == "IN_TRANSIT" %}selected{% endif %}>In Transit
                     </option>
-                    <option value="OUT_FOR_DELIVERY" {% if request.GET.status=="OUT_FOR_DELIVERY" %}selected{% endif %}>
+                    <option value="OUT_FOR_DELIVERY" {% if request.GET.status == "OUT_FOR_DELIVERY" %}selected{% endif %}>
                         Out for Delivery</option>
-                    <option value="DELIVERED" {% if request.GET.status=="DELIVERED" %}selected{% endif %}>Delivered
+                    <option value="DELIVERED" {% if request.GET.status == "DELIVERED" %}selected{% endif %}>Delivered
                     </option>
-                    <option value="CANCELLED" {% if request.GET.status=="CANCELLED" %}selected{% endif %}>Cancelled
+                    <option value="CANCELLED" {% if request.GET.status == "CANCELLED" %}selected{% endif %}>Cancelled
                     </option>
-                    <option value="FAILED" {% if request.GET.status=="FAILED" %}selected{% endif %}>Failed</option>
+                    <option value="FAILED" {% if request.GET.status == "FAILED" %}selected{% endif %}>Failed</option>
                 </select>
             </div>
 
@@ -79,8 +79,7 @@ Analytics
                 <select id="filter-driver" name="driver" class="input">
                     <option value="">All Drivers</option>
                     {% for driver in drivers %}
-                    <option value="{{ driver.id }}" {% if request.GET.driver==driver.id|stringformat:"s" %}selected{%
-                        endif %}>
+                    <option value="{{ driver.id }}" {% if request.GET.driver == driver.id|stringformat:"s" %}selected{% endif %}>
                         {{ driver.get_full_name|default:driver.username|default:"Driver" }}
                     </option>
                     {% endfor %}
@@ -92,8 +91,7 @@ Analytics
                 <select id="filter-warehouse" name="warehouse" class="input">
                     <option value="">All Warehouses</option>
                     {% for warehouse in warehouses %}
-                    <option value="{{ warehouse.id }}" {% if request.GET.warehouse==warehouse.id|stringformat:"s"
-                        %}selected{% endif %}>
+                    <option value="{{ warehouse.id }}" {% if request.GET.warehouse == warehouse.id|stringformat:"s" %}selected{% endif %}>
                         {{ warehouse.name|default:"Warehouse" }}
                     </option>
                     {% endfor %}
@@ -511,8 +509,7 @@ Analytics
                                                     style="--progress-width: {{ driver.completion_rate|default:0 }}%;">
                                                 </div>
                                             </div>
-                                            <span class="inline-progress-value">{{ driver.completion_rate|default:"0"
-                                                }}%</span>
+                                            <span class="inline-progress-value">{{ driver.completion_rate|default:"0" }}%</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -558,7 +555,6 @@ Analytics
 </div>
 
 {# ============================= PAGE-SPECIFIC STYLES ============================= #}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 
 {# ============================= PAGE-SPECIFIC SCRIPT ============================= #}
 <script src="{% static 'js/dashboard.js' %}" defer></script>

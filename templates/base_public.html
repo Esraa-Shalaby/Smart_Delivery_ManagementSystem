@@ -22,43 +22,32 @@
     {# 1) Design tokens + reset + base typography #}
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
-     
+    {# 2) Shared components: sidebar, topbar, alerts, chatbot, pagination #}
     <link rel="stylesheet" href="{% static 'css/components.css' %}">
 
-     
+    {# 3) Dashboard pages: cards, tables, forms, badges #}
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 
-    {# 4) Manager pages (loaded last so it wins the cascade) #}
-    {% if user.is_authenticated and user.role|lower == "manager" %}
-    <link rel="stylesheet" href="{% static 'css/manager.css' %}?v=2">
-    {% endif %}
-
-     
+    {# 4) Page-specific CSS (يُحدَّد داخل الصفحة عبر {% block extra_css %}) #}
     {% block extra_css %}{% endblock %}
 </head>
 
-<body class="{% block body_class %}{% endblock %}" data-user-role="{{ user.role|default:''|lower }}">
+<body  class="public-page {% block body_class %}{% endblock %}" data-user-role="">
 
     {# ============================= SHARED ALERTS ============================= #}
-     
-    {% include "components/alerts.html" %}
-
+    {# Floating alerts — يظهر عند وجود رسائل Django #}
+ 
     {# ============================= APP SHELL ============================= #}
     {# الحاوية الرئيسية: sidebar + main #}
     <div class="app-shell">
 
         {# ---------- SIDEBAR (role-aware) ---------- #}
-        {% if user.is_authenticated %}
-        {% include "components/sidebar.html" %}
-        {% endif %}
 
+        {# PUBLIC LAYOUT: no sidebar / topbar / chatbot. Used by landing + auth pages. #}
         {# ---------- MAIN AREA ---------- #}
-        <div class="app-main{% if not user.is_authenticated %} app-main-full{% endif %}">
+        <div class="app-main app-main-full">
 
             {# ---------- TOPBAR (role-aware) ---------- #}
-            {% if user.is_authenticated %}
-            {% include "components/navbar.html" %}
-            {% endif %}
 
             {# ---------- PAGE CONTENT ---------- #}
             <main class="app-content" id="app-content" role="main">
@@ -72,14 +61,8 @@
     </div>
 
     {# ============================= CHATBOT FAB ============================= #}
-    {% if user.is_authenticated %}
-    {% include "components/chatbot.html" %}
-    {% endif %}
 
     {# ============================= MOBILE SIDEBAR OVERLAY ============================= #}
-    {% if user.is_authenticated %}
-    <div class="app-sidebar-overlay" data-sidebar-overlay hidden aria-hidden="true"></div>
-    {% endif %}
 
     {# ============================= GLOBAL CONFIG FOR JS ============================= #}
     <script>
@@ -92,25 +75,12 @@
     <script src="{% static 'js/main.js' %}" defer></script>
 
      
-    {% if user.is_authenticated %}
-    <script src="{% static 'js/sidebar.js' %}" defer></script>
-    {% endif %}
 
      
-    {% if user.is_authenticated %}
-    <script src="{% static 'js/dashboard.js' %}" defer></script>
-    {% endif %}
 
      
-    {% if user.is_authenticated %}
-    <script src="{% static 'js/chatbot.js' %}" defer></script>
-    {% endif %}
 
      
-    {% if user.is_authenticated and user.role|lower == "manager" %}
-    <script src="{% static 'js/manager.js' %}?v=2" defer></script>
-    {% endif %}
-
     {% block extra_js %}{% endblock %}
 
 </body>

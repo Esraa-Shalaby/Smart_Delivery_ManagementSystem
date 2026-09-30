@@ -78,8 +78,7 @@
 <div class="manager-layout" id="managerLayout">
 
     {# Shared navbar/sidebar component (Drivers stays highlighted) #}
-    {% include "components/navbar.html" with active_page="drivers" %}
-
+ 
     <div class="manager-main">
         {% include "components/alerts.html" %}
 
@@ -155,8 +154,7 @@
                             {{ driver.full_name|default:driver.name|default:"D"|slice:":1"|upper }}
                         </span>
                         <div>
-                            <h2 id="profileTitle" class="panel__title">{{
-                                driver.full_name|default:driver.name|default:"Unknown Driver" }}</h2>
+                            <h2 id="profileTitle" class="panel__title">{{ driver.full_name|default:driver.name|default:"Unknown Driver" }}</h2>
                             <p class="text-muted">Driver</p>
                         </div>
                     </div>
@@ -204,8 +202,7 @@
                     <div class="vehicle-card__hero">
                         <strong>{{ driver.vehicle_type|default:"Vehicle type unknown" }}</strong>
                         <span>{{ driver.vehicle_model|default:"—" }}</span>
-                        {% if driver.plate_number %}<span class="plate plate--lg">{{ driver.plate_number }}</span>{%
-                        endif %}
+                        {% if driver.plate_number %}<span class="plate plate--lg">{{ driver.plate_number }}</span>{% endif %}
                     </div>
                     <dl class="detail-list detail-list--compact">
                         <div>
@@ -231,8 +228,7 @@
                     <div
                         class="availability-card__state availability-card__state--{{ driver.availability|default:'offline' }}">
                         <i class="presence presence--{{ driver.availability|default:'offline' }} presence--lg"></i>
-                        <strong>{{ driver.get_availability_display|default:driver.availability|default:"Offline"
-                            }}</strong>
+                        <strong>{{ driver.get_availability_display|default:driver.availability|default:"Offline" }}</strong>
                     </div>
                     <dl class="detail-list detail-list--compact">
                         <div>
@@ -349,10 +345,8 @@
                                 <td>{{ assignment.customer|default:"—" }}</td>
                                 <td>{{ assignment.destination|default:"—" }}</td>
                                 <td><span
-                                        class="badge badge--status badge--{{ assignment.status|default:'pending' }}">{{
-                                        assignment.get_status_display|default:assignment.status }}</span></td>
-                                <td><time datetime="{{ assignment.assigned_at|date:'c' }}">{{
-                                        assignment.assigned_at|date:"d M Y, H:i" }}</time></td>
+                                        class="badge badge--status badge--{{ assignment.status|default:'pending' }}">{{ assignment.get_status_display|default:assignment.status }}</span></td>
+                                <td><time datetime="{{ assignment.assigned_at|date:'c' }}">{{ assignment.assigned_at|date:"d M Y, H:i" }}</time></td>
                                 <td>
                                     <div class="row-actions">
                                         <a class="btn btn--xs btn--ghost"
@@ -405,15 +399,13 @@
                             <dt>Last updated</dt>
                             <dd>
                                 {% if driver.location_updated_at %}
-                                <time datetime="{{ driver.location_updated_at|date:'c' }}">{{
-                                    driver.location_updated_at|timesince }} ago</time>
+                                <time datetime="{{ driver.location_updated_at|date:'c' }}">{{ driver.location_updated_at|timesince }} ago</time>
                                 {% else %}—{% endif %}
                             </dd>
                         </div>
                         <div>
                             <dt>Location status</dt>
-                            <dd><span class="location location--on">{{ driver.location_status|default:"Location
-                                    available" }}</span></dd>
+                            <dd><span class="location location--on">{{ driver.location_status|default:"Location available" }}</span></dd>
                         </div>
                     </dl>
                     {% else %}
@@ -480,10 +472,8 @@
                                 <td><strong>{{ delivery.tracking_number|default:"—" }}</strong></td>
                                 <td>{{ delivery.destination|default:"—" }}</td>
                                 <td><span
-                                        class="badge badge--status badge--{{ delivery.status|default:'delivered' }}">{{
-                                        delivery.get_status_display|default:delivery.status }}</span></td>
-                                <td><time datetime="{{ delivery.completed_at|date:'c' }}">{{
-                                        delivery.completed_at|date:"d M Y, H:i" }}</time></td>
+                                        class="badge badge--status badge--{{ delivery.status|default:'delivered' }}">{{ delivery.get_status_display|default:delivery.status }}</span></td>
+                                <td><time datetime="{{ delivery.completed_at|date:'c' }}">{{ delivery.completed_at|date:"d M Y, H:i" }}</time></td>
                                 <td>{{ delivery.delivery_time|default:"—" }}</td>
                             </tr>
                             {% empty %}
@@ -521,13 +511,11 @@
                             <select id="assignShipment" name="shipment">
                                 <option value="">Select a shipment</option>
                                 {% for shipment in unassigned_shipments %}
-                                <option value="{{ shipment.pk }}">{{ shipment.tracking_number }}{% if
-                                    shipment.destination %} — {{ shipment.destination }}{% endif %}</option>
+                                <option value="{{ shipment.pk }}">{{ shipment.tracking_number }}{% if shipment.destination %} — {{ shipment.destination }}{% endif %}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <button type="submit" class="btn btn--primary" {% if not unassigned_shipments %}disabled{% endif
-                            %}>
+                        <button type="submit" class="btn btn--primary" {% if not unassigned_shipments %}disabled{% endif %}>
                             <svg class="icon icon--sm">
                                 <use href="#i-link" />
                             </svg> Assign Shipment
@@ -551,11 +539,11 @@
                         <div class="field">
                             <label for="availabilitySelect">Availability</label>
                             <select id="availabilitySelect" name="availability">
-                                <option value="available" {% if driver.availability=="available" %}selected{% endif %}>
+                                <option value="available" {% if driver.availability == "available" %}selected{% endif %}>
                                     Available</option>
-                                <option value="busy" {% if driver.availability=="busy" %}selected{% endif %}>Busy
+                                <option value="busy" {% if driver.availability == "busy" %}selected{% endif %}>Busy
                                 </option>
-                                <option value="offline" {% if driver.availability=="offline" %}selected{% endif %}>
+                                <option value="offline" {% if driver.availability == "offline" %}selected{% endif %}>
                                     Offline</option>
                             </select>
                         </div>
@@ -574,8 +562,7 @@
 
                     <div class="action-card action-card--danger">
                         <h3>Account Status</h3>
-                        <p>{% if driver.is_active %}Deactivating prevents this driver from receiving new work.{% else
-                            %}Activate the account to allow new assignments.{% endif %}</p>
+                        <p>{% if driver.is_active %}Deactivating prevents this driver from receiving new work.{% else %}Activate the account to allow new assignments.{% endif %}</p>
                         {% if driver.is_active %}
                         <form method="post" action="{{ u_deactivate|default:'#' }}">
                             {% csrf_token %}
@@ -608,7 +595,6 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
 {% block extra_js %}

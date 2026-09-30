@@ -1,12 +1,6 @@
 {% load static %}
 
-{# ============================================================
-Shared Pagination Component
-Usage:
-{% include "components/pagination.html" with page_obj=page_obj %}
-Preserves existing query parameters (filters, search, etc.)
-by reading request.GET and only replacing `page`.
-============================================================ #}
+ 
 
 {% if page_obj and page_obj.paginator.num_pages > 1 %}
 
@@ -55,7 +49,7 @@ by reading request.GET and only replacing `page`.
 
         {# Windowed page numbers: current ±2 #}
         {% for num in page_obj.paginator.page_range %}
-        {% if num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %} {% if num==page_obj.number %} <li>
+        {% if num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %} {% if num == page_obj.number %} <li>
             <span class="app-pagination-page is-active" aria-current="page" aria-label="Current page, page {{ num }}">
                 {{ num }}
             </span>

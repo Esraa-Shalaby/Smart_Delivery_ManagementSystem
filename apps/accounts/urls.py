@@ -10,7 +10,7 @@ from apps.accounts.views import (
     UserRegistrationView,
 )
 
-app_name = "accounts"
+app_name = "accounts_api"
 
 urlpatterns = [
     path("register/", UserRegistrationView.as_view(), name="register"),

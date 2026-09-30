@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_public.html" %}
 {% load static %}
 
 {% block title %}
@@ -28,8 +28,8 @@ Forgot Password — Smart Delivery &amp; Logistics
                         <span class="auth-brand-dot"></span>
                     </span>
                     <span class="auth-brand-text">
-                        <span class="auth-brand-title">Smart Delivery</span>
-                        <span class="auth-brand-sub">&amp; Logistics</span>
+                        <span class="auth-brand-title">Delivera</span>
+                         
                     </span>
                 </a>
             </header>
@@ -45,9 +45,7 @@ Forgot Password — Smart Delivery &amp; Logistics
             </div>
 
             {# ---------- SHARED ALERTS ---------- #}
-            {% if messages %}
-            {% include "components/alerts.html" %}
-            {% endif %}
+             
 
             {# ---------- NON-FIELD ERRORS ---------- #}
             {% if form.non_field_errors %}
@@ -83,8 +81,7 @@ Forgot Password — Smart Delivery &amp; Logistics
                         <input type="email" name="{{ form.email.html_name|default:'email' }}"
                             id="{{ form.email.id_for_label|default:'id_email' }}" class="auth-input"
                             value="{{ form.email.value|default:'' }}" placeholder="you@example.com" autocomplete="email"
-                            autocapitalize="off" spellcheck="false" required {% if form.email.errors
-                            %}aria-invalid="true" aria-describedby="email-errors" {% endif %}>
+                            autocapitalize="off" spellcheck="false" required {% if form.email.errors %}aria-invalid="true" aria-describedby="email-errors" {% endif %}>
                     </div>
 
                     {% if form.email.errors %}

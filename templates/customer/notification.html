@@ -94,8 +94,8 @@ Notifications — Smart Delivery &amp; Logistics
                 <label for="filter-state" class="filter-label">State</label>
                 <select id="filter-state" name="state" class="filter-input filter-select">
                     <option value="">All</option>
-                    <option value="unread" {% if request.GET.state=="unread" %}selected{% endif %}>Unread</option>
-                    <option value="read" {% if request.GET.state=="read" %}selected{% endif %}>Read</option>
+                    <option value="unread" {% if request.GET.state == "unread" %}selected{% endif %}>Unread</option>
+                    <option value="read" {% if request.GET.state == "read" %}selected{% endif %}>Read</option>
                 </select>
             </div>
 
@@ -103,11 +103,11 @@ Notifications — Smart Delivery &amp; Logistics
                 <label for="filter-type" class="filter-label">Type</label>
                 <select id="filter-type" name="type" class="filter-input filter-select">
                     <option value="">All types</option>
-                    <option value="SHIPMENT" {% if request.GET.type=="SHIPMENT" %}selected{% endif %}>Shipment</option>
-                    <option value="PAYMENT" {% if request.GET.type=="PAYMENT" %}selected{% endif %}>Payment</option>
-                    <option value="COMPLAINT" {% if request.GET.type=="COMPLAINT" %}selected{% endif %}>Complaint
+                    <option value="SHIPMENT" {% if request.GET.type == "SHIPMENT" %}selected{% endif %}>Shipment</option>
+                    <option value="PAYMENT" {% if request.GET.type == "PAYMENT" %}selected{% endif %}>Payment</option>
+                    <option value="COMPLAINT" {% if request.GET.type == "COMPLAINT" %}selected{% endif %}>Complaint
                     </option>
-                    <option value="SYSTEM" {% if request.GET.type=="SYSTEM" %}selected{% endif %}>System</option>
+                    <option value="SYSTEM" {% if request.GET.type == "SYSTEM" %}selected{% endif %}>System</option>
                 </select>
             </div>
 
@@ -261,24 +261,21 @@ Notifications — Smart Delivery &amp; Logistics
                 </svg>
             </div>
             <h3 class="dash-empty-title">
-                {% if request.GET.q or request.GET.state or request.GET.type or request.GET.date_from or
-                request.GET.date_to %}
+                {% if request.GET.q or request.GET.state or request.GET.type or request.GET.date_from or request.GET.date_to %}
                 No notifications found
                 {% else %}
                 No notifications yet
                 {% endif %}
             </h3>
             <p class="dash-empty-text">
-                {% if request.GET.q or request.GET.state or request.GET.type or request.GET.date_from or
-                request.GET.date_to %}
+                {% if request.GET.q or request.GET.state or request.GET.type or request.GET.date_from or request.GET.date_to %}
                 No notifications match your current filters. Try adjusting or resetting them.
                 {% else %}
                 You'll see updates about your shipments, payments, and account here.
                 {% endif %}
             </p>
 
-            {% if request.GET.q or request.GET.state or request.GET.type or request.GET.date_from or request.GET.date_to
-            %}
+            {% if request.GET.q or request.GET.state or request.GET.type or request.GET.date_from or request.GET.date_to %}
             <a href="{% url 'notifications:list' %}" class="btn btn-secondary">
                 Reset Filters
             </a>

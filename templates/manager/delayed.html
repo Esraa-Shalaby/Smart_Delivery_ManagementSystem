@@ -163,11 +163,10 @@
                         <label for="filterDriver">Driver</label>
                         <select id="filterDriver" name="driver">
                             <option value="">All drivers</option>
-                            <option value="unassigned" {% if request.GET.driver=="unassigned" %}selected{% endif %}>
+                            <option value="unassigned" {% if request.GET.driver == "unassigned" %}selected{% endif %}>
                                 Unassigned</option>
                             {% for driver in drivers_filter %}
-                            <option value="{{ driver.pk }}" {% if request.GET.driver==driver.pk|stringformat:"s"
-                                %}selected{% endif %}>{{ driver.full_name|default:driver.name }}</option>
+                            <option value="{{ driver.pk }}" {% if request.GET.driver == driver.pk|stringformat:"s" %}selected{% endif %}>{{ driver.full_name|default:driver.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -176,11 +175,11 @@
                         <label for="filterSeverity">Delay severity</label>
                         <select id="filterSeverity" name="severity">
                             <option value="">All severities</option>
-                            <option value="low" {% if request.GET.severity=="low" %}selected{% endif %}>Low</option>
-                            <option value="medium" {% if request.GET.severity=="medium" %}selected{% endif %}>Medium
+                            <option value="low" {% if request.GET.severity == "low" %}selected{% endif %}>Low</option>
+                            <option value="medium" {% if request.GET.severity == "medium" %}selected{% endif %}>Medium
                             </option>
-                            <option value="high" {% if request.GET.severity=="high" %}selected{% endif %}>High</option>
-                            <option value="critical" {% if request.GET.severity=="critical" %}selected{% endif %}>
+                            <option value="high" {% if request.GET.severity == "high" %}selected{% endif %}>High</option>
+                            <option value="critical" {% if request.GET.severity == "critical" %}selected{% endif %}>
                                 Critical</option>
                         </select>
                     </div>
@@ -190,8 +189,7 @@
                         <select id="filterStatus" name="status">
                             <option value="">All statuses</option>
                             {% for value, label in status_choices %}
-                            <option value="{{ value }}" {% if request.GET.status==value %}selected{% endif %}>{{ label
-                                }}</option>
+                            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -226,8 +224,7 @@
                         </h2>
                         <p>
                             {% if page_obj %}
-                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count
-                            }}
+                            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
                             {% else %}
                             {{ total_delayed|default:"0" }} delayed shipments
                             {% endif %}
@@ -261,8 +258,7 @@
                             <tr
                                 class="{% if shipment.delay_severity == 'critical' %}row--critical{% elif shipment.delay_severity == 'high' %}row--high{% endif %}">
                                 <td>
-                                    <a class="tracking-link" href="{{ u_shipment|default:'#' }}">{{
-                                        shipment.tracking_number|default:"—" }}</a>
+                                    <a class="tracking-link" href="{{ u_shipment|default:'#' }}">{{ shipment.tracking_number|default:"—" }}</a>
                                 </td>
                                 <td>{{ shipment.customer|default:"—" }}</td>
 
@@ -273,9 +269,7 @@
                                         <span class="presence-label">
                                             <i
                                                 class="presence presence--{{ shipment.driver_availability|default:'offline' }}"></i>
-                                            {{
-                                            shipment.driver_availability_display|default:shipment.driver_availability|default:"Offline"
-                                            }}
+                                            {{ shipment.driver_availability_display|default:shipment.driver_availability|default:"Offline" }}
                                         </span>
                                     </div>
                                     {% else %}
@@ -284,14 +278,12 @@
                                 </td>
 
                                 <td>
-                                    <span class="badge badge--status badge--{{ shipment.status|default:'pending' }}">{{
-                                        shipment.get_status_display|default:shipment.status }}</span>
+                                    <span class="badge badge--status badge--{{ shipment.status|default:'pending' }}">{{ shipment.get_status_display|default:shipment.status }}</span>
                                 </td>
 
                                 <td>
                                     {% if shipment.expected_delivery %}
-                                    <time datetime="{{ shipment.expected_delivery|date:'c' }}">{{
-                                        shipment.expected_delivery|date:"d M Y, H:i" }}</time>
+                                    <time datetime="{{ shipment.expected_delivery|date:'c' }}">{{ shipment.expected_delivery|date:"d M Y, H:i" }}</time>
                                     {% else %}—{% endif %}
                                 </td>
 
@@ -303,16 +295,13 @@
                                         class="badge badge--severity badge--severity-{{ shipment.delay_severity|default:'low' }}">
                                         {% if shipment.delay_severity == "critical" %}<i
                                             class="dot dot--critical"></i>{% endif %}
-                                        {{
-                                        shipment.get_delay_severity_display|default:shipment.delay_severity|default:"LOW"|upper
-                                        }}
+                                        {{ shipment.get_delay_severity_display|default:shipment.delay_severity|default:"LOW"|upper }}
                                     </span>
                                 </td>
 
                                 <td>
                                     {% if shipment.updated_at %}
-                                    <time datetime="{{ shipment.updated_at|date:'c' }}">{{ shipment.updated_at|timesince
-                                        }} ago</time>
+                                    <time datetime="{{ shipment.updated_at|date:'c' }}">{{ shipment.updated_at|timesince }} ago</time>
                                     {% else %}—{% endif %}
                                 </td>
 
@@ -444,7 +433,6 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
 {% block extra_js %}

@@ -33,9 +33,7 @@ Create Complaint — Smart Delivery &amp; Logistics
     </header>
 
     {# ============================= SHARED ALERTS ============================= #}
-    {% if messages %}
-    {% include "components/alerts.html" %}
-    {% endif %}
+    
 
     {# ============================= NON-FIELD ERRORS ============================= #}
     {% if form.non_field_errors %}
@@ -97,8 +95,7 @@ Create Complaint — Smart Delivery &amp; Logistics
                                 class="form-input form-select" {% if form.shipment.errors %}aria-invalid="true"
                                 aria-describedby="shipment-errors" {% endif %}>
                                 {% for value, label in form.shipment.field.choices %}
-                                <option value="{{ value }}" {% if
-                                    form.shipment.value|stringformat:"s"==value|stringformat:"s" %}selected{% endif %}>
+                                <option value="{{ value }}" {% if form.shipment.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>
                                     {{ label }}
                                 </option>
                                 {% endfor %}
@@ -181,9 +178,7 @@ Create Complaint — Smart Delivery &amp; Logistics
                             <textarea name="{{ form.description.html_name|default:'description' }}"
                                 id="{{ form.description.id_for_label|default:'id_description' }}"
                                 class="form-input form-textarea" rows="6" maxlength="2000"
-                                placeholder="Explain what happened in detail…" required {% if form.description.errors
-                                %}aria-invalid="true" aria-describedby="description-errors" {% endif
-                                %}>{{ form.description.value|default:'' }}</textarea>
+                                placeholder="Explain what happened in detail…" required {% if form.description.errors %}aria-invalid="true" aria-describedby="description-errors" {% endif %}>{{ form.description.value|default:'' }}</textarea>
                         </div>
 
                         {% if form.description.help_text %}
@@ -222,8 +217,7 @@ Create Complaint — Smart Delivery &amp; Logistics
                                 class="form-input form-select" {% if form.priority.errors %}aria-invalid="true"
                                 aria-describedby="priority-errors" {% endif %}>
                                 {% for value, label in form.priority.field.choices %}
-                                <option value="{{ value }}" {% if
-                                    form.priority.value|stringformat:"s"==value|stringformat:"s" %}selected{% endif %}>
+                                <option value="{{ value }}" {% if form.priority.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>
                                     {{ label }}
                                 </option>
                                 {% endfor %}
@@ -246,9 +240,7 @@ Create Complaint — Smart Delivery &amp; Logistics
 
                 {# ---------- ADDITIONAL FORM FIELDS (dynamic, excluding known/internal) ---------- #}
                 {% for field in form %}
-                {% if field.name != "shipment" and field.name != "subject" and field.name != "description" and
-                field.name != "priority" and field.name != "status" and field.name != "assigned_to" and field.name !=
-                "resolved_by" and field.name != "resolution_notes" and field.name != "response" %}
+                {% if field.name != "shipment" and field.name != "subject" and field.name != "description" and field.name != "priority" and field.name != "status" and field.name != "assigned_to" and field.name != "resolved_by" and field.name != "resolution_notes" and field.name != "response" %}
                 <div class="form-field form-field-full {% if field.errors %}has-error{% endif %}">
                     <label for="{{ field.id_for_label }}" class="form-label">
                         {{ field.label }}

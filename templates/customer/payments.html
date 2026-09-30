@@ -144,12 +144,12 @@ Payments — Smart Delivery &amp; Logistics
                 <label for="filter-status" class="filter-label">Status</label>
                 <select id="filter-status" name="status" class="filter-input filter-select">
                     <option value="">All statuses</option>
-                    <option value="PAID" {% if request.GET.status=="PAID" %}selected{% endif %}>Paid</option>
-                    <option value="PENDING" {% if request.GET.status=="PENDING" %}selected{% endif %}>Pending</option>
-                    <option value="FAILED" {% if request.GET.status=="FAILED" %}selected{% endif %}>Failed</option>
-                    <option value="REFUNDED" {% if request.GET.status=="REFUNDED" %}selected{% endif %}>Refunded
+                    <option value="PAID" {% if request.GET.status == "PAID" %}selected{% endif %}>Paid</option>
+                    <option value="PENDING" {% if request.GET.status == "PENDING" %}selected{% endif %}>Pending</option>
+                    <option value="FAILED" {% if request.GET.status == "FAILED" %}selected{% endif %}>Failed</option>
+                    <option value="REFUNDED" {% if request.GET.status == "REFUNDED" %}selected{% endif %}>Refunded
                     </option>
-                    <option value="CANCELLED" {% if request.GET.status=="CANCELLED" %}selected{% endif %}>Cancelled
+                    <option value="CANCELLED" {% if request.GET.status == "CANCELLED" %}selected{% endif %}>Cancelled
                     </option>
                 </select>
             </div>
@@ -158,9 +158,9 @@ Payments — Smart Delivery &amp; Logistics
                 <label for="filter-method" class="filter-label">Method</label>
                 <select id="filter-method" name="method" class="filter-input filter-select">
                     <option value="">All methods</option>
-                    <option value="CASH" {% if request.GET.method=="CASH" %}selected{% endif %}>Cash</option>
-                    <option value="CARD" {% if request.GET.method=="CARD" %}selected{% endif %}>Card</option>
-                    <option value="ONLINE" {% if request.GET.method=="ONLINE" %}selected{% endif %}>Online</option>
+                    <option value="CASH" {% if request.GET.method == "CASH" %}selected{% endif %}>Cash</option>
+                    <option value="CARD" {% if request.GET.method == "CARD" %}selected{% endif %}>Card</option>
+                    <option value="ONLINE" {% if request.GET.method == "ONLINE" %}selected{% endif %}>Online</option>
                 </select>
             </div>
 
@@ -339,24 +339,21 @@ Payments — Smart Delivery &amp; Logistics
                 </svg>
             </div>
             <h3 class="dash-empty-title">
-                {% if request.GET.q or request.GET.status or request.GET.method or request.GET.date_from or
-                request.GET.date_to %}
+                {% if request.GET.q or request.GET.status or request.GET.method or request.GET.date_from or request.GET.date_to %}
                 No payments found
                 {% else %}
                 No payments yet
                 {% endif %}
             </h3>
             <p class="dash-empty-text">
-                {% if request.GET.q or request.GET.status or request.GET.method or request.GET.date_from or
-                request.GET.date_to %}
+                {% if request.GET.q or request.GET.status or request.GET.method or request.GET.date_from or request.GET.date_to %}
                 No payments match your current filters. Try adjusting or resetting them.
                 {% else %}
                 You don't have any payments yet. They will appear here once you create and pay for a shipment.
                 {% endif %}
             </p>
 
-            {% if request.GET.q or request.GET.status or request.GET.method or request.GET.date_from or
-            request.GET.date_to %}
+            {% if request.GET.q or request.GET.status or request.GET.method or request.GET.date_from or request.GET.date_to %}
             <a href="{% url 'customer:payments' %}" class="btn btn-secondary">
                 Reset Filters
             </a>

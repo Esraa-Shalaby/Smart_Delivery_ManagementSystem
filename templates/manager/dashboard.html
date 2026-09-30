@@ -109,137 +109,12 @@
 {% url 'manager:settings' as u_settings %}
 
 <div class="manager-layout" id="managerLayout">
-
-    {# ================= SIDEBAR ================= #}
-    <aside class="sidebar" id="managerSidebar" aria-label="Manager navigation">
-        <div class="sidebar__brand">
-            <svg class="icon icon--lg">
-                <use href="#i-truck" />
-            </svg>
-            <div>
-                <strong>Smart Delivery</strong>
-                <small>Command Center</small>
-            </div>
-        </div>
-
-        <nav class="sidebar__nav">
-            <p class="sidebar__section">Overview</p>
-            <a class="sidebar__link is-active" href="{{ u_dashboard|default:'#' }}" aria-current="page">
-                <svg class="icon">
-                    <use href="#i-dashboard" />
-                </svg><span>Dashboard</span>
-            </a>
-            <a class="sidebar__link" href="{{ u_analytics|default:'#' }}">
-                <svg class="icon">
-                    <use href="#i-chart" />
-                </svg><span>Analytics</span>
-            </a>
-
-            <p class="sidebar__section">Operations</p>
-            <a class="sidebar__link" href="{{ u_shipments|default:'#' }}"><svg class="icon">
-                    <use href="#i-box" />
-                </svg><span>Shipments</span></a>
-            <a class="sidebar__link" href="{{ u_assignments|default:'#' }}"><svg class="icon">
-                    <use href="#i-link" />
-                </svg><span>Assignments</span></a>
-            <a class="sidebar__link" href="{{ u_delayed|default:'#' }}"><svg class="icon">
-                    <use href="#i-alert" />
-                </svg><span>Delayed Deliveries</span></a>
-            <a class="sidebar__link" href="{{ u_warehouses|default:'#' }}"><svg class="icon">
-                    <use href="#i-warehouse" />
-                </svg><span>Warehouses</span></a>
-
-            <p class="sidebar__section">People</p>
-            <a class="sidebar__link" href="{{ u_users|default:'#' }}"><svg class="icon">
-                    <use href="#i-users" />
-                </svg><span>Users</span></a>
-            <a class="sidebar__link" href="{{ u_customers|default:'#' }}"><svg class="icon">
-                    <use href="#i-user" />
-                </svg><span>Customers</span></a>
-            <a class="sidebar__link" href="{{ u_drivers|default:'#' }}"><svg class="icon">
-                    <use href="#i-truck" />
-                </svg><span>Drivers</span></a>
-
-            <p class="sidebar__section">Finance &amp; Support</p>
-            <a class="sidebar__link" href="{{ u_payments|default:'#' }}"><svg class="icon">
-                    <use href="#i-money" />
-                </svg><span>Payments</span></a>
-            <a class="sidebar__link" href="{{ u_complaints|default:'#' }}"><svg class="icon">
-                    <use href="#i-chat" />
-                </svg><span>Complaints</span></a>
-
-            <p class="sidebar__section">AI</p>
-            <a class="sidebar__link" href="{{ u_ai|default:'#' }}"><svg class="icon">
-                    <use href="#i-spark" />
-                </svg><span>AI Assistant</span></a>
-            <a class="sidebar__link" href="{{ u_ai_actions|default:'#' }}"><svg class="icon">
-                    <use href="#i-spark" />
-                </svg><span>AI Actions</span></a>
-
-            <p class="sidebar__section">System</p>
-            <a class="sidebar__link" href="{{ u_audit|default:'#' }}"><svg class="icon">
-                    <use href="#i-file" />
-                </svg><span>Audit Logs</span></a>
-            <a class="sidebar__link" href="{{ u_notifications|default:'#' }}"><svg class="icon">
-                    <use href="#i-bell" />
-                </svg><span>Notifications</span></a>
-            <a class="sidebar__link" href="{{ u_profile|default:'#' }}"><svg class="icon">
-                    <use href="#i-user" />
-                </svg><span>Profile</span></a>
-            <a class="sidebar__link" href="{{ u_settings|default:'#' }}"><svg class="icon">
-                    <use href="#i-settings" />
-                </svg><span>Settings</span></a>
-        </nav>
-    </aside>
-    <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
-
+ 
     {# ================= MAIN ================= #}
     <div class="manager-main">
 
         {# ---------- TOPBAR ---------- #}
-        <header class="topbar">
-            <button type="button" class="icon-btn topbar__toggle" id="sidebarToggle" aria-label="Toggle sidebar"
-                aria-controls="managerSidebar" aria-expanded="false">
-                <svg class="icon">
-                    <use href="#i-menu" />
-                </svg>
-            </button>
-
-            <div class="topbar__title">
-                <h1>Dashboard</h1>
-                <p>Live overview of your logistics operation</p>
-            </div>
-
-            <form class="topbar__search" role="search" action="{{ u_shipments|default:'#' }}" method="get">
-                <svg class="icon">
-                    <use href="#i-search" />
-                </svg>
-                <input type="search" name="q" placeholder="Search tracking number, customer, driver…"
-                    aria-label="Search" autocomplete="off">
-            </form>
-
-            <div class="topbar__actions">
-                <a class="icon-btn" href="{{ u_notifications|default:'#' }}" aria-label="Notifications">
-                    <svg class="icon">
-                        <use href="#i-bell" />
-                    </svg>
-                    {% if unread_notifications_count %}
-                    <span class="icon-btn__dot">{{ unread_notifications_count }}</span>
-                    {% endif %}
-                </a>
-                <a class="profile-chip" href="{{ u_profile|default:'#' }}">
-                    <span class="profile-chip__avatar" aria-hidden="true">
-                        {{ request.user.get_full_name|default:request.user.username|default:"M"|slice:":1"|upper }}
-                    </span>
-                    <span class="profile-chip__meta">
-                        <strong>{{ request.user.get_full_name|default:request.user.username|default:"Manager"
-                            }}</strong>
-                        <small>Manager</small>
-                    </span>
-                </a>
-            </div>
-        </header>
-
+      
         {% include "components/alerts.html" %}
 
         <main class="dashboard page-fade-up" id="dashboardMain">
@@ -285,8 +160,7 @@
                         <span class="stat-card__desc">All time</span>
                     </div>
                     {% if shipments_trend %}<span
-                        class="trend {% if shipments_trend_up %}trend--up{% else %}trend--down{% endif %}">{{
-                        shipments_trend }}</span>{% endif %}
+                        class="trend {% if shipments_trend_up %}trend--up{% else %}trend--down{% endif %}">{{ shipments_trend }}</span>{% endif %}
                 </article>
 
                 <article class="stat-card anim-card" style="--delay: 2">
@@ -299,8 +173,7 @@
                         <span class="stat-card__desc">Awaiting assignment</span>
                     </div>
                     {% if pending_trend %}<span
-                        class="trend {% if pending_trend_up %}trend--up{% else %}trend--down{% endif %}">{{
-                        pending_trend }}</span>{% endif %}
+                        class="trend {% if pending_trend_up %}trend--up{% else %}trend--down{% endif %}">{{ pending_trend }}</span>{% endif %}
                 </article>
 
                 <article class="stat-card anim-card" style="--delay: 3">
@@ -313,8 +186,7 @@
                         <span class="stat-card__desc">On the road now</span>
                     </div>
                     {% if transit_trend %}<span
-                        class="trend {% if transit_trend_up %}trend--up{% else %}trend--down{% endif %}">{{
-                        transit_trend }}</span>{% endif %}
+                        class="trend {% if transit_trend_up %}trend--up{% else %}trend--down{% endif %}">{{ transit_trend }}</span>{% endif %}
                 </article>
 
                 <article class="stat-card anim-card" style="--delay: 4">
@@ -327,8 +199,7 @@
                         <span class="stat-card__desc">Completed deliveries</span>
                     </div>
                     {% if delivered_trend %}<span
-                        class="trend {% if delivered_trend_up %}trend--up{% else %}trend--down{% endif %}">{{
-                        delivered_trend }}</span>{% endif %}
+                        class="trend {% if delivered_trend_up %}trend--up{% else %}trend--down{% endif %}">{{ delivered_trend }}</span>{% endif %}
                 </article>
 
                 <article class="stat-card stat-card--danger anim-card" style="--delay: 5">
@@ -374,8 +245,7 @@
                         <span class="stat-card__desc">Completed payments</span>
                     </div>
                     {% if revenue_trend %}<span
-                        class="trend {% if revenue_trend_up %}trend--up{% else %}trend--down{% endif %}">{{
-                        revenue_trend }}</span>{% endif %}
+                        class="trend {% if revenue_trend_up %}trend--up{% else %}trend--down{% endif %}">{{ revenue_trend }}</span>{% endif %}
                 </article>
             </section>
 
@@ -544,8 +414,7 @@
                                 <td>{{ shipment.driver|default:"Unassigned" }}</td>
                                 <td><span class="badge badge--danger">{{ shipment.delay_duration|default:"—" }}</span>
                                 </td>
-                                <td><span class="badge badge--status badge--{{ shipment.status|default:'pending' }}">{{
-                                        shipment.get_status_display|default:shipment.status }}</span></td>
+                                <td><span class="badge badge--status badge--{{ shipment.status|default:'pending' }}">{{ shipment.get_status_display|default:shipment.status }}</span></td>
                                 <td>{{ shipment.destination|default:"—" }}</td>
                                 <td>
                                     <div class="row-actions">
@@ -607,10 +476,8 @@
                                 <td>{{ shipment.customer|default:"—" }}</td>
                                 <td>{{ shipment.destination|default:"—" }}</td>
                                 <td>{{ shipment.driver|default:"Unassigned" }}</td>
-                                <td><span class="badge badge--status badge--{{ shipment.status|default:'pending' }}">{{
-                                        shipment.get_status_display|default:shipment.status }}</span></td>
-                                <td><time datetime="{{ shipment.created_at|date:'c' }}">{{ shipment.created_at|date:"d M
-                                        Y, H:i" }}</time></td>
+                                <td><span class="badge badge--status badge--{{ shipment.status|default:'pending' }}">{{ shipment.get_status_display|default:shipment.status }}</span></td>
+                                <td><time datetime="{{ shipment.created_at|date:'c' }}">{{ shipment.created_at|date:"d M Y, H:i" }}</time></td>
                                 <td>
                                     <div class="row-actions">
                                         <a class="btn btn--xs btn--ghost"
@@ -643,12 +510,10 @@
                     </header>
 
                     <ul class="availability-summary">
-                        <li><i class="presence presence--available"></i> Available <strong>{{
-                                available_drivers|default:"0" }}</strong></li>
+                        <li><i class="presence presence--available"></i> Available <strong>{{ available_drivers|default:"0" }}</strong></li>
                         <li><i class="presence presence--busy"></i> Busy <strong>{{ busy_drivers|default:"0" }}</strong>
                         </li>
-                        <li><i class="presence presence--offline"></i> Offline <strong>{{ offline_drivers|default:"0"
-                                }}</strong></li>
+                        <li><i class="presence presence--offline"></i> Offline <strong>{{ offline_drivers|default:"0" }}</strong></li>
                     </ul>
 
                     <div class="table-wrap">
@@ -710,11 +575,9 @@
                                     <td>{{ complaint.customer|default:"—" }}</td>
                                     <td>{{ complaint.subject|default:"—"|truncatechars:36 }}</td>
                                     <td><span
-                                            class="badge badge--priority badge--priority-{{ complaint.priority|default:'low' }}">{{
-                                            complaint.get_priority_display|default:complaint.priority }}</span></td>
+                                            class="badge badge--priority badge--priority-{{ complaint.priority|default:'low' }}">{{ complaint.get_priority_display|default:complaint.priority }}</span></td>
                                     <td><span
-                                            class="badge badge--complaint badge--complaint-{{ complaint.status|default:'open' }}">{{
-                                            complaint.get_status_display|default:complaint.status }}</span></td>
+                                            class="badge badge--complaint badge--complaint-{{ complaint.status|default:'open' }}">{{ complaint.get_status_display|default:complaint.status }}</span></td>
                                     <td>{{ complaint.created_at|date:"d M" }}</td>
                                 </tr>
                                 {% empty %}
@@ -764,7 +627,6 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
 {% block extra_js %}

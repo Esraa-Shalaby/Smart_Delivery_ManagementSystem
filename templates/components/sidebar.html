@@ -1,9 +1,6 @@
 {% load static %}
 
-{# ============================================================
-Sidebar Component (Light Theme + Navy Blue)
-Role-aware: Manager / Customer / Driver
-============================================================ #}
+
 
 {% if user.is_authenticated %}
 {% with role=user.role|default:''|lower %}
@@ -16,8 +13,8 @@ Role-aware: Manager / Customer / Driver
         <a href="/" class="app-sidebar-brand" aria-label="Smart Delivery home">
             <img src="{% static 'imgs/logo.png' %}" alt="" class="app-sidebar-brand-logo" width="36" height="36">
             <span class="app-sidebar-brand-text">
-                <span class="app-sidebar-brand-title">Smart Delivery</span>
-                <span class="app-sidebar-brand-sub">Logistics</span>
+                <span class="app-sidebar-brand-title">Delivera</span>
+                 
             </span>
         </a>
 
@@ -368,6 +365,34 @@ Role-aware: Manager / Customer / Driver
                         {{ unread_notifications_count }}
                     </span>
                     {% endif %}
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'accounts:profile' %}"
+                    class="app-sidebar-link {% if request.resolver_match.url_name == 'profile' %}is-active{% endif %}">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Profile</span>
+                </a>
+            </li>
+
+            <li class="app-sidebar-item">
+                <a href="{% url 'accounts:logout' %}" class="app-sidebar-link">
+                    <span class="app-sidebar-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar-label">Logout</span>
                 </a>
             </li>
 

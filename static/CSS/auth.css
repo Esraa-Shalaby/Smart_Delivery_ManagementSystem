@@ -3,7 +3,33 @@
    Login / Register / Forgot Password
    Light theme with brand colors
    ============================================================ */
+body.public-page .auth-brand-title,
+body.public-page .auth-title,
+body.public-page .auth-aside-title,
+body.public-page .auth-inline-link:hover {
+    color: var(--color-text);
+}
 
+body.public-page .auth-bg-grid {
+    background-image:
+        linear-gradient(rgba(140, 165, 200, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(140, 165, 200, 0.05) 1px, transparent 1px);
+}
+body.public-page .auth-bg-glow-a { opacity: 0.18; }
+body.public-page .auth-bg-glow-b { opacity: 0.14; }
+
+body.public-page .auth-card {
+    background-color: var(--color-surface);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* منع الـ autofill من إنه يخلي الحقل أزرق فاتح */
+body.public-page input:-webkit-autofill,
+body.public-page input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--color-surface-2) inset;
+    -webkit-text-fill-color: var(--color-text);
+    caret-color: var(--color-text);
+}
 .auth-page {
     min-height: 100vh;
     display: flex;
@@ -637,4 +663,11 @@
     .auth-aside {
         animation: none !important;
     }
+}
+
+body.public-page .auth-aside-title span {
+    background: linear-gradient(135deg, #2A7FD4 0%, #2FD7AE 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }

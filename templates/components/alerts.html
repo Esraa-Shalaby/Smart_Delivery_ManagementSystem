@@ -1,15 +1,7 @@
 {% load static %}
 
-{# ============================================================
-Shared Alerts Component
-Renders Django messages framework messages across all pages.
-
-Usage in base.html:
-{% include "components/alerts.html" %}
-
-Supported message levels:
-success / error / warning / info / debug
-============================================================ #}
+ 
+ 
 
 {% if messages %}
 <div class="app-alerts" data-alerts-root role="region" aria-label="System notifications">
@@ -17,12 +9,16 @@ success / error / warning / info / debug
     <ul class="app-alerts-list" role="list" data-alerts-list>
 
         {% for message in messages %}
-        {# ---- Resolve level to a safe token ---- #}
+         
         {% with level=message.level_tag|default:'info' %}
 
-        <li class="app-alert app-alert-{{ level }}" data-alert data-alert-level="{{ level }}" role="alert"
-            aria-live="{% if level == 'error' %}assertive{% else %}polite{% endif %}" aria-atomic="true">
-
+        {% if level == 'error' or level == 'danger' %}
+        <li class="app-alert app-alert-{{ level }}" data-alert data-alert-level="{{ level }}" role="alert" aria-live="assertive"
+            aria-atomic="true">
+            {% else %}
+        <li class="app-alert app-alert-{{ level }}" data-alert data-alert-level="{{ level }}" data-auto-dismiss="6000"
+            role="alert" aria-live="polite" aria-atomic="true">
+            {% endif %}
             <span class="app-alert-icon" aria-hidden="true">
                 {% if level == 'success' %}
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"

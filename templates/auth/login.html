@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_public.html" %}
 {% load static %}
 
 {% block title %}
@@ -28,8 +28,8 @@ Login — Smart Delivery &amp; Logistics
                         <span class="auth-brand-dot"></span>
                     </span>
                     <span class="auth-brand-text">
-                        <span class="auth-brand-title">Smart Delivery</span>
-                        <span class="auth-brand-sub">&amp; Logistics</span>
+                        <span class="auth-brand-title">Delivera</span>
+                         
                     </span>
                 </a>
             </header>
@@ -44,9 +44,7 @@ Login — Smart Delivery &amp; Logistics
             </div>
 
             {# ---------- SHARED ALERTS ---------- #}
-            {% if messages %}
-            {% include "components/alerts.html" %}
-            {% endif %}
+            
 
             {# ---------- NON-FIELD ERRORS ---------- #}
             {% if form.non_field_errors %}
@@ -85,8 +83,7 @@ Login — Smart Delivery &amp; Logistics
                         <input type="text" name="{{ form.username.html_name|default:'username' }}"
                             id="{{ form.username.id_for_label|default:'id_username' }}" class="auth-input"
                             value="{{ form.username.value|default:'' }}" placeholder="you@example.com"
-                            autocomplete="username" autocapitalize="off" spellcheck="false" required {% if
-                            form.username.errors %}aria-invalid="true" aria-describedby="username-errors" {% endif %}>
+                            autocomplete="username" autocapitalize="off" spellcheck="false" required {% if form.username.errors %}aria-invalid="true" aria-describedby="username-errors" {% endif %}>
                     </div>
 
                     {% if form.username.errors %}
@@ -121,8 +118,7 @@ Login — Smart Delivery &amp; Logistics
                         <input type="password" name="{{ form.password.html_name|default:'password' }}"
                             id="{{ form.password.id_for_label|default:'id_password' }}"
                             class="auth-input auth-input-password" placeholder="••••••••"
-                            autocomplete="current-password" required data-password-input {% if form.password.errors
-                            %}aria-invalid="true" aria-describedby="password-errors" {% endif %}>
+                            autocomplete="current-password" required data-password-input {% if form.password.errors %}aria-invalid="true" aria-describedby="password-errors" {% endif %}>
 
                         <button type="button" class="auth-input-toggle" data-password-toggle aria-label="Show password"
                             aria-pressed="false" tabindex="0">
@@ -157,8 +153,7 @@ Login — Smart Delivery &amp; Logistics
                 <div class="auth-field auth-field-inline">
                     <label class="auth-checkbox">
                         <input type="checkbox" name="{{ form.remember_me.html_name|default:'remember_me' }}"
-                            id="{{ form.remember_me.id_for_label|default:'id_remember_me' }}" {% if
-                            form.remember_me.value %}checked{% endif %}>
+                            id="{{ form.remember_me.id_for_label|default:'id_remember_me' }}" {% if form.remember_me.value %}checked{% endif %}>
                         <span class="auth-checkbox-box" aria-hidden="true"></span>
                         <span class="auth-checkbox-label">Remember me</span>
                     </label>

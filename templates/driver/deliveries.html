@@ -139,17 +139,17 @@ My Deliveries — Smart Delivery &amp; Logistics
                 <label for="filter-status" class="filter-label">Status</label>
                 <select id="filter-status" name="status" class="filter-input filter-select">
                     <option value="">All statuses</option>
-                    <option value="ASSIGNED" {% if request.GET.status=="ASSIGNED" %}selected{% endif %}>Assigned
+                    <option value="ASSIGNED" {% if request.GET.status == "ASSIGNED" %}selected{% endif %}>Assigned
                     </option>
-                    <option value="PICKED_UP" {% if request.GET.status=="PICKED_UP" %}selected{% endif %}>Picked Up
+                    <option value="PICKED_UP" {% if request.GET.status == "PICKED_UP" %}selected{% endif %}>Picked Up
                     </option>
-                    <option value="IN_TRANSIT" {% if request.GET.status=="IN_TRANSIT" %}selected{% endif %}>In Transit
+                    <option value="IN_TRANSIT" {% if request.GET.status == "IN_TRANSIT" %}selected{% endif %}>In Transit
                     </option>
-                    <option value="OUT_FOR_DELIVERY" {% if request.GET.status=="OUT_FOR_DELIVERY" %}selected{% endif %}>
+                    <option value="OUT_FOR_DELIVERY" {% if request.GET.status == "OUT_FOR_DELIVERY" %}selected{% endif %}>
                         Out for Delivery</option>
-                    <option value="DELIVERED" {% if request.GET.status=="DELIVERED" %}selected{% endif %}>Delivered
+                    <option value="DELIVERED" {% if request.GET.status == "DELIVERED" %}selected{% endif %}>Delivered
                     </option>
-                    <option value="FAILED" {% if request.GET.status=="FAILED" %}selected{% endif %}>Failed</option>
+                    <option value="FAILED" {% if request.GET.status == "FAILED" %}selected{% endif %}>Failed</option>
                 </select>
             </div>
 
@@ -213,9 +213,7 @@ My Deliveries — Smart Delivery &amp; Logistics
 
                         <td class="dash-cell-customer-ref">
                             <span class="cell-customer-ref">
-                                {{
-                                delivery.shipment.customer.get_full_name|default:delivery.shipment.customer.username|default:"—"
-                                }}
+                                {{ delivery.shipment.customer.get_full_name|default:delivery.shipment.customer.username|default:"—" }}
                             </span>
                         </td>
 
@@ -233,9 +231,7 @@ My Deliveries — Smart Delivery &amp; Logistics
 
                         <td class="dash-cell-status">
                             <span class="status-badge status-{{ delivery.shipment.status|default:'unknown'|lower }}">
-                                {{
-                                delivery.shipment.get_status_display|default:delivery.shipment.status|default:"Unknown"
-                                }}
+                                {{ delivery.shipment.get_status_display|default:delivery.shipment.status|default:"Unknown" }}
                             </span>
                         </td>
 
@@ -273,9 +269,7 @@ My Deliveries — Smart Delivery &amp; Logistics
                     <div class="delivery-card-row">
                         <dt>Customer</dt>
                         <dd>
-                            {{
-                            delivery.shipment.customer.get_full_name|default:delivery.shipment.customer.username|default:"—"|truncatechars:40
-                            }}
+                            {{ delivery.shipment.customer.get_full_name|default:delivery.shipment.customer.username|default:"—"|truncatechars:40 }}
                         </dd>
                     </div>
                     <div class="delivery-card-row">

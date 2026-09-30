@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_public.html" %}
 {% load static %}
 
 {% block title %}
@@ -28,8 +28,8 @@ Create Account — Smart Delivery &amp; Logistics
                         <span class="auth-brand-dot"></span>
                     </span>
                     <span class="auth-brand-text">
-                        <span class="auth-brand-title">Smart Delivery</span>
-                        <span class="auth-brand-sub">&amp; Logistics</span>
+                        <span class="auth-brand-title">Delivera</span>
+                         
                     </span>
                 </a>
             </header>
@@ -44,9 +44,7 @@ Create Account — Smart Delivery &amp; Logistics
             </div>
 
             {# ---------- SHARED ALERTS ---------- #}
-            {% if messages %}
-            {% include "components/alerts.html" %}
-            {% endif %}
+             
 
             {# ---------- NON-FIELD ERRORS ---------- #}
             {% if form.non_field_errors %}
@@ -140,8 +138,7 @@ Create Account — Smart Delivery &amp; Logistics
                         <input type="email" name="{{ form.email.html_name|default:'email' }}"
                             id="{{ form.email.id_for_label|default:'id_email' }}" class="auth-input"
                             value="{{ form.email.value|default:'' }}" placeholder="you@example.com" autocomplete="email"
-                            autocapitalize="off" spellcheck="false" required {% if form.email.errors
-                            %}aria-invalid="true" aria-describedby="email-errors" {% endif %}>
+                            autocapitalize="off" spellcheck="false" required {% if form.email.errors %}aria-invalid="true" aria-describedby="email-errors" {% endif %}>
                     </div>
                     {% if form.email.errors %}
                     <ul class="auth-field-errors" id="email-errors">
@@ -152,7 +149,7 @@ Create Account — Smart Delivery &amp; Logistics
                     {% endif %}
                 </div>
 
-                {# ----- Role selection (only if provided by the form) ----- #}
+                {# ----- Role selection ----- #}
                 {% if form.role %}
                 <div class="auth-field {% if form.role.errors %}has-error{% endif %}">
                     <label for="{{ form.role.id_for_label|default:'id_role' }}" class="auth-label">
@@ -174,8 +171,7 @@ Create Account — Smart Delivery &amp; Logistics
                             id="{{ form.role.id_for_label|default:'id_role' }}" class="auth-input auth-select" required
                             {% if form.role.errors %}aria-invalid="true" aria-describedby="role-errors" {% endif %}>
                             {% for value, label in form.role.field.choices %}
-                            <option value="{{ value }}" {% if form.role.value==value %}selected{% endif %}>
-                                {{ label }}
+                            <option value="{{ value }}" {% if form.role.value == value %} selected{% endif %}>{{ label }}
                             </option>
                             {% endfor %}
                         </select>
@@ -212,8 +208,7 @@ Create Account — Smart Delivery &amp; Logistics
                         <input type="password" name="{{ form.password1.html_name|default:'password1' }}"
                             id="{{ form.password1.id_for_label|default:'id_password1' }}"
                             class="auth-input auth-input-password" placeholder="••••••••" autocomplete="new-password"
-                            required data-password-input data-password-strength-source {% if form.password1.errors
-                            %}aria-invalid="true" aria-describedby="password1-errors" {% endif %}>
+                            required data-password-input data-password-strength-source {% if form.password1.errors %}aria-invalid="true" aria-describedby="password1-errors" {% endif %}>
 
                         <button type="button" class="auth-input-toggle" data-password-toggle aria-label="Show password"
                             aria-pressed="false" tabindex="0">
@@ -235,7 +230,7 @@ Create Account — Smart Delivery &amp; Logistics
                         </button>
                     </div>
 
-                    {# Password strength indicator (client-side only, no backend logic) #}
+                    {# Password strength indicator #}
                     <div class="auth-strength" data-password-strength hidden aria-hidden="true">
                         <div class="auth-strength-track">
                             <div class="auth-strength-fill" data-password-strength-fill></div>
@@ -308,13 +303,12 @@ Create Account — Smart Delivery &amp; Logistics
                     {% endif %}
                 </div>
 
-                {# ----- Terms (only if provided by the form) ----- #}
+                {# ----- Terms ----- #}
                 {% if form.terms %}
                 <div class="auth-field auth-field-inline {% if form.terms.errors %}has-error{% endif %}">
                     <label class="auth-checkbox">
                         <input type="checkbox" name="{{ form.terms.html_name|default:'terms' }}"
-                            id="{{ form.terms.id_for_label|default:'id_terms' }}" {% if form.terms.value %}checked{%
-                            endif %} required {% if form.terms.errors %}aria-invalid="true"
+                            id="{{ form.terms.id_for_label|default:'id_terms' }}" {% if form.terms.value %}checked{% endif %} required {% if form.terms.errors %}aria-invalid="true"
                             aria-describedby="terms-errors" {% endif %}>
                         <span class="auth-checkbox-box" aria-hidden="true"></span>
                         <span class="auth-checkbox-label">
@@ -383,4 +377,5 @@ Create Account — Smart Delivery &amp; Logistics
 {# ============================= PAGE-SPECIFIC ASSETS ============================= #}
 <link rel="stylesheet" href="{% static 'css/auth.css' %}">
 <script src="{% static 'js/auth.js' %}" defer></script>
+
 {% endblock %}

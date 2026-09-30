@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "apps.notifications",
     "apps.ai_agent",
     "apps.analytics",  
+    "apps.web",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -115,6 +116,7 @@ DATABASES = {
 # Custom user model
 # ------------------------------------------------------------------
 AUTH_USER_MODEL = "accounts.User"
+LOGIN_URL = "accounts:login"
 
 # ------------------------------------------------------------------
 # Password validation

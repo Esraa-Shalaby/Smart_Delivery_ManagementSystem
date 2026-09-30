@@ -40,7 +40,10 @@ class KeywordAgentProvider(AgentProvider):
         if "available driver" in text or "available drivers" in text or "who is free" in text:
             return ToolCall("get_available_drivers")
 
-        if "my shipment" in text or "my order" in text or "my delivery" in text:
+        if "my deliver" in text and getattr(user, "role", None) == "DRIVER":
+            return ToolCall("get_my_deliveries")
+
+        if "my shipment" in text or "my order" in text or "my deliver" in text:
             return ToolCall("get_customer_shipments")
 
         if "reassign" in text:
