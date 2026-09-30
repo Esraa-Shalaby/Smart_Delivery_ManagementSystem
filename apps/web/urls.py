@@ -1,6 +1,8 @@
 from django.urls import include, path
 from django.views.generic import RedirectView, TemplateView
 
+from . import driver_views as dv
+from . import manager_views as mv
 from . import views as v
 from .views import ByRolePage, action_stub, page
 
@@ -14,11 +16,11 @@ def build(role, rows):
     ]
 
 
-def crud(plural, one, list_t, detail_t=None):
+def crud(plural, one, list_t, detail_t=None, create=True):
     detail_t = detail_t or list_t
     return [
         (f"{plural}/", plural, list_t),
-        (f"{plural}/new/", f"{one}_create", list_t),
+        *([(f"{plural}/new/", f"{one}_create", list_t)] if create else []),
         (f"{plural}/<int:pk>/", f"{one}_detail", detail_t),
         (f"{plural}/<int:pk>/edit/", f"{one}_edit", list_t),
         (f"{plural}/<int:pk>/activate/", f"{one}_activate", None),
@@ -62,21 +64,22 @@ customer_urls = ([
 ]), "customer")
 
 # ---------------- driver ----------------
-driver_urls = (build(D, [
-    ("dashboard/", "dashboard", "driver/dashboard.html"),
-    ("deliveries/", "deliveries", "driver/deliveries.html"),
-    ("deliveries/<int:pk>/", "delivery_detail", "driver/delivery_deatails.html"),
-    ("deliveries/<int:pk>/accept/", "accept_delivery", None),
-    ("deliveries/<int:pk>/status/", "update_delivery_status", None),
+driver_urls = ([
+    path("dashboard/", dv.DriverDashboardView.as_view(), name="dashboard"),
+    path("deliveries/", dv.DriverDeliveriesView.as_view(), name="deliveries"),
+    path("deliveries/<int:pk>/", dv.DriverDeliveryDetailView.as_view(), name="delivery_detail"),
+    path("deliveries/<int:pk>/accept/", dv.accept_delivery, name="accept_delivery"),
+    path("deliveries/<int:pk>/status/", dv.update_delivery_status, name="update_delivery_status"),
+    path("history/", dv.DriverHistoryView.as_view(), name="history"),
+] + build(D, [
     ("availability/", "availability", "driver/availability.html"),
     ("location/", "location", "driver/location.html"),
-    ("history/", "history", "driver/history.html"),
 ]) + [path("profile/", v.ProfileView.as_view(), name="profile")], "driver")
 
 # ---------------- manager ----------------
 manager_rows = (
-    crud("customers", "customer", "manager/customers.html")
-    + crud("drivers", "driver", "manager/drivers.html", "manager/drivers_details.html")
+    crud("customers", "customer", "manager/customers.html", create=False)
+    + crud("drivers", "driver", "manager/drivers.html", "manager/drivers_details.html", create=False)
     + crud("users", "user", "manager/users.html")
     + crud("warehouses", "warehouse", "manager/warehouses.html")
     + [
@@ -112,7 +115,39 @@ manager_rows = (
         ("settings/two-factor/", "two_factor", None),
     ]
 )
-manager_urls = (build(M, manager_rows) + [
+# Routes that now have a real view (they'd otherwise fall through to a static page).
+MANAGER_REAL_VIEWS = {
+    "dashboard", "customers", "customer_activate", "customer_deactivate",
+    "drivers", "driver_activate", "driver_deactivate", "assignments",
+    "shipments", "shipment_list", "shipment_create", "shipment_bulk_action",
+    "shipment_detail", "shipment_assign", "shipment_reassign", "shipment_update_status",
+}
+
+manager_real = [
+    path("dashboard/", mv.ManagerDashboardView.as_view(), name="dashboard"),
+    path("customers/", mv.ManagerCustomersView.as_view(), name="customers"),
+    path("customers/<int:pk>/activate/", mv.user_set_active,
+         {"role": "CUSTOMER", "active": True}, name="customer_activate"),
+    path("customers/<int:pk>/deactivate/", mv.user_set_active,
+         {"role": "CUSTOMER", "active": False}, name="customer_deactivate"),
+    path("drivers/", mv.ManagerDriversView.as_view(), name="drivers"),
+    path("drivers/<int:pk>/activate/", mv.user_set_active,
+         {"role": "DRIVER", "active": True}, name="driver_activate"),
+    path("drivers/<int:pk>/deactivate/", mv.user_set_active,
+         {"role": "DRIVER", "active": False}, name="driver_deactivate"),
+    path("assignments/", mv.ManagerDriversView.as_view(), name="assignments"),
+    path("shipments/", mv.ManagerShipmentsView.as_view(), name="shipments"),
+    path("shipments/list/", mv.ManagerShipmentsView.as_view(), name="shipment_list"),
+    path("shipments/new/", mv.ManagerShipmentsView.as_view(), name="shipment_create"),
+    path("shipments/bulk/", mv.shipment_bulk_action, name="shipment_bulk_action"),
+    path("shipments/<int:pk>/", mv.ManagerShipmentDetailView.as_view(), name="shipment_detail"),
+    path("shipments/<int:pk>/assign/", mv.shipment_assign, name="shipment_assign"),
+    path("shipments/<int:pk>/reassign/", mv.shipment_assign, name="shipment_reassign"),
+    path("shipments/<int:pk>/status/", mv.shipment_update_status, name="shipment_update_status"),
+]
+manager_pages = build(M, [r for r in manager_rows if r[1] not in MANAGER_REAL_VIEWS])
+
+manager_urls = (manager_real + manager_pages + [
     path("payments/", RedirectView.as_view(pattern_name="manager:dashboard"), name="payments"),
     path("profile/", v.ProfileView.as_view(), name="profile"),
     path("settings/password/", v.PasswordChangePage.as_view(), name="password_change"),

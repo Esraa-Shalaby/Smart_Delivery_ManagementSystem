@@ -4500,3 +4500,75 @@ input[type="date"] {
         font-size: 15px;
     }
 }
+/* ============================================================
+   Create Shipment / Create Complaint layout
+   ============================================================ */
+
+.create-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: var(--sp-5);
+    align-items: start;
+}
+.create-grid > .dash-card {
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* الفورم: padding ومسافات بين الأقسام */
+.create-form {
+    display: flex;
+    flex-direction: column;
+    padding: var(--sp-5) var(--sp-6) var(--sp-6);
+}
+.create-form .form-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    min-width: 0;
+}
+.create-form .form-section .form-grid-2 {
+    width: 100%;
+}
+.create-form .form-section-title {
+    margin-bottom: 0;
+}
+.create-form .form-input,
+.create-form .form-select,
+.create-form .form-textarea {
+    width: 100%;
+}
+
+/* العمود الجانبي */
+.create-side {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-5);
+    min-width: 0;
+}
+.create-side .dash-card {
+    overflow: hidden;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+    .create-grid {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 640px) {
+    .create-form {
+        padding: var(--sp-4);
+    }
+    .create-form .form-grid-2 {
+        grid-template-columns: 1fr;
+    }
+    .create-form .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+    .create-form .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
