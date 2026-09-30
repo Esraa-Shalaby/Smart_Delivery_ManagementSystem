@@ -43,19 +43,20 @@ accounts_urls = ([
     path("logout/", v.logout_view, name="logout"),
     path("register/", v.RegisterView.as_view(), name="register"),
     path("password-reset/", v.PasswordResetPage.as_view(), name="password_reset"),
-    path("password-change/", action_stub, name="password_change"),
-    path("profile/", profile_view, name="profile"),
+    path("password-change/", v.PasswordChangePage.as_view(), name="password_change"),
+    path("profile/", v.ProfileView.as_view(), name="profile"),
 ], "accounts")
 
 # ---------------- customer ----------------
-customer_urls = (build(C, [
-    ("dashboard/", "dashboard", "customer/dashboard.html"),
-    ("shipments/", "shipments", "customer/shipments.html"),
-    ("shipments/new/", "new_shipment", "customer/create_shipment.html"),
+customer_urls = ([
+    path("dashboard/", v.CustomerDashboardView.as_view(), name="dashboard"),
+    path("shipments/", v.CustomerShipmentsView.as_view(), name="shipments"),
+    path("shipments/new/", v.NewShipmentView.as_view(), name="new_shipment"),
+    path("complaints/new/", v.NewComplaintView.as_view(), name="new_complaint"),
+] + build(C, [
     ("shipments/<int:pk>/", "shipment_detail", "customer/shipments.html"),
     ("tracking/", "track", "customer/tracking.html"),
     ("complaints/", "complaints", "customer/complaints.html"),
-    ("complaints/new/", "new_complaint", "customer/create_complaint.html"),
     ("complaints/<int:pk>/", "complaint_detail", "customer/complaints.html"),
     ("payments/", "payments", "customer/payments.html"),
 ]), "customer")
@@ -70,7 +71,7 @@ driver_urls = (build(D, [
     ("availability/", "availability", "driver/availability.html"),
     ("location/", "location", "driver/location.html"),
     ("history/", "history", "driver/history.html"),
-]) + [path("profile/", profile_view, name="profile")], "driver")
+]) + [path("profile/", v.ProfileView.as_view(), name="profile")], "driver")
 
 # ---------------- manager ----------------
 manager_rows = (
@@ -106,15 +107,15 @@ manager_rows = (
         ("notifications/<int:pk>/read/", "notification_mark_read", None),
         ("notifications/<int:pk>/unread/", "notification_mark_unread", None),
         ("notifications/<int:pk>/delete/", "notification_delete", None),
-        ("profile/", "profile", "manager/profile.html"),
         ("settings/", "settings", "manager/setting.html"),
-        ("settings/password/", "password_change", None),
         ("settings/sessions/revoke/", "sessions_revoke", None),
         ("settings/two-factor/", "two_factor", None),
     ]
 )
 manager_urls = (build(M, manager_rows) + [
     path("payments/", RedirectView.as_view(pattern_name="manager:dashboard"), name="payments"),
+    path("profile/", v.ProfileView.as_view(), name="profile"),
+    path("settings/password/", v.PasswordChangePage.as_view(), name="password_change"),
 ], "manager")
 
 # ---------------- notifications ----------------

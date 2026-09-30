@@ -217,7 +217,7 @@ Dashboard — Smart Delivery &amp; Logistics
                     <ol class="tracking-steps" role="list">
                         {% with s=active_shipment.status|default:'created'|lower %}
                         <li
-                            class="tracking-step {% if s == 'created' %}is-current{% elif s == 'assigned' or s == 'picked_up' or s == 'in_transit' or s == 'out_for_delivery' or s == 'delivered' %}is-done{% endif %}">
+                            class="tracking-step {% if s == 'created' or s == 'pending' %}is-current{% elif s == 'assigned' or s == 'picked_up' or s == 'in_transit' or s == 'out_for_delivery' or s == 'delivered' %}is-done{% endif %}">
                             <span class="tracking-dot"></span>
                             <span class="tracking-step-label">Created</span>
                         </li>

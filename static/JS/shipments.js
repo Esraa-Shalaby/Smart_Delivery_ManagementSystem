@@ -204,7 +204,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         setupDebouncedSearch();
         setupAutoSubmitSelects();
-        setupSubmitLoading();
+        // setupSubmitLoading();
         setupAcceptDelivery();
         setupStatusTransition();
         setupClientValidationHint();

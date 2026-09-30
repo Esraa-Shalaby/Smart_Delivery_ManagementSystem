@@ -5,6 +5,9 @@
 (function () {
     'use strict';
 
+    if (window.__dashboardJsLoaded) return;
+    window.__dashboardJsLoaded = true;
+
     /* ============================= LOADING STATE ============================= */
     function setupLoadingState() {
         // أي form فيه زر [data-*-submit] أو زر [data-loading-label]
