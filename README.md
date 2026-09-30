@@ -55,41 +55,68 @@ Delivera is a comprehensive logistics management system that streamlines shipmen
 
 ### 1. Clone the repository
 
- 
+```bash
 git clone <YOUR_GITHUB_REPOSITORY_URL>
 cd Delivera
-2. Create and activate a virtual environment
-bash
+```
+
+### 2. Create and activate a virtual environment
+
+```bash
 python -m venv .venv
-Windows:
+```
 
- 
+**Windows:**
+
+```bash
 .venv\Scripts\activate
-Git Bash:
+```
 
- 
+**Git Bash:**
+
+```bash
 source .venv/Scripts/activate
-3. Install dependencies
- 
+```
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
-4. Create a .env file
-env
+```
+
+### 4. Create a `.env` file
+
+```env
 DB_NAME=smart_delivery_db
 DB_USER=postgres
 DB_PASSWORD=YOUR_POSTGRES_PASSWORD
 DB_HOST=localhost
 DB_PORT=5432
-5. Run migrations
-bash
+```
+
+### 5. Run migrations
+
+```bash
 python manage.py migrate
-6. Run the development server
-bash
+```
+
+### 6. Run the development server
+
+```bash
 python manage.py runserver
-7. Access the project
-text
+```
+
+### 7. Access the project
+
+```
 http://127.0.0.1:8000/
-📁 Project Structure
-text
+```
+
+---
+
+## 📁 Project Structure
+
+```
 Delivera/
 ├── apps/
 ├── config/
@@ -100,11 +127,17 @@ Delivera/
 ├── .env
 ├── .gitignore
 └── README.md
-🤖 AI Assistant Overview
-The AI Assistant is available to all roles, but each role can only perform actions allowed by its permissions. The AI Agent never accesses the database directly.
+```
 
-AI Flow
-text
+---
+
+## 🤖 AI Assistant Overview
+
+The AI Assistant is available to all roles, but each role can only perform actions allowed by its permissions. The AI Agent **never** accesses the database directly.
+
+### AI Flow
+
+```
 User
   ↓
 AI Agent
@@ -122,5 +155,10 @@ Service Layer
 Database
   ↓
 Audit / AI Action Log
-📌 Tagline
-Delivera — Smart Delivery. Smarter Logistics.
+```
+
+---
+
+## 📌 Tagline
+
+**Delivera — Smart Delivery. Smarter Logistics.**
